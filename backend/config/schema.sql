@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`users` (
   `userid` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `username` VARCHAR(45) NOT NULL UNIQUE,
-  `password` VARCHAR(45) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NOT NULL,
   `email` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`userid`));
 
