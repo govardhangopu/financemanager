@@ -7,13 +7,16 @@ export const create = async (userid, amount, categoryid, is_partial, datetime) =
     return rows;
 }
 
-export const fetchTransactions = async (userid) => {
+export const fetchTransactions = async (userid, is_partial = null) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`SELECT * FROM transactions WHERE userid = ?`, [userid]);
+    const values = [userid];
+    const [rows] = await pool.query(`
+        SELECT * FROM transactions WHERE userid = ? ${is_partial ? "and is_partial = ?" : ""}`, 
+        values);
     return rows;
 }
 
-export const updateRow = async (transactionid, amount, categoryid, is_partial, date) => {
+export const updateRow = async (userid, transactionid, amount, categoryid, is_partial, date) => {
     const pool = connectDB();
     const fields = [], values = [];
 
@@ -25,17 +28,18 @@ export const updateRow = async (transactionid, amount, categoryid, is_partial, d
     const sql = `
     UPDATE transactions SET 
     ${fields.join(", ")} 
-    WHERE transactionid = ?
+    WHERE transactionid = ? 
+    AND userid = ?
     `;
 
-    values.push(transactionid);
+    values.push(transactionid, userid);
 
     const [rows] = await pool.query(sql, values);
     return rows;
 }
 
-export const deleteRow = async (transactionid) => {
+export const deleteRow = async (userid, transactionid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`DELETE FROM transactions WHERE transactionid = ?`, [transactionid]);
+    const [rows] = await pool.query(`DELETE FROM transactions WHERE transactionid = ? AND userid = ?`, [transactionid, userid]);
     return rows;
 }

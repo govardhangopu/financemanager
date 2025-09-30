@@ -12,7 +12,7 @@ export const addTransaction = async (req, res , next) => {
 
 export const getTransactions = async (req, res, next) => {
     try {
-        const transactions = await transactionService.getAllTransactions(req.user.id);
+        const transactions = await transactionService.getAllTransactions(req.user.id, req.body.is_partial);
         res.json(transactions);
     } catch (err) {
         next(err);
@@ -21,8 +21,9 @@ export const getTransactions = async (req, res, next) => {
 
 export const updateTransaction = async (req, res, next) => {
     try {
+        const userid = req.user.id;
         const { transactionid, amount, categoryid, is_partial, date } = req.body;
-        const response = await transactionService.update({ transactionid, amount, categoryid, is_partial, date });
+        const response = await transactionService.update({ userid, transactionid, amount, categoryid, is_partial, date });
         res.json(response);
     } catch (err) {
         next(err);
@@ -32,7 +33,8 @@ export const updateTransaction = async (req, res, next) => {
 export const deleteTransaction = async (req, res, next) => {
     try {
         const transactionid = req.params.id;
-        const response = await transactionService.deleteTransaction(transactionid);
+        const userid = req.user.id;
+        const response = await transactionService.deleteTransaction(userid, transactionid);
         res.json(response);
     } catch (err) {
         next(err);

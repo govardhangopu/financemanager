@@ -20,6 +20,7 @@ export const loginService = async ({ username, password }) => {
     const user = await findUser({ username });
     if (!user[0]) throw new Error("Username not found.");
 
+    const { name, email } = user[0];
     const passwordMatch = await bcrypt.compare(password, user[0].password);
     if (!passwordMatch) throw new Error("Incorrect password.");
     const token = jwt.sign(
@@ -27,5 +28,5 @@ export const loginService = async ({ username, password }) => {
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
     );
-    return token;
+    return { token, user: { username, email, name } };
 }
