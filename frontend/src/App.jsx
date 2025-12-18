@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Login from "./components/Login"
-import SignUp from "./components/SignUp"
-import Dashboard from "./components/Dashboard"
-import ProtectedRoute from "./components/ProtectedRoute"
+import Navbar from "./components/Navbar"
+import Index from "./pages/Index"
+import Login from "./pages/Login"
+import SignUp from "./pages/SignUp"
+import Dashboard from "./pages/Dashboard"
+import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -14,7 +16,9 @@ function App() {
   return (
     <>
       <Router>
+        <Navbar />
         <Routes>
+          <Route path="/" element={<Index />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
 

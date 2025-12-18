@@ -20,6 +20,15 @@ export const AuthProvider = ({ children }) => {
     );
 }
 
+/**
+ * Makes the current user's context available in the page.
+ * @example
+ * import { useAuth }  from "../context/AuthContext";
+ * 
+ * const Page = () => {
+    const { user } = useAuth(); 
+}
+ */
 export const useAuth = () => {
     return useContext(AuthContext);
 };

@@ -27,18 +27,20 @@ const Login = () => {
     };
 
     return (
-        <div>
-            <h1>Login</h1>
-            <label htmlFor="username">Enter Username: </label>
-            <input type="text" name="username" id="username" 
-                onChange={(e) => setUsername(e.target.value)} required />
-            <br />
-            <label htmlFor="password">Enter Password: </label>
-            <input type="password" name="password" id="password" 
-                onChange={(e) => setPassword(e.target.value)} required />
-            <br />
-            <input type="submit" value="Login" onClick={handleLogin} />
-        </div>
+        <main>
+            <div>
+                <h1>Login</h1>
+                <label htmlFor="username">Enter Username: </label>
+                <input type="text" name="username" id="username" 
+                    onChange={(e) => setUsername(e.target.value)} required />
+                <br />
+                <label htmlFor="password">Enter Password: </label>
+                <input type="password" name="password" id="password" 
+                    onChange={(e) => setPassword(e.target.value)} required />
+                <br />
+                <input type="submit" value="Login" onClick={handleLogin} />
+            </div>
+        </main>
     );
 }
 
