@@ -7,7 +7,7 @@ export const addTransaction = async ({ userid, amount, categoryid, is_partial, d
 }
 
 export const getAllTransactions = async (userid, is_partial) => {
-    const transactions = await repo.fetchTransactions(userid, is_partial);
+    const transactions = await repo.fetchTransactions(userid, is_partial !== "null"  ? is_partial : null);
     return transactions;
 }
 

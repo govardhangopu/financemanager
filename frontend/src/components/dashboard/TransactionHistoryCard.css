@@ -1,0 +1,19 @@
+#layout {
+    padding-top: 10px;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+#transactions {
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 11px;
+    text-transform: capitalize;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+td {
+    border-bottom: 1px solid black;
+    padding-block: 15px;
+}

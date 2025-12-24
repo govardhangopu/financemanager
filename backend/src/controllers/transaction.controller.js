@@ -12,7 +12,7 @@ export const addTransaction = async (req, res , next) => {
 
 export const getTransactions = async (req, res, next) => {
     try {
-        const transactions = await transactionService.getAllTransactions(req.user.id, req.body.is_partial);
+        const transactions = await transactionService.getAllTransactions(req.user.id, req.query.is_partial);
         res.json(transactions);
     } catch (err) {
         next(err);
