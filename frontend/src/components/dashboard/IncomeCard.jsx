@@ -1,20 +1,29 @@
 import { useState }from "react";
 import { useFinance } from "../../context/FinanceContext";
-import { dateFilter } from "../../utils/dateFilter.js";
+import { prepareTransactionsForRange } from "../../utils/prepareTransactionsForRange.js";
+import { buildCumulativeSeries } from "../../utils/buildCumulativeSeries.js";
+import { GenericChart } from "./GenericChart.jsx";
 import "./IncomeCard.css";
 
 export default function IncomeCard() {
     const [range, setRange] = useState("all");
     let { totalIncome, transactions } = useFinance();
 
-    let selectedTransactions = dateFilter(range, transactions);
-    
-    totalIncome = selectedTransactions.reduce((sum, t) => {
+    const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
+
+    totalIncome = transactions.reduce((sum, t) => {
         if (t.type === "income")
             return sum + parseFloat(t.amount);
         else return sum;
     }, 0.0);
-    console.log(totalIncome)
+    //console.log(totalIncome)
+
+    const values = buildCumulativeSeries(dateMap, labels, (sum, transaction) => {
+        if (transaction.type === "income")
+            return sum + parseFloat(transaction.amount);
+        else return sum;
+    })
+    const dataset = [{ label: "Income", data: values, borderColor: "#1a8b04ff", backgroundColor: "#1a8b04ff" }];
 
     return (
         <div>
@@ -27,6 +36,7 @@ export default function IncomeCard() {
                     <option value="year">This year</option>
                     <option value="all">All-time</option>
             </select>
+            <GenericChart labels={labels} datasets={dataset} />
         </div>
     )
 }

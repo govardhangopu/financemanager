@@ -13,7 +13,7 @@
     border-collapse: collapse;
 }
 
-td {
+tbody td {
     border-bottom: 1px solid black;
     padding-block: 15px;
 }

@@ -1,20 +1,29 @@
 import { useState } from "react";
 import { useFinance } from "../../context/FinanceContext";
-import { dateFilter } from "../../utils/dateFilter.js";
+import { prepareTransactionsForRange } from "../../utils/prepareTransactionsForRange.js";
+import { buildCumulativeSeries } from "../../utils/buildCumulativeSeries.js";
+import { GenericChart } from "./GenericChart.jsx";
 import "./ExpenseCard.css";
 
 export default function ExpenseCard() {
     const [range, setRange] = useState("all");
     let { totalExpense, transactions } = useFinance();
 
-    let selectedTransactions = dateFilter(range, transactions);
-    
-    totalExpense = selectedTransactions.reduce((sum, t) => {
+    const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
+
+    totalExpense = transactions.reduce((sum, t) => {
         if (t.type === "expense")
             return sum + parseFloat(t.amount);
         else return sum;
     }, 0.0);
-    console.log(totalExpense)
+    //console.log(totalExpense)
+
+    const values = buildCumulativeSeries(dateMap, labels, (sum, transaction) => {
+        if (transaction.type === "expense")
+            return sum + parseFloat(transaction.amount);
+        else return sum;
+    })
+    const dataset = [{ label: "Expense", data: values, borderColor: "#c41c1cff", backgroundColor: "#c41c1cff" }];
 
     return (
         <div>
@@ -27,6 +36,7 @@ export default function ExpenseCard() {
                     <option value="year">This year</option>
                     <option value="all">All-time</option>
             </select>
+            <GenericChart labels={labels} datasets={dataset} />
         </div>
     )
 }

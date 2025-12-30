@@ -25,11 +25,15 @@ export default function TransactionHistoryCard() {
                     selectedTransactions.length > 0 ?
                     <table id="transactions">
                         <thead>
-                            <th>Category</th>
-                            <th>Amount</th>
-                            <th>Type</th>
-                            <th>Date</th>
+                            <tr>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                            
                         </thead>
+                        <tbody>
                         {
                             selectedTransactions.map(t => ( 
                             <tr key={t.transactionid}>
@@ -46,6 +50,7 @@ export default function TransactionHistoryCard() {
                             </tr>
                             ))
                         }
+                        </tbody>
                     </table>
                     : "No transactions available."
                 }
