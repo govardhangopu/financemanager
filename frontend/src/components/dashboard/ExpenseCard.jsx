@@ -28,7 +28,7 @@ export default function ExpenseCard() {
     return (
         <div>
             <p>Expenses</p>
-            <p className="expense">$ {totalExpense}</p>
+            <p className="totalExpense">$ {totalExpense}</p>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>

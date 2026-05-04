@@ -1,13 +1,58 @@
 import { useState }from "react";
 import { useFinance } from "../../context/FinanceContext";
-import { dateFilter } from "../../utils/dateFilter.js";
 import "./TransactionHistoryCard.css";
 
 export default function TransactionHistoryCard() {
     const [range, setRange] = useState("all");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [sortBy, setSortBy] = useState("date");
     const { transactions } = useFinance();
 
-    const selectedTransactions = dateFilter(range, transactions);
+    const today = new Date();
+    const curYear = today.getFullYear();
+    const curMonth = today.getMonth();
+    let selectedTransactions = transactions;
+
+    if (range === "all") {
+        selectedTransactions = transactions;
+    } else {
+        let date;
+
+        if (range === "today")
+            date = new Date(curYear, curMonth, today.getDate(), 0, 0, 0);
+        else if (range === "month") 
+            date = new Date(curYear, curMonth, 1);
+        else if (range === "year")
+            date = new Date(curYear, 0, 1);
+
+        //console.log(date);
+        selectedTransactions = transactions.filter(t => {
+            const tdate = new Date(t.date);
+            return tdate >= date;
+        });
+    }
+    //console.log(selectedTransactions);
+
+    function toggleSort(sortOnColumn) {
+        if (sortOnColumn === sortBy)
+            setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+        else {
+            setSortBy(sortOnColumn);
+            setSortOrder("desc");
+        }
+            
+    }
+    const sortedTransactions = [...selectedTransactions].sort((a, b) => {
+        let compareValue = 0;
+
+        if (sortBy === "date") {
+            compareValue = new Date(a.date) - new Date(b.date);
+        } else if (sortBy === "amount") {
+            compareValue = a.amount - b.amount;
+        }
+
+        return sortOrder === "asc" ? compareValue : -compareValue;
+    });
 
     return (
         <div>
@@ -27,19 +72,25 @@ export default function TransactionHistoryCard() {
                         <thead>
                             <tr>
                                 <th>Category</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Date</th>
+                                <th>
+                                    <button type="button" onClick={e => toggleSort("amount")}>
+                                        Amount {sortBy === "amount" && (sortOrder === "desc" ? "▼" : "▲")}
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" onClick={e => toggleSort("date")}>
+                                        Date {sortBy === "date" && (sortOrder === "desc" ? "▼" : "▲")}
+                                    </button>
+                                </th>
                             </tr>
                             
                         </thead>
                         <tbody>
                         {
-                            selectedTransactions.map(t => ( 
+                            sortedTransactions.map(t => ( 
                             <tr key={t.transactionid}>
                                 <td>{t.category_name}</td>
-                                <td>{t.type}</td>
-                                <td>
+                                <td className={t.type}>
                                     {
                                         t.type === "income" 
                                         ? "+$" + t.amount

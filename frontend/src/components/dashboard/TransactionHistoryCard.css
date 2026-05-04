@@ -7,13 +7,30 @@
 #transactions {
     box-sizing: border-box;
     width: 100%;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: capitalize;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
 tbody td {
     border-bottom: 1px solid black;
     padding-block: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.income {
+    color: green;
+}
+
+.expense {
+    color: red;
 }
