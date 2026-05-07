@@ -10,6 +10,10 @@ export const FinanceProvider = ({ children }) => {
     const [budgets, setBudgets] = useState([]);
 
     useEffect(() => {
+        refreshTransactions();
+    }, [token]);
+
+    function refreshTransactions() {
         if (!token) return;
         getTransactions()
             .then(data => {
@@ -17,9 +21,7 @@ export const FinanceProvider = ({ children }) => {
                 setTransactions(data);
             })
             .catch(err => console.error(err));
-    }, [token]);
-
-    
+    }
 
     const incomes = transactions.filter((record) => record.type === "income");
     const expenses = transactions.filter(record => record.type === "expense");
@@ -31,7 +33,7 @@ export const FinanceProvider = ({ children }) => {
     return (
         <FinanceContext.Provider 
             value={
-                { transactions, incomes, expenses, budgets, netWorth, totalIncome, totalExpense }
+                { transactions, incomes, expenses, budgets, netWorth, totalIncome, totalExpense, refreshTransactions }
                 }>
             {children}
         </FinanceContext.Provider>
@@ -44,7 +46,7 @@ export const FinanceProvider = ({ children }) => {
  * import { useFinance }  from "../context/FinanceContext";
  * 
  * const Page = () => {
-    const { transactions, incomes, expenses, budgets } = useFinance(); 
+    const { transactions, incomes, expenses, budgets, refreshTransactions } = useFinance(); 
 }
  */
 export const useFinance = () => {

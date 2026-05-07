@@ -5,6 +5,7 @@ import Index from "./pages/Index"
 import Login from "./pages/Login"
 import SignUp from "./pages/SignUp"
 import Dashboard from "./pages/Dashboard"
+import AddTransaction from "./pages/AddTransaction"
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         </Routes>
       </Router>
 
