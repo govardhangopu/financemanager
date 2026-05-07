@@ -7,7 +7,7 @@
 #transactions {
     box-sizing: border-box;
     width: 100%;
-    font-size: 12px;
+    font-size: 0.58rem;
     text-transform: capitalize;
     table-layout: fixed;
     border-collapse: collapse;
@@ -25,6 +25,12 @@ tbody td {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+}
+
+#delbutton {
+    background-color: red;
+    color: white;
+
 }
 
 .income {

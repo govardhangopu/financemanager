@@ -48,6 +48,6 @@ export async function updateTransaction(data) {
 }
 
 export async function deleteTransaction(id) {
-    const res = await api.delete('/:id');
+    const res = await api.delete(`/${id}`);
     return res.data;
 }

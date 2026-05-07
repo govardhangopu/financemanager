@@ -1,12 +1,13 @@
 import { useState }from "react";
-import { useFinance } from "../../context/FinanceContext";
 import "./TransactionHistoryCard.css";
+import { useFinance } from "../../context/FinanceContext";
+import { deleteTransaction } from "../../api/transactionApi";
 
 export default function TransactionHistoryCard() {
     const [range, setRange] = useState("all");
     const [sortOrder, setSortOrder] = useState("desc");
     const [sortBy, setSortBy] = useState("date");
-    const { transactions } = useFinance();
+    const { transactions, refreshTransactions } = useFinance();
 
     const today = new Date();
     const curYear = today.getFullYear();
@@ -54,6 +55,19 @@ export default function TransactionHistoryCard() {
         return sortOrder === "asc" ? compareValue : -compareValue;
     });
 
+    const deleteTrans = (e, t) => {
+        e.preventDefault();
+        if(!confirm(`Do you want to delete Transaction ID: ${t.transactionid} Amount: ${t.amount}?`)) return;
+        deleteTransaction(t.transactionid)
+            .then(res => {
+                console.log("Transaction deleted successfully.");
+                refreshTransactions();
+            })
+            .catch(err => {
+                    console.error("Error deleting transaction:", err);
+            });
+    } 
+
     return (
         <div>
             Transaction History
@@ -82,6 +96,7 @@ export default function TransactionHistoryCard() {
                                         Date {sortBy === "date" && (sortOrder === "desc" ? "▼" : "▲")}
                                     </button>
                                 </th>
+                                <th>Delete</th>
                             </tr>
                             
                         </thead>
@@ -98,6 +113,7 @@ export default function TransactionHistoryCard() {
                                     }
                                 </td>
                                 <td>{new Date(t.date).toLocaleString()}</td>
+                                <td><button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>Delete</button></td>
                             </tr>
                             ))
                         }
