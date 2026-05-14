@@ -12,11 +12,11 @@ export default function Navbar() {
             <div>Finance Manager</div>
             <nav>
                 <ul className={isOpen ? "nav-links open" : "nav-links"} >
-                    {token && <li><NavLink to="/dashboard">Home</NavLink></li>}
+                    {token && <li><NavLink to="/dashboard">Dashboard</NavLink></li>}
                     {!token && <li><NavLink to="/login">Login</NavLink></li>}
                     {!token && <li><NavLink to="/signup">Sign Up</NavLink></li>}
                     {token && <li><NavLink to="/addtransaction">Add Transaction</NavLink></li>}
-                    {token && <li><button onClick={logout}>Log Out</button></li>}
+                    {token && <li><NavLink to="/login" onClick={logout}>Log Out</NavLink></li>}
                 </ul>
             </nav>
             <button className="hamburger" onClick={() => setOpen(!isOpen)}> ☰ </button>

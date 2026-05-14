@@ -4,8 +4,8 @@ import { addTransaction } from "../api/transactionApi";
 import { useFinance } from "../context/FinanceContext";
 
 export default function AddTransaction() {
-    const { refreshTransactions } = useFinance();
-    const [amount, setAmount] = useState();
+    const { categories, refreshTransactions, refreshCategories } = useFinance();
+    const [amount, setAmount] = useState("");
     const [transactionType, setTransactionType] = useState("income");
     const [transactionDate, setTransactionDate] = useState("");
     const [transactionCategory, setTransactionCategory] = useState("");
@@ -21,21 +21,21 @@ export default function AddTransaction() {
         else 
             setErrors(prev => ({ ...prev, amount: "" }));
 
+        if (!transactionCategory) 
+            return setErrors(prev => ({ ...prev, category: "Please select a category for the transaction." }));
+        else
+            setErrors(prev => ({ ...prev, category: "" }));
+
         if (!transactionDate)
             return setErrors(prev => ({ ...prev, date: "Please select a date for the transaction." }));
         else
             setErrors(prev => ({ ...prev, date: "" }));
 
-        if (!transactionCategory) 
-            /*return*/ setErrors(prev => ({ ...prev, category: "Please select a category for the transaction." }));
-        else
-            setErrors(prev => ({ ...prev, category: "" }));
-
         const transaction = {
             amount: parseFloat(amount),
             type: transactionType,
             date: transactionDate,
-            categoryid: 1,
+            categoryid: transactionCategory,
             is_partial: 0
         };
         console.log(`Adding transaction: ${JSON.stringify(transaction)}`);
@@ -77,6 +77,10 @@ export default function AddTransaction() {
                     <div className="field">
                         <label htmlFor="category">Choose category:</label>
                         <select id="category" value={transactionCategory} onChange={(e) => setTransactionCategory(e.target.value)}>
+                            <option value="">-- Select Category --</option>
+                            {categories.map(cat => (
+                                <option key={cat.categoryid} value={cat.categoryid}>{cat.name}</option>
+                            ))}
                         </select>
                         <div className="errmsg">{errors.category}</div>
                     </div>

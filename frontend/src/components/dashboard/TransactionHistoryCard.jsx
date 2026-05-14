@@ -1,9 +1,11 @@
-import { useState }from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./TransactionHistoryCard.css";
 import { useFinance } from "../../context/FinanceContext";
 import { deleteTransaction } from "../../api/transactionApi";
 
 export default function TransactionHistoryCard() {
+    const navigate = useNavigate()
     const [range, setRange] = useState("all");
     const [sortOrder, setSortOrder] = useState("desc");
     const [sortBy, setSortBy] = useState("date");
@@ -66,7 +68,7 @@ export default function TransactionHistoryCard() {
             .catch(err => {
                     console.error("Error deleting transaction:", err);
             });
-    } 
+    }
 
     return (
         <div>
@@ -96,7 +98,7 @@ export default function TransactionHistoryCard() {
                                         Date {sortBy === "date" && (sortOrder === "desc" ? "▼" : "▲")}
                                     </button>
                                 </th>
-                                <th>Delete</th>
+                                <th>Actions</th>
                             </tr>
                             
                         </thead>
@@ -113,7 +115,10 @@ export default function TransactionHistoryCard() {
                                     }
                                 </td>
                                 <td>{new Date(t.date).toLocaleString()}</td>
-                                <td><button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>Delete</button></td>
+                                <td>
+                                    <button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>🗑️</button>
+                                    <button id="editbutton" type="button" onClick={() => navigate(`/edittransaction/${t.transactionid}`)}>✏️</button>
+                                </td>
                             </tr>
                             ))
                         }

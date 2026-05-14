@@ -2,7 +2,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: `${baseURL}/transactions`,
+    baseURL: `${baseURL}/categories`,
 });
 
 api.interceptors.request.use((config) => {
@@ -28,7 +28,7 @@ api.interceptors.response.use(
     }
 );
 
-export async function getTransactions(is_partial = null) {
+export async function getCategories(is_partial = null) {
     const res = await api.get("/", {
         params: {
             is_partial,
@@ -37,17 +37,17 @@ export async function getTransactions(is_partial = null) {
     return res.data;
 };
 
-export async function addTransaction(data) {
+export async function addCategory(data) {
     const res = await api.post('/', data);
     return res.data;
 }
 
-export async function updateTransaction(data) {
+export async function updateCategory(data) {
     const res = await api.put('/', data);
     return res.data;
 }
 
-export async function deleteTransaction(id) {
+export async function deleteCategory(id) {
     const res = await api.delete(`/${id}`);
     return res.data;
 }

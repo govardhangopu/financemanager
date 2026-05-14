@@ -13,7 +13,7 @@ export const addCategory = async (req, res, next) => {
 
 export const getCategories = async (req, res, next) => {
     try {
-        const categories = await categoryService.fetchCategories(req.user.id, req.body.is_partial);
+        const categories = await categoryService.fetchCategories(req.user.id, req.query.is_partial);
         res.json(categories);
     } catch (err) {
         next(err);
