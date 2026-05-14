@@ -8,7 +8,8 @@ const app = express();
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://financemanager-dka2e9uij-govardhangopus-projects.vercel.app"
+        "https://financemanager-dka2e9uij-govardhangopus-projects.vercel.app",
+        "https://financemanager-opal.vercel.app"
     ],
     credentials: true
 }));
