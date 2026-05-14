@@ -1,6 +1,11 @@
 # Finance Manager
 
-A desktop application for managing personal and organizational finances. Track expenses, income, budgets, and generate financial reports with ease.
+A web application for managing personal and organizational finances. Track expenses, income, budgets, and view financial reports through a React frontend and Express API.
+
+## Repository structure
+
+- `backend/` — Express API server using MySQL
+- `frontend/` — React app built with Vite
 
 ## Features
 
@@ -9,23 +14,62 @@ A desktop application for managing personal and organizational finances. Track e
 - Simulate Budgets using Partial Budgeting Feature
 - Categorize expenses and income
 - Visualize financial data with charts
-- User authentication and data security
+- User authentication with JWT
 
 ## Installation
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/govardhangopu/financemanager.git
-    ```
-2. Install dependencies:
-    ```bash
-    cd finance-manager
-    npm install
-    ```
-3. Start the application:
-    ```bash
-    npm start
-    ```
+### Backend
+
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file in `backend/` with the following values:
+
+```env
+PORT=5000
+DB_HOST=
+DB_USER=
+DB_PASS=
+DB_NAME=
+JWT_SECRET=
+```
+
+Start the backend:
+
+```bash
+npm start
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env` file in `frontend/` with the backend URL:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Start the frontend for development:
+
+```bash
+npm run dev
+```
+
+## Running locally
+
+1. Start the backend in `backend/`.
+2. Start the frontend in `frontend/`.
+3. Open the local URL shown by Vite.
+
+## Database setup
+
+The backend uses MySQL. Run the schema file at `backend/config/schema.sql` against your MySQL server to create the required database and tables.
 
 ## Usage
 
