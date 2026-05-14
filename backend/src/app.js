@@ -6,8 +6,11 @@ import cors from "cors";
 
 const app = express();
 app.use(cors({
-    origin: "http://localhost:5173", // frontend URL
-    credentials: true // if you want cookies/auth headers
+    origin: [
+        "http://localhost:5173",
+        "https://financemanager-dka2e9uij-govardhangopus-projects.vercel.app"
+    ],
+    credentials: true
 }));
 app.use(express.json());
 
