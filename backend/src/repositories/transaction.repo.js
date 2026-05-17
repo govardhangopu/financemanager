@@ -13,8 +13,8 @@ export const fetchTransactions = async (userid, is_partial = null) => {
     if (is_partial) values.push(is_partial);
     const [rows] = await pool.query(`
         SELECT t.*, c.name as category_name, c.type, c.parent_categoryid 
-        FROM financemanager.transactions t 
-        join financemanager.categories c on t.categoryid = c.categoryid 
+        FROM transactions t 
+        join categories c on t.categoryid = c.categoryid 
         WHERE t.userid = ? ${is_partial ? "and is_partial = ?" : ""}`, 
         values);
     return rows;
