@@ -8,7 +8,7 @@ export const fetchUsers = async () => {
 
 export const findUser = async ({ username }) => {
     const pool = connectDB();
-    const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", username);
+    const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
     return rows;
 }
 

@@ -8,11 +8,11 @@ let pool;
 export const connectDB = () => {
     if (!pool) {
         pool = mysql.createPool({
-            host: process.env.MYSQLHOST || process.env.DB_HOST,
-            user: process.env.MYSQLUSER || process.env.DB_USER,
-            password: process.env.MYSQLPASSWORD || process.env.DB_PASS,
-            database: process.env.MYSQLDATABASE || process.env.DB_NAME,
-            port: Number(process.env.MYSQLPORT) || (process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306),
+            host: process.env.MYSQLHOST || "localhost",
+            user: process.env.MYSQLUSER || "root",
+            password: process.env.MYSQLPASSWORD || "12345678",
+            database: process.env.MYSQLDATABASE || "financemanager",
+            port: Number(process.env.MYSQLPORT || 3306),
             waitForConnections: true,
             connectionLimit: 10,
         });
