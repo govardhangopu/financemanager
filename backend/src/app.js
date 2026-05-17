@@ -6,11 +6,7 @@ import cors from "cors";
 
 const app = express();
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://financemanager-dka2e9uij-govardhangopus-projects.vercel.app",
-        "https://financemanager-opal.vercel.app"
-    ],
+    origin: true,
     credentials: true
 }));
 app.use(express.json());
@@ -21,7 +17,7 @@ app.use("/transactions", transactionRoutes);
 app.use('/categories', categoriesRoutes);
 
 // Health check
-app.get("/health", (req, res) => {
+app.get("/", (req, res) => {
     res.json({ status: "ok" });
 });
 
