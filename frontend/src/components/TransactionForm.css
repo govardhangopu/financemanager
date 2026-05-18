@@ -1,0 +1,74 @@
+.form-container {
+    width: min(100%, 520px);
+    overflow-y: auto;
+    margin: 2rem auto;
+    font-size: 1.1rem;
+    background-color: #061541;
+    border: 1px solid black;
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+h2 { 
+    margin-bottom: 2rem;
+}
+
+#form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.field {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.field label {
+    justify-self: end;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    min-width: 0;
+}
+
+#form button {
+    grid-column: span 2 / span 2;
+    margin-inline: 20%;
+    padding: 0.9rem 1rem;
+}
+
+.errmsg {
+    grid-column: span 2 / span 2;
+    color: red;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        width: min(100%, calc(100% - 2rem));
+        padding: 1.25rem;
+    }
+
+    .field {
+        grid-template-columns: 1fr;
+    }
+
+    .field label {
+        justify-self: stretch;
+    }
+
+    #form button {
+        grid-column: auto;
+        width: 100%;
+        margin: 0;
+    }
+
+    .errmsg {
+        grid-column: auto;
+    }
+}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFinance } from "../context/FinanceContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateTransaction } from "../api/transactionApi.js";
-import "../styles/EditTransaction.css";
+import TransactionForm from "../components/TransactionForm";
 
 export default function EditTransaction() {
     const { id } = useParams();
@@ -50,6 +50,7 @@ export default function EditTransaction() {
             {transactionLoading ? (
                 <div>Loading...</div>
             ) : (
+                /* 
                 <div>
                     <h2>Edit Transaction</h2>
                     <form id="form" onSubmit={handleSubmit}>
@@ -72,7 +73,13 @@ export default function EditTransaction() {
                         <input type="checkbox" checked={isPartial} onChange={e => setIsPartial(e.target.checked ? 1 : 0)} />
                         <button type="submit">Update Transaction</button>
                     </form>
-                </div>
+                </div> */
+
+                <TransactionForm
+                    initialValues={{ amount, date, categoryid: category, is_partial: isPartial }}
+                    onSubmit={handleSubmit}
+                    submitLabel="Update Transaction"
+                />
             )}
         </main>
     )
