@@ -19,6 +19,7 @@ export default function AddTransaction() {
         })
         .catch(err => {
             console.error("Error adding transaction:", err);
+            alert("Failed to add transaction. Please try again.");
         });
 
     };
@@ -60,6 +61,7 @@ export default function AddTransaction() {
                 initialValues={null}
                 onSubmit={handleAdd}
                 submitLabel="Add Transaction"
+                mode="real" //user is creating a real transaction, not partial
             />
         </main>
     )

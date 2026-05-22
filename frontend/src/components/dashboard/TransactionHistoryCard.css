@@ -43,6 +43,10 @@ tbody td {
     padding: 0.4rem;
 }
 
+#editbutton:hover {
+    border-color: #000000;
+}
+
 .income {
     color: green;
 }

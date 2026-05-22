@@ -11,7 +11,7 @@ export default function ExpenseCard() {
 
     const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
-    totalExpense = transactions.reduce((sum, t) => {
+    totalExpense = Object.values(dateMap).reduce((acc, curr) => acc.concat(curr), []).reduce((sum, t) => {
         if (t.type === "expense")
             return sum + parseFloat(t.amount);
         else return sum;

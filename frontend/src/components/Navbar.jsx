@@ -1,11 +1,16 @@
-import { NavLink, useNavigate as navigate } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./Navbar.css"
 import { useAuth } from "../context/AuthContext"
 
 export default function Navbar() {
     const [isOpen, setOpen] = useState(false);
+    const location = useLocation();
     const { token, logout } = useAuth();
+
+    useEffect(() => {
+        setOpen(false);
+    }, [location]);
 
     return (
         <div className="navbar">

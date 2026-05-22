@@ -11,7 +11,7 @@ export default function IncomeCard() {
 
     const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
-    totalIncome = transactions.reduce((sum, t) => {
+    totalIncome = Object.values(dateMap).reduce((acc, curr) => acc.concat(curr), []).reduce((sum, t) => {
         if (t.type === "income")
             return sum + parseFloat(t.amount);
         else return sum;

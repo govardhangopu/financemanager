@@ -29,14 +29,7 @@ main,
     grid-template-rows: repeat(4, 1fr);
     min-height: 80%;
     padding: 5px;
-}
-
-
-.parent {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 8px;
+    gap: 4px;
 }
 
 .net-worth {
@@ -85,7 +78,6 @@ section {
     background-color: #061541;
     border: 1px solid black;
     border-radius: 12px;
-    margin: 4px;
     padding: 15px;
     color: white;
 }
@@ -103,54 +95,62 @@ section div {
     right: 0;
     top: 0;
     padding-top: 5px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+#timerange:hover {
+    transform: scale(1.03);
 }
 
 @media (max-width: 1024px) {
     #dashboard {
-        grid-template-columns: repeat(8, 1fr);
-        grid-auto-rows: auto;
-        padding: 12px;
-    }
-
-    .net-worth,
-    .incomes,
-    .expenses,
-    .income-vs-expense,
-    .budgets {
-        grid-column: span 4;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
     }
 
     .transaction-history {
-        grid-column: span 8;
-        grid-row: auto;
+        grid-column: span 6 / span 6;
+        grid-column-start: auto;
+        grid-row-start: auto;
     }
 
-    section {
-        margin: 6px 0;
+    .net-worth, .incomes, .expenses, .income-vs-expense, .budgets {
+        grid-column: span 3 / span 3;
+        grid-row: span 2 / span 2;
+        grid-column-start: auto;
+        grid-row-start: auto;
+    }
+
+    .budgets {
+        grid-row-start: 3;
+        grid-column-start: 4;
+    }   
+
+    .income-vs-expense {
+        grid-column: span 6 / span 6;
+        grid-row-start: 5;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     #dashboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: auto;
+        grid-template-rows: auto;
     }
 
-    .net-worth,
-    .incomes,
-    .expenses,
-    .transaction-history,
-    .income-vs-expense,
+    .net-worth, .incomes, .expenses, .transaction-history, .income-vs-expense, .budgets {
+        grid-column: span 1 / span 1;
+        grid-row: span 1 / span 1;
+        grid-column-start: auto;
+        grid-row-start: auto;
+    }
+
     .budgets {
-        grid-column: auto;
+        grid-row-start: 4;
     }
 
-    section {
-        margin: 0.5rem 0;
-        padding: 1rem;
-    }
-
-    #header {
-        padding: 16px 12px;
-        font-size: 1rem;
+    .income-vs-expense {
+        grid-row-start: 5;
     }
 }

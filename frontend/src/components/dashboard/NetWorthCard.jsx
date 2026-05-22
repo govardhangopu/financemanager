@@ -11,7 +11,7 @@ export default function NetWorthCard()  {
 
     let { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
-    netWorth = transactions.reduce((sum, t) => {
+    netWorth = Object.values(dateMap).reduce((acc, curr) => acc.concat(curr), []).reduce((sum, t) => {
         if (t.type === "income")
             return sum + parseFloat(t.amount);
         else if (t.type === "expense")

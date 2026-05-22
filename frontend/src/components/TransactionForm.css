@@ -23,7 +23,7 @@ h2 {
     display: grid;
     grid-template-columns: 1fr 2fr;
     align-items: center;
-    gap: 1rem;
+    gap: 0rem 1rem;
 }
 
 .field label {
@@ -31,15 +31,58 @@ h2 {
 }
 
 .field input,
-.field select {
+.field select, .field select option {
     width: 100%;
     min-width: 0;
+    padding: 0.5rem;
 }
 
-#form button {
+#form button[type="submit"] {
     grid-column: span 2 / span 2;
     margin-inline: 20%;
     padding: 0.9rem 1rem;
+}
+
+.show-cat-form {
+    border-radius: 8px 8px 0px 0px;
+    border-bottom: none;
+    border-right: 2px solid #5f5f68;
+}
+
+#new_category_form {
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: #2b2a33;
+    padding: 1rem;
+    border-radius: 0px 0px 8px 8px;
+    grid-column-start: 2;
+    border: 2px solid #5f5f68;
+    border-top: none;
+    transition: all 0.4s ease;
+}
+
+#new_category_form.close {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+#new_category_form.open {
+    opacity: 1;
+    pointer-events: auto;
+    max-height: 250px;
+}
+
+#new_category_form span {
+    display: flex;
+    padding: 0.5rem 2rem 0.5rem 0;
+}
+
+.typeDisabled {
+    opacity: 0.5;
 }
 
 .errmsg {

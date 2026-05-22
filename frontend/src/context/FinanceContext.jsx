@@ -22,6 +22,7 @@ export const FinanceProvider = ({ children }) => {
         if (!token) return;
         getTransactions()
             .then(data => {
+                //console.log(data);
                 setTransactions(data);
                 setTransactionsLoading(false);
             })
@@ -32,7 +33,7 @@ export const FinanceProvider = ({ children }) => {
         if (!token) return;
         getCategories()
             .then(data => {
-                console.log(data);
+                //console.log(data);
                 setcategories(data);
                 setCategoriesLoading(false);
             })
