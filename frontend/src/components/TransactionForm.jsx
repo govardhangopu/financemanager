@@ -61,7 +61,7 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
 
     return (
         <div className="form-container">
-            mode = {mode}
+            (mode = {mode})
             <h2>{submitLabel}</h2>
             <form id="form" onSubmit={handleSubmit}>
                 <div className="field">

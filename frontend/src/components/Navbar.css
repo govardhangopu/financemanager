@@ -27,6 +27,7 @@
 
 .hamburger {
     display: none;
+    color: black;
 }
 
 .active {
@@ -73,8 +74,13 @@
         display: block;
         background: transparent;
         border: none;
-        color: white;
         font-size: 1.5rem;
         cursor: pointer;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .hamburger {
+        color: white;
     }
 }

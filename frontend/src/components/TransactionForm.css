@@ -38,7 +38,7 @@ h2 {
 }
 
 #form button[type="submit"] {
-    grid-column: span 2 / span 2;
+    align-self: center;
     margin-inline: 20%;
     padding: 0.9rem 1rem;
 }

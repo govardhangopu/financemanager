@@ -54,3 +54,9 @@ tbody td {
 .expense {
     color: red;
 }
+
+@media (max-width: 1024px) {
+    #transactions {
+        font-size: 0.9rem;    
+    }
+}
