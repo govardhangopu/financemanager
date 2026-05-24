@@ -2,6 +2,7 @@ import express from "express";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import categoriesRoutes from "./routes/category.routes.js";
+import budgetRoutes from "./routes/budget.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -18,9 +19,11 @@ app.use(express.json());
 app.use("/users", userRoutes);
 app.use("/transactions", transactionRoutes);
 app.use('/categories', categoriesRoutes);
+app.use('/budgets', budgetRoutes);
 
 // Health check
 app.get("/", (req, res) => {
+    console.log("Health check endpoint hit. ✅");
     res.json({ status: "ok" });
 });
 
