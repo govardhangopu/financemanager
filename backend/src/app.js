@@ -24,7 +24,7 @@ app.use('/budgets', budgetRoutes);
 // Health check
 app.get("/", (req, res) => {
     console.log("Health check endpoint hit. ✅");
-    res.json({ status: "ok" });
+    return res.status(200).json({ status: "ok" });
 });
 
 // Error handler
