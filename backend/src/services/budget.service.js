@@ -8,12 +8,12 @@ export const addBudget = async ({ userid, status, target_amount, name, descripti
 }
 
 export const addCategoryToBudget = async (budgetid, categoryid) => {
-    const attached = await repo.attachCategory(budgetid, categoryid);
+    const attached = await repo.attachCategoryToBudget(budgetid, categoryid);
     return attached;
 }
 
 export const addTransactionToBudget = async (budgetid, transactionid) => {
-    const attached = await repo.attachTransaction(budgetid, transactionid);
+    const attached = await repo.attachTransactionToBudget(budgetid, transactionid);
     return attached;
 }
 
@@ -50,17 +50,19 @@ export const getBudgetProgress = async (budgetid) => {
 
 // UPDATE
 export const update = async ({ userid, budgetid, status, target_amount, name, description, budget_type, start_date, end_date }) => {
-    if (!(budgetid && (status || name || budget_type || start_date))) throw new Error('No data to update.');
+    if (!(budgetid && 
+        (status || target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined))) 
+        throw new Error('No data to update.');
     const updated = await repo.updateRow(
         userid,
         budgetid,
         status,
-        target_amount || "",
+        target_amount ?? null,
         name,
-        description || "",
+        description ?? null,
         budget_type,
         start_date,
-        end_date || ""
+        end_date ?? null
     );
     return updated;
 }
@@ -72,11 +74,11 @@ export const deleteBudget = async (userid, budgetid) => {
 }
 
 export const removeCategoryFromBudget = async (budgetid, categoryid) => {
-    const detached = await repo.removeCategory(budgetid, categoryid);
+    const detached = await repo.detachCategoryFromBudget(budgetid, categoryid);
     return detached;
 }
 
 export const removeTransactionFromBudget = async (budgetid, transactionid) => {
-    const detached = await repo.removeTransaction(budgetid, transactionid);
+    const detached = await repo.detachTransactionFromBudget(budgetid, transactionid);
     return detached;
 }

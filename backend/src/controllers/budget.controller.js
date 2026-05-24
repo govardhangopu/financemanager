@@ -15,7 +15,7 @@ export const addBudget = async (req, res, next) => {
 
 export const addCategoryToBudget = async (req, res, next) => {
     try {
-        const { budgetid, categoryid } = req.body;
+        const { budgetid, categoryid } = req.params;
         const response = await budgetService.addCategoryToBudget(budgetid, categoryid);
         res.json(response);
     } catch (err) {
@@ -25,7 +25,7 @@ export const addCategoryToBudget = async (req, res, next) => {
 
 export const addTransactionToBudget = async (req, res, next) => {
     try {
-        const { budgetid, transactionid } = req.body;
+        const { budgetid, transactionid } = req.params;
         const response = await budgetService.addTransactionToBudget(budgetid, transactionid);
         res.json(response);
     } catch (err) {
@@ -110,7 +110,7 @@ export const deleteBudget = async (req, res, next) => {
 
 export const deleteCategoryFromBudget = async (req, res, next) => {
     try {
-        const { budgetid, categoryid } = req.body;
+        const { budgetid, categoryid } = req.params;
         const response = await budgetService.removeCategoryFromBudget(budgetid, categoryid);
         res.json(response);
     } catch (err) {
@@ -120,7 +120,7 @@ export const deleteCategoryFromBudget = async (req, res, next) => {
 
 export const deleteTransactionFromBudget = async (req, res, next) => {
     try {
-        const { budgetid, transactionid } = req.body;
+        const { budgetid, transactionid } = req.params;
         const response = await budgetService.removeTransactionFromBudget(budgetid, transactionid);
         res.json(response);
     } catch (err) {

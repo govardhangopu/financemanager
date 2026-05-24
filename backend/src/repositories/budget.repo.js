@@ -4,7 +4,7 @@ import { connectDB } from "../../config/db.js";
 export const create = async (userid, status, target_amount, name, description, budget_type, start_date, end_date) => {
     const pool = connectDB();
     const [rows] = await pool.query(`INSERT INTO budgets(userid, status, target_amount, name, description, budget_type, start_date, end_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [userid, status, target_amount, name, description, budget_type, start_date, end_date]);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [userid, status, target_amount, name, description, budget_type, start_date, end_date]);
     return rows;
 }
 
@@ -57,12 +57,12 @@ export const updateRow = async (userid, budgetid, status, target_amount, name, d
     const fields = [], values = [];
 
     if (status) fields.push("status = ?") && values.push(status);
-    if (target_amount) fields.push("target_amount = ?") && values.push(target_amount);
+    if (target_amount !== undefined) fields.push("target_amount = ?") && values.push(target_amount);
     if (name) fields.push("name = ?") && values.push(name);
-    if (description) fields.push("description = ?") && values.push(description);
+    if (description !== undefined) fields.push("description = ?") && values.push(description);
     if (budget_type) fields.push("budget_type = ?") && values.push(budget_type);
     if (start_date) fields.push("start_date = ?") && values.push(start_date);
-    if (end_date) fields.push("end_date = ?") && values.push(end_date);
+    if (end_date !== undefined) fields.push("end_date = ?") && values.push(end_date);
 
     const sql = `
     UPDATE budgets SET 
