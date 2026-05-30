@@ -7,7 +7,7 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
     //console.log({initialValues, onSubmit, submitLabel, mode});
     const { categories, categoriesLoading, refreshCategories } = useFinance();
     const [amount, setAmount] = useState("");
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [category, setCategory] = useState("");
     const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
     const [newType, setNewType] = useState("");

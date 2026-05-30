@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import { getTransactions } from "../api/transactionApi.js";
 import { getCategories } from "../api/categoriesApi.js";
+import { getAllBudgets } from "../api/budgetsApi.js";
 
 const FinanceContext = createContext(null);
 
@@ -16,6 +17,7 @@ export const FinanceProvider = ({ children }) => {
     useEffect(() => {
         refreshTransactions();
         refreshCategories();
+        refreshBudgets();
     }, [token]);
 
     function refreshTransactions() {
@@ -40,6 +42,16 @@ export const FinanceProvider = ({ children }) => {
             .catch(err => console.error(err));
     }
 
+    function refreshBudgets() {
+        if (!token) return;
+        getAllBudgets()
+            .then(data => {
+                console.log(data);
+                setBudgets(data);
+            })
+            .catch(err => console.error(err));
+    }
+
     const incomes = transactions.filter((record) => record.type === "income");
     const expenses = transactions.filter(record => record.type === "expense");
 
@@ -52,7 +64,7 @@ export const FinanceProvider = ({ children }) => {
             value={
                 { transactionsLoading, categoriesLoading, 
                     transactions, categories, incomes, expenses, budgets, netWorth, totalIncome, totalExpense,
-                    refreshTransactions, refreshCategories }
+                    refreshTransactions, refreshCategories, refreshBudgets }
                 }>
             {children}
         </FinanceContext.Provider>
@@ -65,7 +77,7 @@ export const FinanceProvider = ({ children }) => {
  * import { useFinance }  from "../context/FinanceContext";
  * 
  * const Page = () => {
-    const { transactionsLoading, categoriesLoading, transactions, categories, incomes, expenses, budgets, refreshTransactions, refreshCategories } = useFinance(); 
+    const { transactionsLoading, categoriesLoading, transactions, categories, incomes, expenses, budgets, refreshTransactions, refreshCategories, refreshBudgets } = useFinance(); 
 }
  */
 export const useFinance = () => {

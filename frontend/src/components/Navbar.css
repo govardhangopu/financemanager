@@ -12,7 +12,7 @@
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 15px;
+    gap: 20px;
     flex-direction: row;
     align-items: center;
 }

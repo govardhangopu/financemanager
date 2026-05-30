@@ -21,6 +21,7 @@ export default function Navbar() {
                     {!token && <li><NavLink to="/login">Login</NavLink></li>}
                     {!token && <li><NavLink to="/signup">Sign Up</NavLink></li>}
                     {token && <li><NavLink to="/addtransaction">Add Transaction</NavLink></li>}
+                    {token && <li><NavLink to="/budgets">Budgets</NavLink></li>}
                     {token && <li><NavLink to="/login" onClick={logout}>Log Out</NavLink></li>}
                 </ul>
             </nav>

@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp"
 import Dashboard from "./pages/Dashboard"
 import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
+import Budgets from "./pages/Budgets"
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -27,6 +28,7 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
           <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
+          <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
         </Routes>
       </Router>
 
