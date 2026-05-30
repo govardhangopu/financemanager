@@ -25,7 +25,7 @@ export default function NetWorthCard()  {
         else if (transaction.type === "expense")
             return sum - parseFloat(transaction.amount);
     })
-    const dataset = [{ label: "Income", data: values, borderColor: "#008080", backgroundColor: "#008080" }];
+    const dataset = [{ label: "Net Worth", data: values, borderColor: "#008080", backgroundColor: "#008080" }];
 
     return (
         <div>
