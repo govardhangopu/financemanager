@@ -6,7 +6,7 @@ import "../styles/Budgets.css"
 
 export default function Budgets() {
     const navigate = useNavigate();
-    const { budgets, refreshBudgets } = useFinance();
+    const { budgets, refreshBudgets, budgetsLoading } = useFinance();
     const [showAddBudget, setShowAddBudget] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -16,6 +16,7 @@ export default function Budgets() {
     const [endDate, setEndDate] = useState("");
 
     const [errors, setErrors] = useState({ name: "", target: "", type: "", start: "", end: "" });
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     function handleCreate() {
         let newErrors = {};

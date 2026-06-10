@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/AuthContext";
+import "../styles/Auth.css";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -27,19 +28,72 @@ const Login = () => {
     };
 
     return (
-        <main>
-            <div>
-                <h1>Login</h1>
-                <label htmlFor="username">Enter Username: </label>
-                <input type="text" name="username" id="username" 
-                    onChange={(e) => setUsername(e.target.value)} required />
-                <br />
-                <label htmlFor="password">Enter Password: </label>
-                <input type="password" name="password" id="password" 
-                    onChange={(e) => setPassword(e.target.value)} required />
-                <br />
-                <input type="submit" value="Login" onClick={handleLogin} />
-            </div>
+        <main className="auth-page">
+            <section className="auth-card">
+                <article className="auth-visual">
+                    <div>
+                        <span className="auth-badge">Finance Manager</span>
+                        <h1>Welcome back to your financial command center.</h1>
+                        <p>Track expenses, monitor budgets, and stay on top of your goals with a clean, modern dashboard.</p>
+                    </div>
+
+                    <div className="auth-highlights">
+                        <div className="auth-highlight">
+                            <span className="auth-highlight-icon">✓</span>
+                            <div>
+                                <strong>See your cash flow</strong>
+                                <p>Instant insight into income, spending, and savings trends.</p>
+                            </div>
+                        </div>
+                        <div className="auth-highlight">
+                            <span className="auth-highlight-icon">✦</span>
+                            <div>
+                                <strong>Keep your budgets on track</strong>
+                                <p>Organize every category and stay focused on your targets.</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article className="auth-panel">
+                    <div className="auth-panel-header">
+                        <p className="auth-badge">Sign in</p>
+                        <h2>Log in to continue</h2>
+                        <p>Use your account to access your dashboard and budget insights.</p>
+                    </div>
+
+                    <form className="auth-form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+                        <div className="auth-field">
+                            <label htmlFor="username">Username</label>
+                            <input
+                                type="text"
+                                name="username"
+                                id="username"
+                                placeholder="Enter your username"
+                                onChange={(e) => setUsername(e.target.value)}
+                                /*required*/
+                            />
+                        </div>
+
+                        <div className="auth-field">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                /*required*/
+                            />
+                        </div>
+
+                        <button className="auth-button" type="submit">Login</button>
+                        <p className="auth-switch">
+                            New here? <Link to="/signup">Create an account</Link>
+                        </p>
+                    </form>
+                </article>
+            </section>
         </main>
     );
 }

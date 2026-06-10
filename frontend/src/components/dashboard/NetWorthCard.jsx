@@ -3,11 +3,12 @@ import { useFinance } from '../../context/FinanceContext';
 import { prepareTransactionsForRange } from '../../utils/prepareTransactionsForRange.js';
 import { buildCumulativeSeries } from '../../utils/buildCumulativeSeries.js';
 import { GenericChart } from "./GenericChart.jsx";
+import Loader from '../Loader.jsx';
 import './NetWorthCard.css';
 
 export default function NetWorthCard()  {
     const [range, setRange] = useState("all");
-    let { netWorth, transactions } = useFinance();
+    let { netWorth, transactions, transactionsLoading } = useFinance();
 
     let { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
@@ -30,6 +31,7 @@ export default function NetWorthCard()  {
     return (
         <div>
             <p className="heading">Net Worth</p>
+            { transactionsLoading ? <Loader text="Loading..." /> : <>
             <p className="networth">$ {netWorth} {netWorth >= 0 ? `↗`: '↘'}</p>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
@@ -39,6 +41,7 @@ export default function NetWorthCard()  {
                     <option value="all">All-time</option>
             </select>
             <GenericChart labels={labels} datasets={dataset} />
+            </>}
         </div>
     )
 }

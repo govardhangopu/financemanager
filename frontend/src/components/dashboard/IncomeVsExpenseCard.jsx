@@ -2,10 +2,11 @@ import { useState }from "react";
 import { useFinance } from "../../context/FinanceContext";
 import { prepareTransactionsForRange } from "../../utils/prepareTransactionsForRange.js";
 import { GenericChart } from "./GenericChart.jsx";
+import Loader from '../Loader.jsx';
 
 export default function IncomeVsExpenseCard() {
     const [range, setRange] = useState("all");
-    const { transactions } = useFinance();
+    const { transactions, transactionsLoading } = useFinance();
 
     const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
     const datasets =  [
@@ -33,6 +34,7 @@ export default function IncomeVsExpenseCard() {
     return (
         <div>
             Income vs Expense
+            { transactionsLoading ? <Loader text="Loading..." /> : <>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
@@ -41,6 +43,7 @@ export default function IncomeVsExpenseCard() {
                     <option value="all">All-time</option>
             </select>
             <GenericChart labels={labels} datasets={datasets} type={"bar"} />
+            </>}
         </div>
     )
 }

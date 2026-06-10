@@ -4,8 +4,9 @@
     background-color: #000925;
     align-items: center;
     width: 100%;
-    min-height: 100vh;
+    height: 88vh;
     gap: 20px;
+    overflow-y: auto;
 }
 
 .budgets_page h1 {
@@ -105,7 +106,6 @@ textarea:focus {
 }
 
 button.open {
-    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -113,7 +113,11 @@ button.open {
     transition: all 0.1s ease;
 }
 
-button.open:hover {
+button {
+    transition: all 0.1s ease;
+}
+
+button:hover {
     scale: 1.05;
 }
 

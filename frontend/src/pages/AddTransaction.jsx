@@ -8,20 +8,20 @@ export default function AddTransaction() {
     const { refreshTransactions, refreshCategories } = useFinance();
     const navigate = useNavigate();
 
-    const handleAdd = (transaction) => {
+    const handleAdd = async (transaction) => {
         console.log(`Adding transaction: ${JSON.stringify(transaction)}`);
-
-        addTransaction(transaction)
-        .then(res => {
+        try {
+            const res = await addTransaction(transaction);
             console.log("Transaction added successfully:", res);
             refreshTransactions();
             navigate("/dashboard");
-        })
-        .catch(err => {
+        }
+        catch (err) {
             console.error("Error adding transaction:", err);
             alert("Failed to add transaction. Please try again.");
-        });
 
+            throw err;
+        }
     };
 
     return (

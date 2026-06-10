@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFinance } from "../context/FinanceContext";
 import { addCategory } from "../api/categoriesApi";
+import Loader from './Loader.jsx';
 import "./TransactionForm.css";
 
 export default function TransactionForm({initialValues, onSubmit, submitLabel, mode}) {
@@ -14,6 +15,7 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
     const [newCategoryName, setNewCategoryName] = useState("");
     const [parentCategory, setParentCategory] = useState();
     //const [isPartial, setIsPartial] = useState(0);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         //console.log("Selected category:", category);
@@ -33,7 +35,7 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
 
     const [errors, setErrors] = useState({ amount: "", date: "", category: "" });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let newErrors = {};
         if (!amount || parseFloat(amount) <= 0)
@@ -46,23 +48,26 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) return;
         
+        setSaving(true);
         const transaction = {
             amount: parseFloat(amount),
             date: date,
             categoryid: parseInt(category),
             is_partial: mode === "partial" ? 1 : 0
         };
-        onSubmit(transaction);
+        await onSubmit(transaction);
         setAmount("");
         setDate("");
         setCategory("");
         //setIsPartial(0);
+        setSaving(false);
     };
 
     return (
         <div className="form-container">
             (mode = {mode})
             <h2>{submitLabel}</h2>
+            {saving ? <Loader overlay text="Saving transaction..." /> : <>
             <form id="form" onSubmit={handleSubmit}>
                 <div className="field">
                     <label htmlFor="amount">Amount:</label>
@@ -164,6 +169,7 @@ export default function TransactionForm({initialValues, onSubmit, submitLabel, m
                 </div> */}
                 <button type="submit">{submitLabel}</button>
             </form>
+            </>}
         </div>
     )
 };

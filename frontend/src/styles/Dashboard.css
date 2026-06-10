@@ -26,8 +26,8 @@ main,
 #dashboard {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    min-height: 80%;
+    /* grid-template-rows: repeat(4, 1fr);
+    min-height: 80%; */
     padding: 5px;
     gap: 4px;
 }
@@ -80,9 +80,10 @@ section {
     border-radius: 12px;
     padding: 15px;
     color: white;
+    position: relative;
 }
 
-section div {
+#dashboard section div {
     height: 100%;
     position: relative;
 }

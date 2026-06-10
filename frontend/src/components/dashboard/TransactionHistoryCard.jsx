@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./TransactionHistoryCard.css";
 import { useFinance } from "../../context/FinanceContext";
 import { deleteTransaction } from "../../api/transactionApi";
+import Loader from '../Loader.jsx';
+import "./TransactionHistoryCard.css";
 
 export default function TransactionHistoryCard() {
     const navigate = useNavigate()
     const [range, setRange] = useState("all");
     const [sortOrder, setSortOrder] = useState("desc");
     const [sortBy, setSortBy] = useState("date");
-    const { transactions, refreshTransactions } = useFinance();
+    const { transactions, refreshTransactions, transactionsLoading } = useFinance();
 
     const today = new Date();
     const curYear = today.getFullYear();
@@ -73,6 +74,7 @@ export default function TransactionHistoryCard() {
     return (
         <div>
             Transaction History
+            { transactionsLoading ? <Loader text="Loading transactions..." /> : <>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
@@ -128,6 +130,7 @@ export default function TransactionHistoryCard() {
                 }
                 
             </div>
+            </>}
         </div>
     )
 }

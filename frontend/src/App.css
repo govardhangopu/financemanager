@@ -16,6 +16,7 @@
   align-items: center;
   flex-direction: column;
   height: 88vh;
+  max-height: 88vh;
 }
 
 .logo {

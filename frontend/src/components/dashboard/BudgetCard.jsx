@@ -1,15 +1,18 @@
 import { useState }from "react";
 import { useFinance } from "../../context/FinanceContext";
 import { useNavigate } from "react-router-dom";
+import Loader from '../Loader.jsx';
 import "./BudgetCard.css";
 
 export default function BudgetCard() {
     const navigate = useNavigate();
-    const { budgets } = useFinance();
+    const { budgets, budgetsLoading } = useFinance();
 
     return (
         <div>
-            Budgets <br />
+            Budgets 
+            { budgetsLoading ? <Loader text="Loading budgets..." /> : <>
+            <br />
             {budgets.length === 0 ? (
                 <p>No budgets found. Create your first budget.</p>
             ) : (
@@ -28,6 +31,7 @@ export default function BudgetCard() {
                 </div>
             )
             }
+            </>}
         </div>
     )
 }
