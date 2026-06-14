@@ -1,3 +1,7 @@
+#transactionHistoryCard {
+    max-height: 32rem
+}
+
 #layout {
     padding-top: 10px;
     max-height: 90%;
@@ -5,18 +9,39 @@
 }
 
 #transactions {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#newlayout {
+    display: grid;
+    font-size: 0.7rem;
+    text-transform: capitalize;
+    height: 93% !important;
+    text-align: center;
+}
+
+#newlayout #cardHeader {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    margin-block: 10px;
+    height: min-content;
+}
+
+#newlayout #cardHeader button {
+    width: 90%;
+    padding-inline: 0;
+    text-align: center;
+}
+
+#transactiontable {
     box-sizing: border-box;
     width: 100%;
     font-size: 0.7rem;
     text-transform: capitalize;
     table-layout: fixed;
     border-collapse: collapse;
-}
-
-thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
 }
 
 tbody td {
@@ -56,7 +81,7 @@ tbody td {
 }
 
 @media (max-width: 1024px) {
-    #transactions {
+    #transactiontable {
         font-size: 0.9rem;    
     }
 }

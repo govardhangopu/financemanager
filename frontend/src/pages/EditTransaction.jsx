@@ -27,22 +27,20 @@ export default function EditTransaction() {
         setIsPartial(transaction.is_partial);        
     }, [transactionLoading, transaction, navigate]);
 
-    const handleSubmit = ({ amount, categoryid, date, is_partial }) => {
-        console.log(`Updating transaction ${id} with amount: ${amount}, date: ${date}, category: ${categoryid}, isPartial: ${is_partial}`);
-        updateTransaction({
-            transactionid: parseInt(id),
-            amount: parseFloat(amount),
-            date,
-            categoryid: parseInt(categoryid),
-            is_partial,
-        }).then(() => {
-            alert("Transaction updated successfully");
+    const handleSubmit = async (transaction) => {
+        console.log(`Updating transaction: ${JSON.stringify(transaction)}`);
+        try {
+            const res = await updateTransaction(transaction);
+            console.log("Transaction updated successfully");
             refreshTransactions();
             navigate("/dashboard");
-        }).catch(err => {
+        } 
+        catch(err) {
             console.error("Error updating transaction:", err);
             alert("Failed to update transaction");
-        });
+
+            throw err;
+        };
     }
     return (
         <main>

@@ -72,7 +72,7 @@ export default function TransactionHistoryCard() {
     }
 
     return (
-        <div>
+        <div id="transactionHistoryCard">
             Transaction History
             { transactionsLoading ? <Loader text="Loading transactions..." /> : <>
             <select name="timerange" id="timerange" 
@@ -83,52 +83,46 @@ export default function TransactionHistoryCard() {
                     <option value="all">All-time</option>
             </select>
             <br />
-            <div id="layout">
+            
+            <div id="newlayout">
                 {
-                    selectedTransactions.length > 0 ?
-                    <table id="transactions">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>
-                                    <button type="button" onClick={e => toggleSort("amount")}>
-                                        Amount {sortBy === "amount" && (sortOrder === "desc" ? "▼" : "▲")}
-                                    </button>
-                                </th>
-                                <th>
-                                    <button type="button" onClick={e => toggleSort("date")}>
-                                        Date {sortBy === "date" && (sortOrder === "desc" ? "▼" : "▲")}
-                                    </button>
-                                </th>
-                                <th>Actions</th>
-                            </tr>
-                            
-                        </thead>
-                        <tbody>
-                        {
-                            sortedTransactions.map(t => ( 
-                            <tr key={t.transactionid}>
-                                <td>{t.category_name}</td>
-                                <td className={t.type}>
-                                    {
-                                        t.type === "income" 
-                                        ? "+$" + t.amount
-                                        : "-$" + t.amount
-                                    }
-                                </td>
-                                <td>{new Date(t.date).toLocaleString()}</td>
-                                <td>
-                                    <button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>🗑️</button>
-                                    <button id="editbutton" type="button" onClick={() => navigate(`/edittransaction/${t.transactionid}`)}>✏️</button>
-                                </td>
-                            </tr>
-                            ))
-                        }
-                        </tbody>
-                    </table>
-                    : "No transactions available."
-                }
-                
+                    selectedTransactions.length < 0 ? "No transactions available." : <>
+                    <div id="cardHeader">
+                        <tr>
+                            <td id="category">Category</td>
+                            <td><button type="button" onClick={e => toggleSort("amount")}>
+                                Amount {sortBy === "amount" && (sortOrder === "desc" ? "▼" : "▲")}
+                            </button></td>
+                            <td><button type="button" onClick={e => toggleSort("date")}>
+                                Date {sortBy === "date" && (sortOrder === "desc" ? "▼" : "▲")}
+                            </button></td>
+                            <td>Actions</td>
+                        </tr>
+                        
+                    </div>
+                    <div id="transactions">
+                        <table id="transactiontable">
+                            <tbody>
+                                { sortedTransactions.map(t => (
+                                    <tr key={t.transactionid}>
+                                        <td id="tCategory" >{t.category_name}</td>
+                                        <td className={t.type}>
+                                        {
+                                            t.type === "income" 
+                                            ? "+$" + t.amount
+                                            : "-$" + t.amount
+                                        }</td>
+                                        <td className="date">{new Date(t.date).toLocaleString()}</td>
+                                        <td>
+                                            <button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>🗑️</button>
+                                            <button id="editbutton" type="button" onClick={() => navigate(`/edittransaction/${t.transactionid}`)}>✏️</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>}
             </div>
             </>}
         </div>

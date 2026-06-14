@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Loader from '../components/Loader.jsx';
 import "../styles/Auth.css";
 
 const baseURL = import.meta.env.VITE_API_URL;
@@ -10,9 +11,11 @@ const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const { setUser, setToken } = useAuth();
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
     const handleLogin = async () => {
+        setLoading(true);
         try {
             const res = await axios.post(`${baseURL}/users/login`, { username, password });
             const { user, token } = res.data.token;
@@ -87,7 +90,13 @@ const Login = () => {
                             />
                         </div>
 
-                        <button className="auth-button" type="submit">Login</button>
+                        <button
+                            className={`auth-button ${loading ? "disabled" : ""}`}
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? <Loader size="small" /> : "Login"}
+                        </button>
                         <p className="auth-switch">
                             New here? <Link to="/signup">Create an account</Link>
                         </p>
