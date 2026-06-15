@@ -1,9 +1,9 @@
+import cors from "cors";
 import express from "express";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import categoriesRoutes from "./routes/category.routes.js";
 import budgetRoutes from "./routes/budget.routes.js";
-import cors from "cors";
 import { connectDB } from "../config/db.js";
 
 const pool = connectDB();
@@ -28,7 +28,7 @@ app.use('/budgets', budgetRoutes);
 app.get("/", async (req, res) => {
     try {
         await pool.query("SELECT 1");
-
+        console.log("Health check successful ✅");
         return res.status(200).json({
             status: "ok",
             database: "connected"

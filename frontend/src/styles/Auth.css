@@ -73,6 +73,10 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
+.auth-highlight div {
+  width: 100%;
+}
+
 .auth-highlight-icon {
   width: 42px;
   height: 42px;
@@ -193,10 +197,26 @@
 @media (max-width: 980px) {
   .auth-card {
     grid-template-columns: 1fr;
+    height: 100%;
   }
 
   .auth-visual {
     min-height: 280px;
+  }
+}
+
+@media (max-height: 402px) {
+  .auth-visual {
+    display: none;
+  }
+
+  .auth-card {
+    padding: 0px;
+    max-width: 50%;
+  }
+
+  .auth-panel-header p {
+    display: none;
   }
 }
 
@@ -208,6 +228,10 @@
   .auth-visual,
   .auth-panel {
     padding: 18px;
+  }
+
+  .auth-highlights {
+    display: none;
   }
 
   .auth-panel-header h2 {

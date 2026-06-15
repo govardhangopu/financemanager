@@ -19,6 +19,7 @@
     text-transform: capitalize;
     height: 93% !important;
     text-align: center;
+    align-content: start;
 }
 
 #newlayout #cardHeader {
