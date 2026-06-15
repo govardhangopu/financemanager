@@ -22,11 +22,23 @@ app.use('/categories', categoriesRoutes);
 app.use('/budgets', budgetRoutes);
 
 // Health check
-app.get("/", (req, res) => {
-    console.log("Health check endpoint hit. ✅");
-    return res.status(200).json({ status: "ok" });
-});
+app.get("/", async (req, res) => {
+    try {
+        await pool.query("SELECT 1");
 
+        return res.status(200).json({
+            status: "ok",
+            database: "connected"
+        });
+    }
+    catch (err) {
+        console.error("Database connection error:", err);
+        return res.status(500).json({
+            status: "error",
+            database: "disconnected"
+        });
+    }
+});
 // Error handler
 app.use((err, req, res, next) => {
     console.error(err);
