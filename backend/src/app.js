@@ -4,6 +4,9 @@ import transactionRoutes from "./routes/transaction.routes.js";
 import categoriesRoutes from "./routes/category.routes.js";
 import budgetRoutes from "./routes/budget.routes.js";
 import cors from "cors";
+import { connectDB } from "../config/db.js";
+
+const pool = connectDB();
 
 const app = express();
 app.use(cors({
