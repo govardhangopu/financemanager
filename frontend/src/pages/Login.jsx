@@ -23,10 +23,11 @@ const Login = () => {
             setToken(token);
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("token", token);
-
             navigate("/dashboard"); 
         } catch (err) {
             console.error(err);
+            alert(err.response?.data?.message || "Login failed. Please try again.");
+            setLoading(false);
         }
     };
 
