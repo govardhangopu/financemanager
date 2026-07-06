@@ -25,9 +25,6 @@ export const connectDB = () => {
             },
         });
         console.log("✅ MySQL connection pool created");
-
-        // Execute schema on connection
-        await initializeSchema();
     }
     return pool;
 };
