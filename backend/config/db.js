@@ -15,6 +15,9 @@ export const connectDB = () => {
             port: Number(process.env.MYSQLPORT || 3306),
             waitForConnections: true,
             connectionLimit: 10,
+            ssl: {
+                rejectUnauthorized: false // <-- CRITICAL FOR AIVEN
+            },
         });
         console.log("✅ MySQL connection pool created");
     }
