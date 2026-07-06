@@ -1,11 +1,13 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
+import fs from "fs/promises";
+import path from "path";
 
 dotenv.config();
 
 let pool;
 
-export const connectDB = () => {
+export const connectDB = async () => {
     if (!pool) {
         pool = mysql.createPool({
             host: process.env.MYSQLHOST || "localhost",
@@ -20,6 +22,30 @@ export const connectDB = () => {
             },
         });
         console.log("✅ MySQL connection pool created");
+
+        // Execute schema on connection
+        await initializeSchema();
     }
     return pool;
 };
+
+async function initializeSchema() {
+    try {
+        const connection = await pool.getConnection();
+        const schemaPath = path.join(process.cwd(), 'backend/config/schema.sql');
+        const schemaSQL = await fs.readFile(schemaPath, 'utf-8');
+        
+        // Split by semicolon and execute each statement
+        const statements = schemaSQL.split(';').filter(stmt => stmt.trim());
+        
+        for (const statement of statements) {
+            await connection.query(statement);
+        }
+        
+        connection.release();
+        console.log("✅ Schema initialized successfully");
+    } catch (error) {
+        console.error("❌ Schema initialization failed:", error);
+        throw error;
+    }
+}
