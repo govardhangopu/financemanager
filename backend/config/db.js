@@ -2,9 +2,12 @@ import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 let pool;
 
 export const connectDB = async () => {
@@ -32,7 +35,7 @@ export const connectDB = async () => {
 async function initializeSchema() {
     try {
         const connection = await pool.getConnection();
-        const schemaPath = path.join(process.cwd(), 'backend/config/schema.sql');
+        const schemaPath = path.join(__dirname, 'schema.sql');
         const schemaSQL = await fs.readFile(schemaPath, 'utf-8');
         
         // Split by semicolon and execute each statement
