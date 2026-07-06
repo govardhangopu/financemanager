@@ -6,7 +6,7 @@ import categoriesRoutes from "./routes/category.routes.js";
 import budgetRoutes from "./routes/budget.routes.js";
 import { connectDB } from "../config/db.js";
 
-const pool = await connectDB();
+const pool = connectDB();
 
 const app = express();
 app.use(cors({

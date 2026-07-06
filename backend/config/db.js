@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let pool;
 
-export const connectDB = async () => {
+export const connectDB = () => {
     if (!pool) {
         pool = mysql.createPool({
             host: process.env.MYSQLHOST || "localhost",
@@ -52,3 +52,5 @@ async function initializeSchema() {
         throw error;
     }
 }
+
+initializeSchema();
