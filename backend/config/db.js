@@ -8,34 +8,35 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-let pool;
 
+// 1. Create and export the pool instantly (No 'let pool;' at the top!)
+export const pool = mysql.createPool({
+    host: process.env.MYSQLHOST || "localhost",
+    user: process.env.MYSQLUSER || "root",
+    password: process.env.MYSQLPASSWORD || "12345678",
+    database: process.env.MYSQLDATABASE || "financemanager",
+    port: Number(process.env.MYSQLPORT || 3306),
+    waitForConnections: true,
+    connectionLimit: 10,
+    ssl: {
+        rejectUnauthorized: false
+    },
+});
+
+console.log("✅ MySQL connection pool created");
+
+// 2. connectDB is a regular function (NOT async) so it returns the pool instantly to your routes
 export const connectDB = () => {
-    if (!pool) {
-        pool = mysql.createPool({
-            host: process.env.MYSQLHOST || "localhost",
-            user: process.env.MYSQLUSER || "root",
-            password: process.env.MYSQLPASSWORD || "12345678",
-            database: process.env.MYSQLDATABASE || "financemanager",
-            port: Number(process.env.MYSQLPORT || 3306),
-            waitForConnections: true,
-            connectionLimit: 10,
-            ssl: {
-                rejectUnauthorized: false // <-- CRITICAL FOR AIVEN
-            },
-        });
-        console.log("✅ MySQL connection pool created");
-    }
     return pool;
 };
 
+// 3. Schema initialization runs in the background
 async function initializeSchema() {
     try {
         const connection = await pool.getConnection();
         const schemaPath = path.join(__dirname, 'schema.sql');
         const schemaSQL = await fs.readFile(schemaPath, 'utf-8');
         
-        // Split by semicolon and execute each statement
         const statements = schemaSQL.split(';').filter(stmt => stmt.trim());
         
         for (const statement of statements) {
@@ -46,8 +47,8 @@ async function initializeSchema() {
         console.log("✅ Schema initialized successfully");
     } catch (error) {
         console.error("❌ Schema initialization failed:", error);
-        throw error;
     }
 }
 
+// 4. Trigger the schema build
 initializeSchema();
