@@ -46,7 +46,7 @@
 }
 
 tbody td {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--border-color);
     padding-block: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -83,6 +83,6 @@ tbody td {
 
 @media (max-width: 1024px) {
     #transactiontable {
-        font-size: 0.9rem;    
+        font-size: 0.9rem;
     }
 }

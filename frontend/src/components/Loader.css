@@ -14,7 +14,8 @@
 
 #loader.fullscreen {
     min-height: 100vh;
-    background-color: #000925;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 #loader.overlay {
@@ -29,7 +30,8 @@
 }
 
 #loader.overlay.opaque {
-    background-color: #000925;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .spinner {

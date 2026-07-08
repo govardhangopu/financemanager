@@ -1,7 +1,8 @@
 .budgets_page {
     display: flex;
     flex-direction: column;
-    background-color: #000925;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     align-items: center;
     width: 100%;
     height: 91vh;
@@ -20,10 +21,11 @@
     width: 70%;
     gap: 30px;
     padding: 30px;
-    margin: 20px;   
+    margin: 20px;
     border-radius: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-    background-color: #0d0547;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
     transition: all 0.4s ease;
 }
 
@@ -37,12 +39,14 @@
     grid-column: span 3;
 }
 
-#addBudget input, #addBudget select, textarea {
+#addBudget input,
+#addBudget select,
+textarea {
     padding: 0.5rem;
     border-radius: 8px;
-    border: 1px solid #5f5f68;
-    background-color: #2b2a33;
-    color: #fff;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--input-color);
 }
 
 #addBudget .section {
@@ -77,8 +81,8 @@ textarea {
     padding: 9px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    background-color: #2b2a33;
-    color: white;
+    background-color: var(--input-bg);
+    color: var(--input-color);
     font-size: 0.95rem;
     font-family: inherit;
     resize: none;
@@ -96,7 +100,8 @@ textarea:focus {
     justify-content: space-around;
 }
 
-#addBudget.close, .close {
+#addBudget.close,
+.close {
     opacity: 0;
     max-height: 0;
     overflow: hidden;
@@ -121,7 +126,8 @@ button:hover {
     scale: 1.05;
 }
 
-#addBudget.open, .open {
+#addBudget.open,
+.open {
     opacity: 1;
     max-height: 1000px;
 }
@@ -137,7 +143,8 @@ button:hover {
     grid-template-columns: repeat(4, 1fr);
     gap: 40px;
     padding: 20px;
-    background-color: #0d0547;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
     border-radius: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
 }
@@ -152,7 +159,8 @@ button:hover {
 
 .budgets_grid .budget_card {
     text-align: left;
-    background-color: #0d0547;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
     border-radius: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
     padding: 20px;
