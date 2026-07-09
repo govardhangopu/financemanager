@@ -104,6 +104,10 @@
   color: #cbd5e1;
 }
 
+.auth-panel-header h2 {
+  color: #cbd5e1;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -198,6 +202,7 @@
   .auth-card {
     grid-template-columns: 1fr;
     height: 100%;
+    overflow-y: auto;
   }
 
   .auth-visual {

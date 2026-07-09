@@ -35,6 +35,8 @@ export function GenericChart({ labels, datasets, type="line", }) {
     });
 
     const options = {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,
@@ -53,12 +55,14 @@ export function GenericChart({ labels, datasets, type="line", }) {
     };
             
     return (
-        labels.length > 0 
-        ?  (
-            type === "bar" 
-            ? <Bar data={chartData} options={options} />
-            : <Line data={chartData} options={options} />
-        )
-        : (<p height={"100%"}>No data to show for this time range.</p>)
+        <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%' }}>
+            {labels.length > 0 ? (
+                type === "bar" 
+                    ? <Bar data={chartData} options={options} />
+                    : <Line data={chartData} options={options} />
+            ) : (
+                <p>No data to show for this time range.</p>
+            )}
+        </div>
     );
 }

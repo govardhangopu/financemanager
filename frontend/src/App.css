@@ -1,22 +1,21 @@
 #root {
   display: flex;
-  justify-content: start;
-  align-items: center;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh; 
   max-width: 1280px; 
   margin: 0 auto;
   width: 100%;
   text-align: center;
+  overflow: hidden;
 }
 
 #root main {
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  height: 91vh;
-  max-height: 91vh;
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
 }
 
 .logo {
