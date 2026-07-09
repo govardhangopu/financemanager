@@ -1,11 +1,18 @@
 .budget_card_container {
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1;
-    min-height: 0;
+    max-height: 240px; /* Adjusted to let the starting bits of the next card peek through */
     display: grid;
     margin-top: 10px;
     gap: 20px;
+}
+
+@media (min-width: 1025px) {
+    .budget_card_container {
+        max-height: none;
+        flex: 1;
+        min-height: 0;
+    }
 }
 
 .budget_card_container .budget_card {
