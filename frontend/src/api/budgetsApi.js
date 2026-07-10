@@ -46,7 +46,7 @@ export async function addTransactionToBudget(id, transactionId) {
 
 // FETCH
 export async function getBudgetById(id) {
-    const res = await api.get("/${id}");
+    const res = await api.get(`/${id}`);
     return res.data;
 }
 

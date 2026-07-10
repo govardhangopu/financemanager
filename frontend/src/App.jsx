@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard"
 import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
 import Budgets from "./pages/Budgets"
+import BudgetDetail from "./pages/BudgetDetail"
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -29,6 +30,7 @@ function App() {
           <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
           <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
           <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
+          <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
         </Routes>
       </Router>
 
@@ -53,7 +55,7 @@ function App() {
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
-      </p> */}     
+      </p> */}
     </>
   )
 }
