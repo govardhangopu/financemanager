@@ -51,7 +51,7 @@
 .show-cat-form {
     border-radius: 8px 8px 0px 0px !important;
     border-bottom: none !important;
-    border-right: 2px solid #5f5f68 !important;
+    border-right: 1px solid var(--input-border) !important;
 }
 
 #new_category_form {

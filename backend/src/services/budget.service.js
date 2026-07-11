@@ -2,7 +2,7 @@ import * as repo from "../repositories/budget.repo.js";
 
 // ADD
 export const addBudget = async ({ userid, status, target_amount, name, description, budget_type, start_date, end_date }) => {
-    const newBudget = await repo.create(userid, status, target_amount || null, name, description || null, 
+    const newBudget = await repo.create(userid, status, target_amount || null, name, description || null,
         budget_type, start_date, end_date || null);
     return newBudget;
 }
@@ -43,15 +43,15 @@ export const getBudgetProgress = async (budgetid) => {
     if (!budget.length) throw new Error('Budget not found');
     const { target_amount } = budget[0];
     const transactions = await repo.fetchBudgetTransactions(budgetid);
-    const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
+    const totalSpent = transactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
     const progress = target_amount ? Math.min((totalSpent / target_amount) * 100, 100) : 0;
     return { progress };
 }
 
 // UPDATE
 export const update = async ({ userid, budgetid, status, target_amount, name, description, budget_type, start_date, end_date }) => {
-    if (!(budgetid && 
-        (status || target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined))) 
+    if (!(budgetid &&
+        (status || target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined)))
         throw new Error('No data to update.');
     const updated = await repo.updateRow(
         userid,

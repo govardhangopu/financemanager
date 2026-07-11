@@ -105,7 +105,7 @@ export default function BudgetDetail() {
         <main className="budget-detail-page">
             {/* Back Button */}
             <button className="material-symbols-outlined back-btn" onClick={() => navigate("/budgets", { replace: true })}>
-                ⬅️
+                ←
             </button>
 
             {/* Modern Inline Edit Card */}

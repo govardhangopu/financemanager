@@ -12,6 +12,7 @@
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s;
+    font-size: x-large;
 }
 
 .back-btn:hover {
@@ -577,14 +578,14 @@
         /* Stack panels vertically on mobile */
         gap: 20px;
     }
+
+    .back-btn {
+        display: none;
+    }
 }
 
 /* ──── RESPONSIVE BREAKPOINTS ──── */
 @media (max-width: 600px) {
-    .back-btn {
-        display: none;
-    }
-
     .budget-card-header {
         flex-direction: column;
         align-items: stretch;
@@ -598,13 +599,5 @@
     .form-row {
         flex-direction: column;
         gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .back-btn {
-        top: 15px;
-        left: 15px;
-        padding: 8px 12px;
     }
 }

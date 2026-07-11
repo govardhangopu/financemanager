@@ -34,8 +34,9 @@ export const fetchAllBudgets = async (userid) => {
             COALESCE((
                 SELECT SUM(t.amount)
                 FROM transactions t
+                JOIN categories c ON t.categoryid = c.categoryid                  -- 👈 Add categories join
                 LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
-                LEFT JOIN budget_categories bc ON t.categoryid = bc.categoryid AND bc.budgetid = b.budgetid
+                LEFT JOIN budget_categories bc ON (t.categoryid = bc.categoryid OR c.parent_categoryid = bc.categoryid) AND bc.budgetid = b.budgetid -- 👈 OR subcategories
                 WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
                   AND t.date >= b.start_date                              -- 👈 Must start after budget start
                   AND (b.end_date IS NULL OR t.date <= b.end_date)         -- 👈 Must end before budget end (if set)
@@ -54,7 +55,7 @@ export const fetchBudgetTransactions = async (budgetid) => {
         JOIN categories c ON t.categoryid = c.categoryid
         JOIN budgets b ON b.budgetid = ?                                  -- 👈 JOIN the budget to get its dates
         LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
-        LEFT JOIN budget_categories bc ON t.categoryid = bc.categoryid AND bc.budgetid = b.budgetid
+        LEFT JOIN budget_categories bc ON (t.categoryid = bc.categoryid OR c.parent_categoryid = bc.categoryid) AND bc.budgetid = b.budgetid -- 👈 OR subcategories
         WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
           AND t.date >= b.start_date                                      -- 👈 Date check
           AND (b.end_date IS NULL OR t.date <= b.end_date)                -- 👈 Date check
