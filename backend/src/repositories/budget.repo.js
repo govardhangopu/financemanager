@@ -29,17 +29,36 @@ export const fetchBudgetById = async (budgetid) => {
 
 export const fetchAllBudgets = async (userid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`SELECT * FROM budgets WHERE userid = ?`, [userid]);
+    const [rows] = await pool.query(`
+        SELECT b.*, 
+            COALESCE((
+                SELECT SUM(t.amount)
+                FROM transactions t
+                LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
+                LEFT JOIN budget_categories bc ON t.categoryid = bc.categoryid AND bc.budgetid = b.budgetid
+                WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
+                  AND t.date >= b.start_date                              -- 👈 Must start after budget start
+                  AND (b.end_date IS NULL OR t.date <= b.end_date)         -- 👈 Must end before budget end (if set)
+            ), 0) as spent_amount
+        FROM budgets b
+        WHERE b.userid = ?
+    `, [userid]);
     return rows;
 }
 
 export const fetchBudgetTransactions = async (budgetid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`SELECT t.*, c.name as category_name, c.type, c.parent_categoryid 
-    FROM budget_transactions bt 
-    join transactions t on bt.transactionid = t.transactionid
-    join categories c on t.categoryid = c.categoryid
-    WHERE bt.budgetid = ?`, [budgetid]);
+    const [rows] = await pool.query(`
+        SELECT DISTINCT t.*, c.name as category_name, c.type, c.parent_categoryid 
+        FROM transactions t
+        JOIN categories c ON t.categoryid = c.categoryid
+        JOIN budgets b ON b.budgetid = ?                                  -- 👈 JOIN the budget to get its dates
+        LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
+        LEFT JOIN budget_categories bc ON t.categoryid = bc.categoryid AND bc.budgetid = b.budgetid
+        WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
+          AND t.date >= b.start_date                                      -- 👈 Date check
+          AND (b.end_date IS NULL OR t.date <= b.end_date)                -- 👈 Date check
+    `, [budgetid]);                                                       // 👈 Only need to pass budgetid once now!
     return rows;
 }
 

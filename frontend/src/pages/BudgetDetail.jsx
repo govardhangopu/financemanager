@@ -9,6 +9,7 @@ import "../styles/BudgetDetail.css";
 
 export default function BudgetDetail() {
     const navigate = useNavigate();
+    const { categories, categoriesLoading, refreshBudgets } = useFinance();
     const [budget, setBudget] = useState();
     const [progress, setProgress] = useState();
     const [linkedCategories, setLinkedCategories] = useState([]);
@@ -63,6 +64,7 @@ export default function BudgetDetail() {
         if (!confirm("Are you sure you want to permanently delete this budget?")) return;
         try {
             await deleteBudget(id);
+            refreshBudgets();
             alert("Budget deleted successfully!");
             navigate("/budgets", { replace: true });
         } catch (err) {
@@ -70,6 +72,11 @@ export default function BudgetDetail() {
             alert("Failed to delete budget.");
         }
     }
+
+    const linkableCategories = categories.filter(
+        (cat) => !linkedCategories.some((lc) => lc.categoryid === cat.categoryid)
+    );
+    console.log("Linkable Categories:", linkableCategories);
 
     async function handleAddCategory() {
         try {
@@ -83,10 +90,9 @@ export default function BudgetDetail() {
         }
     }
 
-    async function handleRemoveCategory() {
+    async function handleRemoveCategory(categoryId) {
         try {
-            await deleteCategoryFromBudget(id, selectedCategoryToAdd);
-            setSelectedCategoryToAdd();
+            await deleteCategoryFromBudget(id, categoryId);
             loadBudgetData();
             alert("Category removed successfully!");
         } catch (err) {
@@ -98,10 +104,7 @@ export default function BudgetDetail() {
     return (
         <main className="budget-detail-page">
             {/* Back Button */}
-            <button
-                className="material-symbols-outlined back-btn"
-                onClick={() => navigate("/budgets", { replace: true })}
-            >
+            <button className="material-symbols-outlined back-btn" onClick={() => navigate("/budgets", { replace: true })}>
                 ⬅️
             </button>
 
@@ -250,9 +253,72 @@ export default function BudgetDetail() {
 
             </div>
             <div className="budget-content-grid">
-                Coming Soon
-                <div className="budget-categories-panel"></div>
-                <div className="budget-transactions-panel"></div>
+                <div className="budget-categories-panel">
+                    <h2>Categories in this Budget</h2>
+                    <p>Select categories to include in this budget.</p>
+                    <div className="add-category-control">
+                        <select
+                            value={selectedCategoryToAdd || ""}
+                            onChange={(e) => setSelectedCategoryToAdd(e.target.value)}
+                        >
+                            <option value="">-- Choose a Category --</option>
+                            {linkableCategories.map(cat => (
+                                <option key={cat.categoryid} value={cat.categoryid}>
+                                    {cat.name} ({cat.type})
+                                </option>
+                            ))}
+                        </select>
+                        <button onClick={handleAddCategory} disabled={!selectedCategoryToAdd}>Link Category</button>
+                    </div>
+                    {/* Pills List of Linked Categories */}
+                    <div className="category-pills">
+                        {linkedCategories.length === 0 ? (
+                            <p className="empty-msg">No categories linked yet.</p>
+                        ) : (
+                            linkedCategories.map(cat => (
+                                <div key={cat.categoryid} className="category-pill">
+                                    <span>{cat.name}</span>
+                                    <button
+                                        type="button"
+                                        className="unlink-btn"
+                                        onClick={() => handleRemoveCategory(cat.categoryid)} // 👈 Triggers the fix
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                </div>
+                <div className="budget-transactions-panel">
+                    <h2>Transactions in this Budget</h2>
+                    <div className="table-wrapper">
+                        {linkedTransactions.length === 0 ? (
+                            <p className="empty-msg">No transactions linked to this budget yet.</p>
+                        ) : (
+                            <table className="transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {linkedTransactions.map((t) => (
+                                        <tr key={t.transactionid}>
+                                            <td>{new Date(t.date).toLocaleDateString()}</td>
+                                            <td>{t.category_name}</td>
+                                            <td className="spent-amount">₹{parseFloat(t.amount).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+
+                </div>
             </div>
         </main>
     );

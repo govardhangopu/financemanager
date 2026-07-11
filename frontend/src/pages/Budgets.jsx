@@ -18,6 +18,17 @@ export default function Budgets() {
     const [errors, setErrors] = useState({ name: "", target: "", type: "", start: "", end: "" });
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+    const activeBudgets = budgets.filter(b => b.status === "active");
+    const totalTarget = activeBudgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
+    const totalSpent = activeBudgets.reduce((sum, b) => sum + parseFloat(b.spent_amount || 0), 0);
+    const monthlyPlanned = activeBudgets.reduce((sum, b) => {
+        const amount = parseFloat(b.target_amount || 0);
+        if (b.budget_type === 'monthly') return sum + amount;
+        if (b.budget_type === 'yearly') return sum + (amount / 12);
+        if (b.budget_type === 'weekly') return sum + (amount * 4.33);
+        return sum;
+    }, 0);
+
     function handleCreate() {
         let newErrors = {};
         if (!name) newErrors.name = "Budget name is required.";
@@ -40,26 +51,28 @@ export default function Budgets() {
             end_date: endDate,
             status: "active"
         };
-        
+
         //console.log("New budget data:", newBudget);
         addBudget(newBudget)
             .then((res) => {
                 //console.log("Budget created successfully:", res);
                 refreshBudgets();
-                setShowAddBudget(false);
                 setName("");
                 setDescription("");
                 setTargetAmount("");
                 setBudgetType("");
                 setStartDate("");
                 setEndDate("");
+                if (res && res.insertId) {
+                    navigate(`/budgets/${res.insertId}`);
+                }
             })
             .catch((err) => {
                 console.error("Error creating budget:", err);
             });
     }
 
-    return (        
+    return (
         <div className="budgets_page">
             <h1 className="page-title">Budgets</h1>
             <button className={!showAddBudget ? "open" : "close"} onClick={() => setShowAddBudget(true)}>Add Budget</button>
@@ -71,7 +84,7 @@ export default function Budgets() {
                     <input id="name" type="text" placeholder="Name" autoFocus value={name} onChange={e => setName(e.target.value)} />
                     <div className="errmsg">{errors.name}</div>
                 </div>
-                
+
                 <label htmlFor="description">Description (optional) :</label>
                 <div className="field1">
                     <textarea placeholder="Description" id="description" value={description} onInput={e => setDescription(e.target.value)}
@@ -86,8 +99,8 @@ export default function Budgets() {
                     <div className="field2">
                         <div>
                             <label htmlFor="amount">Target Amount:</label>
-                            <input id="amount" type="number" placeholder="Target Amount" value={targetAmount} 
-                            onChange={e => setTargetAmount(e.target.value)} />
+                            <input id="amount" type="number" placeholder="Target Amount" value={targetAmount}
+                                onChange={e => setTargetAmount(e.target.value)} />
                         </div>
                         <div className="errmsg">{errors.target}</div>
                     </div>
@@ -109,7 +122,7 @@ export default function Budgets() {
                     <div className="field2">
                         <div>
                             <label htmlFor="start_date">Start Date:</label>
-                            <input id="start_date" type="date" placeholder="Start Date" value={startDate} 
+                            <input id="start_date" type="date" placeholder="Start Date" value={startDate}
                                 onChange={e => setStartDate(e.target.value)} />
                         </div>
                         <div className="errmsg">{errors.start}</div>
@@ -117,7 +130,7 @@ export default function Budgets() {
                     <div className="field2">
                         <div>
                             <label htmlFor="end_date">End Date (optional) :</label>
-                            <input id="end_date" type="date" placeholder="End Date" /*min={startDate}*/ value={endDate} 
+                            <input id="end_date" type="date" placeholder="End Date" /*min={startDate}*/ value={endDate}
                                 onChange={e => setEndDate(e.target.value)} />
                         </div>
                         <div className="errmsg">{errors.end}</div>
@@ -128,11 +141,28 @@ export default function Budgets() {
             </div>
 
             <div className="budget_summary">
-                <div>Total active budgets</div>
-                <div>Total target amount</div>
-                <div>Overall completion</div>
-                <div>Monthly planned spending</div>
+                <div className="summary_item">
+                    <span className="summary_label">Total Active Budgets: </span>
+                    <span className="summary_value">{activeBudgets.length}</span>
+                </div>
+                <div className="summary_item">
+                    <span className="summary_label">Total Target Limit: </span>
+                    <span className="summary_value">₹{totalTarget.toLocaleString()}</span>
+                </div>
+                <div className="summary_item">
+                    <span className="summary_label">Overall Completion: </span>
+                    <span className="summary_value">
+                        {totalTarget > 0 ? ((totalSpent / totalTarget) * 100).toFixed(1) : "0.0"}%
+                    </span>
+                </div>
+                <div className="summary_item">
+                    <span className="summary_label">Monthly Planned Spending: </span>
+                    <span className="summary_value">
+                        ₹{monthlyPlanned.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                </div>
             </div>
+
             <div className="budgets_grid">
                 {budgets.length === 0 ? (
                     <p>No budgets found. Click "Add Budget" to create your first budget.</p>
@@ -140,7 +170,7 @@ export default function Budgets() {
                     budgets.map(budget => (
                         <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
                             <h3>{budget.name}</h3>
-                            {budget.description && <p>{budget.description}</p> }
+                            {budget.description && <p>{budget.description}</p>}
                             <p>Target: ${budget.target_amount}</p>
                             <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
                             <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
@@ -151,5 +181,5 @@ export default function Budgets() {
                 )}
             </div>
         </div>
-    );  
+    );
 }

@@ -35,12 +35,12 @@ export async function addBudget(data) {
 }
 
 export async function addCategoryToBudget(id, categoryId) {
-    const res = await api.post(`/${id}/category`, { categoryId });
+    const res = await api.post(`/${id}/category/${categoryId}`);
     return res.data;
 }
 
 export async function addTransactionToBudget(id, transactionId) {
-    const res = await api.post(`/${id}/transaction`, { transactionId });
+    const res = await api.post(`/${id}/transaction/${transactionId}`);
     return res.data;
 }
 
