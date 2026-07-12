@@ -114,7 +114,13 @@ export default function BudgetDetail() {
                 {/* Header Area */}
                 <div className="budget-card-header">
                     <div className="budget-title-area">
-                        <span className="budget-type-badge">{budget?.budget_type}</span>
+                        <span className="budget-type-badge">
+                            {loading ? (
+                                <div className="skeleton-box" style={{ width: '60px', height: '18px', borderRadius: '99px' }} />
+                            ) : (
+                                budget?.budget_type
+                            )}
+                        </span>
                         {isEditing ? (
                             <input
                                 type="text"
@@ -125,7 +131,13 @@ export default function BudgetDetail() {
                                 required
                             />
                         ) : (
-                            <h1>{budget?.name}</h1>
+                            <h1>
+                                {loading ? (
+                                    <div className="skeleton-box" style={{ width: '260px', height: '42.2334px' }} />
+                                ) : (
+                                    budget?.name
+                                )}
+                            </h1>
                         )}
                         {isEditing ? (
                             <textarea
@@ -134,6 +146,8 @@ export default function BudgetDetail() {
                                 onChange={(e) => setEdits({ ...edits, description: e.target.value })}
                                 placeholder="Add a description..."
                             />
+                        ) : loading ? (
+                            <div className="skeleton-box" style={{ width: '80%', maxWidth: '400px', height: '24px', marginTop: '3px' }} />
                         ) : (
                             budget?.description && <p className="budget-description">{budget.description}</p>
                         )}
@@ -141,7 +155,9 @@ export default function BudgetDetail() {
 
                     {/* Header Action Buttons */}
                     <div className="budget-actions">
-                        {!isEditing ? (
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '190px', height: '37.15px', borderRadius: '8px' }} />
+                        ) : !isEditing ? (
                             <>
                                 <button className="btn-edit" onClick={() => {
                                     setEdits({
@@ -176,7 +192,9 @@ export default function BudgetDetail() {
                     {/* Limit Box (Editable Inline) */}
                     <div className="stat-box">
                         <span className="stat-label">Target Limit</span>
-                        {isEditing ? (
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '110px', height: '33.6px' }} />
+                        ) : isEditing ? (
                             <div className="inline-input-wrapper">
                                 <span>₹</span>
                                 <input
@@ -197,24 +215,33 @@ export default function BudgetDetail() {
                     {/* Spent Box (Read-only) */}
                     <div className="stat-box">
                         <span className="stat-label">Total Spent</span>
-                        <span className="stat-value spent-amount">
-                            ₹{linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0).toLocaleString()}
-                        </span>
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '100px', height: '33.6px' }} />
+                        ) : (
+                            <span className="stat-value spent-amount">
+                                ₹{linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0).toLocaleString()}
+                            </span>
+                        )}
                     </div>
 
                     {/* Balance Box (Read-only) */}
                     <div className="stat-box">
                         <span className="stat-label">Remaining Balance</span>
-                        <span className={`stat-value remaining-amount ${(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)) < 0 ? 'deficit' : 'surplus'
-                            }`}>
-                            ₹{(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)).toLocaleString()}
-                        </span>
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '120px', height: '33.6px' }} />
+                        ) : (
+                            <span className={`stat-value remaining-amount ${(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)) < 0 ? 'deficit' : 'surplus'}`}>
+                                ₹{(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)).toLocaleString()}
+                            </span>
+                        )}
                     </div>
 
                     {/* Status Box (Editable Inline) */}
                     <div className="stat-box">
                         <span className="stat-label">Status</span>
-                        {isEditing ? (
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '80px', height: '33.6px', borderRadius: '12px' }} />
+                        ) : isEditing ? (
                             <select
                                 className="inline-stat-select"
                                 value={edits.status}
@@ -235,44 +262,76 @@ export default function BudgetDetail() {
                 <div className="budget-progress-container">
                     <div className="progress-label-row">
                         <span>Overall Budget Progress</span>
-                        <span className={progress?.progress >= 100 ? "text-danger" : ""}>
-                            {progress?.progress?.toFixed(1)}%
-                        </span>
+                        {loading ? (
+                            <div className="skeleton-box" style={{ width: '55px', height: '16px' }} />
+                        ) : (
+                            <span className={progress?.progress >= 100 ? "text-danger" : ""}>
+                                {progress?.progress?.toFixed(1)}%
+                            </span>
+                        )}
                     </div>
                     <div className="progress-bar-track">
-                        <div
-                            className={`progress-bar-fill ${progress?.progress >= 100 ? 'over-budget' : ''}`}
-                            style={{ width: `${Math.min(progress?.progress || 0, 100)}%` }}
-                        />
+                        {loading ? (
+                            <div className="skeleton-box skeleton-progress-bar" />
+                        ) : (
+                            <div
+                                className={`progress-bar-fill ${progress?.progress >= 100 ? 'over-budget' : ''}`}
+                                style={{ width: `${Math.min(progress?.progress || 0, 100)}%` }}
+                            />
+                        )}
                     </div>
                     <div className="progress-dates">
-                        <span>Started: {new Date(budget?.start_date).toLocaleDateString()}</span>
-                        {budget?.end_date && <span>Ends: {new Date(budget.end_date).toLocaleDateString()}</span>}
+                        {loading ? (
+                            <>
+                                <div className="skeleton-box" style={{ width: '130px', height: '19.2px' }} />
+                                <div className="skeleton-box" style={{ width: '110px', height: '19.2px' }} />
+                            </>
+                        ) : (
+                            <>
+                                <span>Started: {new Date(budget?.start_date).toLocaleDateString()}</span>
+                                {budget?.end_date && <span>Ends: {new Date(budget.end_date).toLocaleDateString()}</span>}
+                            </>
+                        )}
                     </div>
                 </div>
 
             </div>
+
             <div className="budget-content-grid">
                 <div className="budget-categories-panel">
                     <h2>Categories in this Budget</h2>
                     <p>Select categories to include in this budget.</p>
                     <div className="add-category-control">
-                        <select
-                            value={selectedCategoryToAdd || ""}
-                            onChange={(e) => setSelectedCategoryToAdd(e.target.value)}
-                        >
-                            <option value="">-- Choose a Category --</option>
-                            {linkableCategories.map(cat => (
-                                <option key={cat.categoryid} value={cat.categoryid}>
-                                    {cat.name} ({cat.type})
-                                </option>
-                            ))}
-                        </select>
-                        <button onClick={handleAddCategory} disabled={!selectedCategoryToAdd}>Link Category</button>
+                        {loading ? (
+                            <>
+                                <div className="skeleton-box" style={{ width: '183.633px', height: '58.3px', borderRadius: '8px' }} />
+                                <div className="skeleton-box" style={{ width: '98.35px', height: '58.3px', borderRadius: '8px' }} />
+                            </>
+                        ) : (
+                            <>
+                                <select
+                                    value={selectedCategoryToAdd || ""}
+                                    onChange={(e) => setSelectedCategoryToAdd(e.target.value)}
+                                >
+                                    <option value="">-- Choose a Category --</option>
+                                    {linkableCategories.map(cat => (
+                                        <option key={cat.categoryid} value={cat.categoryid}>
+                                            {cat.name} ({cat.type})
+                                        </option>
+                                    ))}
+                                </select>
+                                <button onClick={handleAddCategory} disabled={!selectedCategoryToAdd}>Link Category</button>
+                            </>
+                        )}
                     </div>
+
                     {/* Pills List of Linked Categories */}
                     <div className="category-pills">
-                        {linkedCategories.length === 0 ? (
+                        {loading ? (
+                            [1, 2, 3].map((i) => (
+                                <div key={i} className="skeleton-box" style={{ width: '90px', height: '34px', borderRadius: '99px' }} />
+                            ))
+                        ) : linkedCategories.length === 0 ? (
                             <p className="empty-msg">No categories linked yet.</p>
                         ) : (
                             linkedCategories.map(cat => (
@@ -281,7 +340,7 @@ export default function BudgetDetail() {
                                     <button
                                         type="button"
                                         className="unlink-btn"
-                                        onClick={() => handleRemoveCategory(cat.categoryid)} // 👈 Triggers the fix
+                                        onClick={() => handleRemoveCategory(cat.categoryid)}
                                     >
                                         ×
                                     </button>
@@ -289,12 +348,18 @@ export default function BudgetDetail() {
                             ))
                         )}
                     </div>
-
                 </div>
+
                 <div className="budget-transactions-panel">
                     <h2>Transactions in this Budget</h2>
                     <div className="table-wrapper">
-                        {linkedTransactions.length === 0 ? (
+                        {loading ? (
+                            <div className="skeleton-table">
+                                <div className="skeleton-box skeleton-table-row"></div>
+                                <div className="skeleton-box skeleton-table-row"></div>
+                                <div className="skeleton-box skeleton-table-row"></div>
+                            </div>
+                        ) : linkedTransactions.length === 0 ? (
                             <p className="empty-msg">No transactions linked to this budget yet.</p>
                         ) : (
                             <table className="transactions-table">
@@ -317,7 +382,6 @@ export default function BudgetDetail() {
                             </table>
                         )}
                     </div>
-
                 </div>
             </div>
         </main>

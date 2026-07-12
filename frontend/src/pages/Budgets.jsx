@@ -18,7 +18,20 @@ export default function Budgets() {
     const [errors, setErrors] = useState({ name: "", target: "", type: "", start: "", end: "" });
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const activeBudgets = budgets.filter(b => b.status === "active");
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    // Filter active budgets: status is active and end date is in the future (or not set)
+    const activeBudgets = budgets.filter(b => 
+        b.status === "active" && 
+        (!b.end_date || b.end_date >= todayStr)
+    );
+
+    // Filter expired budgets: status is active but end date is in the past
+    const expiredBudgets = budgets.filter(b => 
+        b.status === "active" && 
+        b.end_date && b.end_date < todayStr
+    );
+
     const totalTarget = activeBudgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
     const totalSpent = activeBudgets.reduce((sum, b) => sum + parseFloat(b.spent_amount || 0), 0);
     const monthlyPlanned = activeBudgets.reduce((sum, b) => {
@@ -163,23 +176,41 @@ export default function Budgets() {
                 </div>
             </div>
 
+            <h2 className="section-title">Active Budgets</h2>
             <div className="budgets_grid">
-                {budgets.length === 0 ? (
-                    <p>No budgets found. Click "Add Budget" to create your first budget.</p>
+                {activeBudgets.length === 0 ? (
+                    <p>No active budgets found. Click "Add Budget" to create your first budget.</p>
                 ) : (
-                    budgets.map(budget => (
+                    activeBudgets.map(budget => (
                         <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
                             <h3>{budget.name}</h3>
                             {budget.description && <p>{budget.description}</p>}
-                            <p>Target: ${budget.target_amount}</p>
+                            <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
                             <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
                             <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
                             <p>End: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
-                            <p>Status: {budget.status.charAt(0).toUpperCase() + budget.status.slice(1)}</p>
                         </div>
                     ))
                 )}
             </div>
+
+            {expiredBudgets.length > 0 && (
+                <>
+                    <h2 className="section-title">Past Budgets</h2>
+                    <div className="budgets_grid">
+                        {expiredBudgets.map(budget => (
+                            <div key={budget.budgetid} className="budget_card expired" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
+                                <h3>{budget.name}</h3>
+                                {budget.description && <p>{budget.description}</p>}
+                                <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
+                                <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
+                                <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
+                                <p>End: {new Date(budget.end_date).toLocaleDateString()}</p>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
