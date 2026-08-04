@@ -1,0 +1,14 @@
+erDiagram
+
+    USERS ||--o{ TRANSACTIONS : owns
+    USERS ||--o{ BUDGETS : owns
+
+    CATEGORIES ||--o{ TRANSACTIONS : classifies
+
+    CATEGORIES ||--o{ CATEGORIES : parent_of
+
+    BUDGETS ||--o{ BUDGET_TRANSACTIONS : contains
+    TRANSACTIONS ||--o{ BUDGET_TRANSACTIONS : linked
+
+    BUDGETS ||--o{ BUDGET_CATEGORIES : contains
+    CATEGORIES ||--o{ BUDGET_CATEGORIES : linked

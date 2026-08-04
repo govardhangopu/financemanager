@@ -1,0 +1,46 @@
+---
+title: Financial Scenario Engine
+---
+
+flowchart TD
+
+    R["Reality<br/>Transactions<br/>Categories<br/>Budgets"]
+
+    S["Scenario<br/><br/>Operations<br/>• ADD<br/>• MODIFY<br/>• REMOVE"]
+
+    E["Simulation Engine<br/><br/>Apply Scenario Operations"]
+
+    D["Temporary Simulated Dataset"]
+
+    A["Analytics Engine"]
+
+    B["Budget Analytics"]
+
+    DASH["Dashboard Analytics"]
+
+    REP["Reports"]
+
+    R --> E
+    S --> E
+
+    E --> D
+
+    D --> A
+
+    A --> B
+    A --> DASH
+    A --> REP
+
+    classDef reality fill:#dbeafe,stroke:#2563eb,color:#000;
+    classDef scenario fill:#fde68a,stroke:#d97706,color:#000;
+    classDef engine fill:#bbf7d0,stroke:#16a34a,color:#000;
+    classDef dataset fill:#ddd6fe,stroke:#7c3aed,color:#000;
+    classDef analytics fill:#fed7aa,stroke:#ea580c,color:#000;
+    classDef output fill:#ffffff,stroke:#6b7280,color:#000;
+
+    class R reality;
+    class S scenario;
+    class E engine;
+    class D dataset;
+    class A analytics;
+    class B,DASH,REP output;
