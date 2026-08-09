@@ -6,6 +6,7 @@ A web application for managing personal and organizational finances. Track expen
 
 - `backend/` — Express API server using MySQL
 - `frontend/` — React app built with Vite
+- `docs/` — Documentation
 
 ## Features
 
