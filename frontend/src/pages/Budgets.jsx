@@ -94,7 +94,7 @@ export default function Budgets() {
                 <h2>Create New Budget</h2>
                 <label htmlFor="name">Budget Name:</label>
                 <div className="field1">
-                    <input id="name" type="text" placeholder="Name" autoFocus value={name} onChange={e => setName(e.target.value)} />
+                    <input id="name" type="text" placeholder="Name" autoFocus={showAddBudget ? true : false} value={name} onChange={e => setName(e.target.value)} />
                     <div className="errmsg">{errors.name}</div>
                 </div>
 

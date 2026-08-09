@@ -76,7 +76,7 @@ export default function BudgetDetail() {
     const linkableCategories = categories.filter(
         (cat) => !linkedCategories.some((lc) => lc.categoryid === cat.categoryid)
     );
-    console.log("Linkable Categories:", linkableCategories);
+    //console.log("Linkable Categories:", linkableCategories);
 
     async function handleAddCategory() {
         try {
