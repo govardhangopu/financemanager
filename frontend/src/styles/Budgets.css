@@ -198,6 +198,7 @@ button:hover {
 
 .budgets_grid .budget_card:hover {
     scale: 1.02;
+    cursor: pointer;
 }
 
 .section-title {

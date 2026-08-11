@@ -1,9 +1,33 @@
 import * as repo from "../repositories/budget.repo.js";
 
+// Dynamic Status Calculator
+const calculateStatus = (start_date, end_date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(start_date);
+    startDate.setHours(0, 0, 0, 0);
+
+    if (today < startDate) {
+        return "upcoming";
+    }
+
+    if (end_date) {
+        const endDate = new Date(end_date);
+        endDate.setHours(0, 0, 0, 0);
+
+        if (today > endDate) {
+            return "completed";
+        }
+    }
+
+    return "active";
+};
+
 // ADD
-export const addBudget = async ({ userid, status, target_amount, name, description, budget_type, start_date, end_date }) => {
-    const newBudget = await repo.create(userid, status, target_amount || null, name, description || null,
-        budget_type, start_date, end_date || null);
+export const addBudget = async ({ userid, target_amount, name, description, budget_type, start_date, end_date }) => {
+    const status = calculateStatus(start_date, end_date);
+    const newBudget = await repo.create(userid, status, target_amount || null, name, description || null, budget_type, start_date, end_date || null);
     return newBudget;
 }
 
@@ -20,13 +44,28 @@ export const addTransactionToBudget = async (budgetid, transactionid) => {
 // FETCH
 export const getBudgetById = async (budgetid) => {
     const budget = await repo.fetchBudgetById(budgetid);
+
+    if (budget.length) {
+        budget[0].status = calculateStatus(
+            budget[0].start_date,
+            budget[0].end_date
+        );
+    }
+
     return budget;
-}
+};
 
 export const getAllBudgets = async (userid) => {
     const budgets = await repo.fetchAllBudgets(userid);
-    return budgets;
-}
+
+    return budgets.map(budget => ({
+        ...budget,
+        status: calculateStatus(
+            budget.start_date,
+            budget.end_date
+        )
+    }));
+};
 
 export const getBudgetTransactions = async (budgetid) => {
     const transactions = await repo.fetchBudgetTransactions(budgetid);
@@ -49,10 +88,13 @@ export const getBudgetProgress = async (budgetid) => {
 }
 
 // UPDATE
-export const update = async ({ userid, budgetid, status, target_amount, name, description, budget_type, start_date, end_date }) => {
+export const update = async ({ userid, budgetid, target_amount, name, description, budget_type, start_date, end_date }) => {
     if (!(budgetid &&
-        (status || target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined)))
+        (target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined)))
         throw new Error('No data to update.');
+
+    const status = calculateStatus(start_date, end_date);
+
     const updated = await repo.updateRow(
         userid,
         budgetid,

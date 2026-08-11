@@ -9,6 +9,7 @@ import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
 import Budgets from "./pages/Budgets"
 import BudgetDetail from "./pages/BudgetDetail"
+import Scenarios from "./pages/Scenarios"
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -31,6 +32,7 @@ function App() {
           <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
           <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
           <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
+          <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
         </Routes>
       </Router>
 

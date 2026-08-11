@@ -18,18 +18,17 @@ export default function Budgets() {
     const [errors, setErrors] = useState({ name: "", target: "", type: "", start: "", end: "" });
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const todayStr = new Date().toISOString().split("T")[0];
-
-    // Filter active budgets: status is active and end date is in the future (or not set)
-    const activeBudgets = budgets.filter(b => 
-        b.status === "active" && 
-        (!b.end_date || b.end_date >= todayStr)
+    // Filter upcoming budgets: status is upcoming and end date is in the future (or not set)
+    const upcomingBudgets = budgets.filter(
+        budget => budget.status === "upcoming"
     );
 
+    // Filter active budgets: status is active and end date is in the future (or not set)
+    const activeBudgets = budgets.filter(b => b.status === "active");
+
     // Filter expired budgets: status is active but end date is in the past
-    const expiredBudgets = budgets.filter(b => 
-        b.status === "active" && 
-        b.end_date && b.end_date < todayStr
+    const completedBudgets = budgets.filter(
+        budget => budget.status === "completed"
     );
 
     const totalTarget = activeBudgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
@@ -62,7 +61,6 @@ export default function Budgets() {
             budget_type: budgetType,
             start_date: startDate,
             end_date: endDate,
-            status: "active"
         };
 
         //console.log("New budget data:", newBudget);
@@ -176,10 +174,24 @@ export default function Budgets() {
                 </div>
             </div>
 
+            {upcomingBudgets.length > 0 && <>
+                <h2 className="section-title">Upcoming Budgets</h2>
+                <div className="budgets_grid">
+                    {upcomingBudgets.map(budget => <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)}>
+                        <h3>{budget.name}</h3>
+                        {budget.description && <p>{budget.description}</p>}
+                        <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
+                        <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
+                        <p>Starts: {new Date(budget.start_date).toLocaleDateString()}</p>
+                        <p>Ends: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
+                    </div>)}
+                </div>
+            </>}
+
             <h2 className="section-title">Active Budgets</h2>
             <div className="budgets_grid">
                 {activeBudgets.length === 0 ? (
-                    <p>No active budgets found. Click "Add Budget" to create your first budget.</p>
+                    <p>No active budgets found.</p>
                 ) : (
                     activeBudgets.map(budget => (
                         <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
@@ -187,25 +199,25 @@ export default function Budgets() {
                             {budget.description && <p>{budget.description}</p>}
                             <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
                             <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
-                            <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
-                            <p>End: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
+                            <p>Started: {new Date(budget.start_date).toLocaleDateString()}</p>
+                            <p>Ends: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
                         </div>
                     ))
                 )}
             </div>
 
-            {expiredBudgets.length > 0 && (
+            {completedBudgets.length > 0 && (
                 <>
                     <h2 className="section-title">Past Budgets</h2>
                     <div className="budgets_grid">
-                        {expiredBudgets.map(budget => (
+                        {completedBudgets.map(budget => (
                             <div key={budget.budgetid} className="budget_card expired" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
                                 <h3>{budget.name}</h3>
                                 {budget.description && <p>{budget.description}</p>}
                                 <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
                                 <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
-                                <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
-                                <p>End: {new Date(budget.end_date).toLocaleDateString()}</p>
+                                <p>Started: {new Date(budget.start_date).toLocaleDateString()}</p>
+                                <p>Ended: {new Date(budget.end_date).toLocaleDateString()}</p>
                             </div>
                         ))}
                     </div>

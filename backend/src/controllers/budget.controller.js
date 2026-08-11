@@ -3,9 +3,9 @@ import * as budgetService from "../services/budget.service.js";
 // ADD
 export const addBudget = async (req, res, next) => {
     try {
-        const { status, target_amount, name, description, budget_type, start_date, end_date } = req.body;
+        const { target_amount, name, description, budget_type, start_date, end_date } = req.body;
         const response = await budgetService.addBudget(
-            { userid: req.user.id, status, target_amount, name, description, budget_type, start_date, end_date });
+            { userid: req.user.id, target_amount, name, description, budget_type, start_date, end_date });
         res.json(response);
     }
     catch (err) {
@@ -87,9 +87,9 @@ export const getBudgetProgress = async (req, res, next) => {
 export const updateBudget = async (req, res, next) => {
     try {
         const userid = req.user.id;
-        const { budgetid, status, target_amount, name, description, budget_type, start_date, end_date } = req.body;
+        const { budgetid, target_amount, name, description, budget_type, start_date, end_date } = req.body;
         const response = await budgetService.update(
-            { userid, budgetid, status, target_amount, name, description, budget_type, start_date, end_date });
+            { userid, budgetid, target_amount, name, description, budget_type, start_date, end_date });
         res.json(response);
     } catch (err) {
         next(err);
