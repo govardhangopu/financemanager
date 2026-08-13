@@ -3,7 +3,6 @@ import { useAuth } from './AuthContext';
 import { getTransactions } from "../api/transactionApi.js";
 import { getCategories } from "../api/categoriesApi.js";
 import { getAllBudgets } from "../api/budgetsApi.js";
-import { getAllScenarios } from "../api/scenarioApi.js";
 
 const FinanceContext = createContext(null);
 
@@ -12,11 +11,9 @@ export const FinanceProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [categories, setcategories] = useState([]);
     const [budgets, setBudgets] = useState([]);
-    const [scenarios, setScenarios] = useState([]);
     const [transactionsLoading, setTransactionsLoading] = useState(true);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [budgetsLoading, setBudgetsLoading] = useState(true);
-    const [scenariosLoading, setScenariosLoading] = useState(true);
 
     useEffect(() => {
         refreshTransactions();
@@ -60,18 +57,6 @@ export const FinanceProvider = ({ children }) => {
             .finally(() => setBudgetsLoading(false));
     }
 
-    function refreshScenarios() {
-        if (!token) return;
-        setScenariosLoading(true);
-        getAllScenarios()
-            .then(data => {
-                console.log(data);
-                setScenarios(data);
-            })
-            .catch(err => console.error(err))
-            .finally(() => setScenariosLoading(false));
-    }
-
     const incomes = transactions.filter((record) => record.type === "income");
     const expenses = transactions.filter(record => record.type === "expense");
 
@@ -82,9 +67,9 @@ export const FinanceProvider = ({ children }) => {
     return (
         <FinanceContext.Provider 
             value={
-                { transactionsLoading, categoriesLoading, budgetsLoading, scenariosLoading,
-                    transactions, categories, incomes, expenses, budgets, scenarios, netWorth, totalIncome, totalExpense,
-                    refreshTransactions, refreshCategories, refreshBudgets, refreshScenarios }
+                { transactionsLoading, categoriesLoading, budgetsLoading,
+                    transactions, categories, incomes, expenses, budgets, netWorth, totalIncome, totalExpense,
+                    refreshTransactions, refreshCategories, refreshBudgets }
                 }>
             {children}
         </FinanceContext.Provider>
