@@ -38,24 +38,26 @@ export const FinanceProvider = ({ children }) => {
 
     function refreshCategories() {
         if (!token) return;
+        setCategoriesLoading(true);
         getCategories()
             .then(data => {
                 //console.log(data);
                 setcategories(data);
-                setCategoriesLoading(false);
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => setCategoriesLoading(false));
     }
 
     function refreshBudgets() {
         if (!token) return;
+        setBudgetsLoading(true);
         getAllBudgets()
             .then(data => {
                 console.log(data);
                 setBudgets(data);
-                setBudgetsLoading(false);
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => setBudgetsLoading(false));
     }
 
     function refreshScenarios() {

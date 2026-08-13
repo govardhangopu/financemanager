@@ -17,7 +17,7 @@ export default function BudgetDetail() {
     const [loading, setLoading] = useState(true);
     const [selectedCategoryToAdd, setSelectedCategoryToAdd] = useState();
     const [isEditing, setIsEditing] = useState(false);
-    const [edits, setEdits] = useState({ name: "", description: "", targetAmount: 0, status: "" });
+    const [edits, setEdits] = useState({ name: "", description: "", targetAmount: "", startDate: "", endDate: "" });
     const { id } = useParams();
 
     useEffect(() => {
@@ -49,11 +49,21 @@ export default function BudgetDetail() {
     }
 
     async function handleUpdate() {
+        if (!confirm("Are you sure you want to save changes to this budget?")) return;
         try {
-            await updateBudget({ ...edits, budgetid: id });
+            const payload = {
+                budgetid: id,
+                name: edits.name,
+                description: edits.description,
+                target_amount: edits.targetAmount === "" ? null : Number(edits.targetAmount),
+                start_date: edits.startDate || null,
+                end_date: edits.endDate || null
+            };
+
+            await updateBudget(payload);
             setIsEditing(false);
             loadBudgetData();
-            alert("Budget updated successfully!");
+            refreshBudgets();
         } catch (err) {
             console.error("Failed to update budget:", err);
             alert("Failed to update budget.");
@@ -76,7 +86,7 @@ export default function BudgetDetail() {
     const linkableCategories = categories.filter(
         (cat) => !linkedCategories.some((lc) => lc.categoryid === cat.categoryid)
     );
-    console.log("Linkable Categories:", linkableCategories);
+    //console.log("Linkable Categories:", linkableCategories);
 
     async function handleAddCategory() {
         try {
@@ -101,6 +111,13 @@ export default function BudgetDetail() {
         }
     }
 
+    const formatDateValue = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toISOString().split("T")[0];
+    };
+
     return (
         <main className="budget-detail-page">
             {/* Back Button */}
@@ -121,6 +138,7 @@ export default function BudgetDetail() {
                                 budget?.budget_type
                             )}
                         </span>
+                        <br />
                         {isEditing ? (
                             <input
                                 type="text"
@@ -163,8 +181,9 @@ export default function BudgetDetail() {
                                     setEdits({
                                         name: budget.name,
                                         description: budget.description || "",
-                                        targetAmount: budget.target_amount,
-                                        status: budget.status
+                                        targetAmount: budget.target_amount ?? "",
+                                        startDate: formatDateValue(budget?.start_date),
+                                        endDate: formatDateValue(budget?.end_date)
                                     });
                                     setIsEditing(true);
                                 }}>
@@ -241,15 +260,6 @@ export default function BudgetDetail() {
                         <span className="stat-label">Status</span>
                         {loading ? (
                             <div className="skeleton-box" style={{ width: '80px', height: '33.6px', borderRadius: '12px' }} />
-                        ) : isEditing ? (
-                            <select
-                                className="inline-stat-select"
-                                value={edits.status}
-                                onChange={(e) => setEdits({ ...edits, status: e.target.value })}
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
                         ) : (
                             <span className={`status-pill ${budget?.status}`}>
                                 {budget?.status}
@@ -283,13 +293,45 @@ export default function BudgetDetail() {
                     <div className="progress-dates">
                         {loading ? (
                             <>
-                                <div className="skeleton-box" style={{ width: '130px', height: '19.2px' }} />
-                                <div className="skeleton-box" style={{ width: '110px', height: '19.2px' }} />
+                                <div
+                                    className="skeleton-box"
+                                    style={{ width: "130px", height: "19.2px" }}
+                                />
+                                <div
+                                    className="skeleton-box"
+                                    style={{ width: "110px", height: "19.2px" }}
+                                />
+                            </>
+                        ) : isEditing ? (
+                            <>
+                                <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '14px', marginTop: '10px' }}>
+                                    <span>Start Date:</span>
+                                    <input
+                                        className="inline-stat-input"
+                                        style={{gridColumn: "span 2 / span 2", fontSize: '14px'}}
+                                        type="date"
+                                        value={edits.startDate}
+                                        onChange={(e) => setEdits({ ...edits, startDate: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '14px', marginTop: '10px' }}>
+                                    <span>End Date:</span>
+                                    <input
+                                        className="inline-stat-input"
+                                        style={{gridColumn: "span 2 / span 2", fontSize: '14px'}}
+                                        type="date"
+                                        value={edits.endDate || ""}
+                                        onChange={(e) => setEdits({ ...edits, endDate: e.target.value })}
+                                    />
+                                </div>
                             </>
                         ) : (
                             <>
-                                <span>Started: {new Date(budget?.start_date).toLocaleDateString()}</span>
-                                {budget?.end_date && <span>Ends: {new Date(budget.end_date).toLocaleDateString()}</span>}
+                                <span>Started: {budget?.start_date ? new Date(budget.start_date).toLocaleDateString() : "Not set"}</span>
+                                {budget?.end_date ? <span>Ends: {new Date(budget.end_date).toLocaleDateString()}</span>
+                                    : ""
+                                }
                             </>
                         )}
                     </div>
