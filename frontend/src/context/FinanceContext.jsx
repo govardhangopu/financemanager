@@ -19,7 +19,6 @@ export const FinanceProvider = ({ children }) => {
         refreshTransactions();
         refreshCategories();
         refreshBudgets();
-        refreshScenarios();
     }, [token]);
 
     function refreshTransactions() {
