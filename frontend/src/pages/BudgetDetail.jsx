@@ -53,8 +53,8 @@ export default function BudgetDetail() {
         try {
             const payload = {
                 budgetid: id,
-                name: edits.name,
-                description: edits.description,
+                name: edits.name.trim(),
+                description: edits.description.trim() || null,
                 target_amount: edits.targetAmount === "" ? null : Number(edits.targetAmount),
                 start_date: edits.startDate || null,
                 end_date: edits.endDate || null
