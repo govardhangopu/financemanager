@@ -7,6 +7,20 @@ export const create = async (userid, amount, categoryid, is_partial, datetime) =
     return rows;
 }
 
+export const fetchById = async (userid, transactionid) => {
+    const pool = connectDB();
+
+    const [rows] = await pool.query(
+        `SELECT t.*, c.name AS category_name, c.type, c.parent_categoryid
+         FROM transactions t
+         LEFT JOIN categories c ON t.categoryid = c.categoryid
+         WHERE t.transactionid = ? AND t.userid = ?`,
+        [transactionid, userid]
+    );
+
+    return rows;
+}
+
 export const fetchTransactions = async (userid, is_partial = null) => {
     const pool = connectDB();
     const values = [userid];
