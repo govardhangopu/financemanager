@@ -10,6 +10,7 @@ import EditTransaction from "./pages/EditTransaction"
 import Budgets from "./pages/Budgets"
 import BudgetDetail from "./pages/BudgetDetail"
 import Scenarios from "./pages/Scenarios"
+import ScenarioDetail from './pages/ScenarioDetail'
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -33,6 +34,7 @@ function App() {
           <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
           <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
           <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
+          <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
         </Routes>
       </Router>
 

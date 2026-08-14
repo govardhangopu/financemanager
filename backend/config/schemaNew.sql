@@ -120,3 +120,46 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`scenarios` (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_transactions` (
+    `scenarioid` INT NOT NULL,
+    `transactionid` INT NOT NULL,
+    `amount_offset` DECIMAL(10,2) NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`scenarioid`, `transactionid`),
+
+    CONSTRAINT `scenario_transactions_scenario_fk`
+        FOREIGN KEY (`scenarioid`)
+        REFERENCES `financemanager`.`scenarios` (`scenarioid`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT `scenario_transactions_transaction_fk`
+        FOREIGN KEY (`transactionid`)
+        REFERENCES `financemanager`.`transactions` (`transactionid`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_hypothetical_transactions` (
+    `hypothetical_transactionid` INT NOT NULL AUTO_INCREMENT,
+    `scenarioid` INT NOT NULL,
+    `amount` DECIMAL(10,2) NOT NULL,
+    `categoryid` INT NULL,
+    `is_partial` TINYINT NOT NULL DEFAULT 0,
+    `date` DATETIME NOT NULL,
+
+    PRIMARY KEY (`hypothetical_transactionid`),
+
+    CONSTRAINT `scenario_hyp_transactions_scenario_fk`
+        FOREIGN KEY (`scenarioid`)
+        REFERENCES `financemanager`.`scenarios` (`scenarioid`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT `scenario_hyp_transactions_category_fk`
+        FOREIGN KEY (`categoryid`)
+        REFERENCES `financemanager`.`categories` (`categoryid`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);

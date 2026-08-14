@@ -55,3 +55,11 @@ export async function deleteScenario(id) {
     const res = await api.delete(`/${id}`);
     return res.data;
 }
+
+// SCENARIO TRANSACTION APIs
+
+// FETCH
+export async function getScenarioTransactions(id) {
+    const res = await api.get(`/${id}/transactions`);
+    return res.data;
+}

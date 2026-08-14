@@ -53,7 +53,7 @@ export const FinanceProvider = ({ children }) => {
         setBudgetsLoading(true);
         getAllBudgets()
             .then(data => {
-                console.log(data);
+                //console.log(data);
                 setBudgets(data);
             })
             .catch(err => console.error(err))
@@ -96,7 +96,7 @@ export const FinanceProvider = ({ children }) => {
  * import { useFinance }  from "../context/FinanceContext";
  * 
  * const Page = () => {
-    const { transactionsLoading, categoriesLoading, budgetsLoading, transactions, categories, incomes, expenses, budgets, refreshTransactions, refreshCategories, refreshBudgets } = useFinance(); 
+    const { transactionsLoading, categoriesLoading, budgetsLoading, scenariosLoading, transactions, categories, incomes, expenses, budgets, scenarios, refreshTransactions, refreshCategories, refreshBudgets, refreshScenarios } = useFinance(); 
 }
  */
 export const useFinance = () => {

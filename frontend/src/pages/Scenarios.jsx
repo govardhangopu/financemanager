@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext";
 import { addScenario } from "../api/scenarioApi.js";
 import "../styles/Scenarios.css"
 
 export default function Scenarios() {
+    const navigate = useNavigate();
     const { scenarios, refreshScenarios, scenariosLoading } = useFinance();
     const [showAddScenario, setShowAddScenario] = useState(false);
     const [name, setName] = useState("");

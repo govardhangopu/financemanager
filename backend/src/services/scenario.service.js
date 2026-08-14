@@ -28,7 +28,7 @@ export const fetchById = async ({ userid, scenarioid }) => {
 }
 
 // UPDATE
-export const update = async (userid, scenarioid, name, description) => {
+export const update = async ({ userid, scenarioid, name, description }) => {
     name = name?.trim();
 
     if (!name)
@@ -41,7 +41,7 @@ export const update = async (userid, scenarioid, name, description) => {
     if (existing.length === 0)
         throw new Error("Scenario not found.");
 
-    await repo.updateRow(userid, scenarioid, name, description);
+    await repo.updateRow({ userid, scenarioid, name, description });
 
     const updatedScenario = await repo.fetchById({ userid, scenarioid });
     return updatedScenario[0];
