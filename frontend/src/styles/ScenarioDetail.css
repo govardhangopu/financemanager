@@ -1,0 +1,106 @@
+.scenario-detail-page {
+    width: 100%;
+    min-height: 91vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: var(--text-color);
+}
+
+.scenario-detail-card,
+.scenario-content-panel {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.scenario-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.scenario-title-area h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.scenario-description {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.scenario-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.scenario-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.scenario-panel-header > div {
+    flex: 1;
+}
+
+.scenario-panel-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.scenario-panel-header p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.add-scenario-transaction-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.scenario-transactions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.scenario-transaction-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 20px;
+    background-color: var(--card-inner-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.scenario-transaction-row > div {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.scenario-transaction-row span,
+.scenario-transaction-row small {
+    color: var(--text-muted);
+}
+
+.scenario-empty-state {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+}

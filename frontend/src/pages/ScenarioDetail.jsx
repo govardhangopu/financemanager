@@ -1,30 +1,37 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
-import { getScenarioById, getScenarioTransactions, updateScenario, deleteScenario } from "../api/scenarioApi.js";
+import { 
+    addScenarioTransaction, addHypotheticalTransaction, 
+    getScenarioById, getScenarioTransactions, 
+    updateScenario, updateScenarioTransaction,
+    deleteScenario, deleteScenarioTransaction
+} from "../api/scenarioApi.js";
+import AddTransactionModal from "../components/AddTransactionModal.jsx";
+import "../styles/ScenarioDetail.css";
 
-export default function ScenarioDetail () {
+export default function ScenarioDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { transactions, refreshScenarios } = useFinance();
     const [scenario, setScenario] = useState();
     const [loading, setLoading] = useState(true);
     const [scenarioTransactions, setScenarioTransactions] = useState([]);
     const [transactionsLoading, setTransactionsLoading] = useState(true);
-    const { refreshScenarios } = useFinance();
     const [isEditing, setIsEditing] = useState(false);
-
+    const [showAddModal, setShowAddModal] = useState(false);
     const [edits, setEdits] = useState({ name: "", description: "" });
 
     useEffect(() => {
         setLoading(true);
         getScenarioById(id)
-        .then(res => setScenario(res))
-        .catch(err => {
-            console.error(err);
-            alert(err);
-            navigate("/scenarios", { replace: true });
-        })
-        .finally(() => setLoading(false));
+            .then(res => setScenario(res))
+            .catch(err => {
+                console.error(err);
+                alert(err);
+                navigate("/scenarios", { replace: true });
+            })
+            .finally(() => setLoading(false));
         refreshScenarioTransactions();
     }, [id])
 
@@ -33,7 +40,7 @@ export default function ScenarioDetail () {
         setTransactionsLoading(true);
         try {
             const data = await getScenarioTransactions(id);
-            setScenarioTransactions(data);
+            setScenarioTransactions(data);            
         } catch (err) {
             console.error("Failed to load scenario transactions:", err);
         } finally {
@@ -73,6 +80,63 @@ export default function ScenarioDetail () {
         }
     }
 
+    const getTransactionKey = t => `${t.scenario_type}-${t.transactionid ?? t.hypothetical_transactionid}`;
+
+    const scenarioTransactionIds = new Set(scenarioTransactions.filter(t => t.scenario_type === "real").map(t => t.transactionid));
+    const availableTransactions = transactions.filter(t => !scenarioTransactionIds.has(t.transactionid));
+
+    async function handleAddExisting(transaction, scenarioAmount) {
+        try {
+            const amountOffset = scenarioAmount - Number(transaction.amount);
+            await addScenarioTransaction(id, {
+                transactionid: transaction.transactionid,
+                amount_offset: amountOffset
+            });
+            await refreshScenarioTransactions();
+            setShowAddModal(false);
+        } catch (err) {
+            console.error("Failed to add transaction:", err);
+            alert("Failed to add transaction.");
+        }
+    }
+
+    const handleAddHypothetical = async (hypotheticalData) => {
+        try {
+            await addHypotheticalTransaction(id, hypotheticalData);
+            await refreshScenarioTransactions();
+            setShowAddModal(false);
+        } catch (err) {
+            console.error("Failed to add hypothetical transaction:", err);
+            alert(err.response?.data?.message || "Failed to add hypothetical transaction.");
+        }
+    };
+
+    async function handleUpdateTransaction(transaction, scenarioAmount) {
+        try {
+            const amount_offset = Number(scenarioAmount) - Number(transaction.amount);
+            await updateScenarioTransaction(id, transaction.transactionid, { amount_offset });
+            await refreshScenarioTransactions();
+        } catch (err) {
+            console.error("Failed to update scenario transaction:", err);
+            alert(err.response?.data?.message || "Failed to update transaction.");
+        }
+    }
+
+    async function handleDeleteTransaction(transaction) {
+        if (!confirm("Remove this transaction from the scenario?")) return;
+        try {
+            if (transaction.scenario_type === "real") {
+                await deleteScenarioTransaction(id, transaction.transactionid);
+            } else {
+                await deleteHypotheticalTransaction(id, transaction.hypothetical_transactionid);
+            }
+            await refreshScenarioTransactions();
+        } catch (err) {
+            console.error("Failed to remove scenario transaction:", err);
+            alert(err.response?.data?.message || "Failed to remove transaction.");
+        }
+    }
+
     return (
         <main className="scenario-detail-page">
             <button className="back-btn" onClick={() => navigate("/scenarios", { replace: true })}>←</button>
@@ -101,7 +165,6 @@ export default function ScenarioDetail () {
                                         name: scenario.name,
                                         description: scenario.description || ""
                                     });
-
                                     setIsEditing(true);
                                 }}>✏️ Edit</button>
                                 <button className="btn-delete" onClick={handleDelete}>🗑️ Delete</button>
@@ -122,33 +185,37 @@ export default function ScenarioDetail () {
                         <h2>Scenario Transactions</h2>
                         <p>Transactions that exist only within this scenario.</p>
                     </div>
-                    <button className="add-scenario-transaction-btn" disabled>+ Add Transaction</button>
+                    <button className="add-scenario-transaction-btn" onClick={() => setShowAddModal(true)}>
+                        + Add Transaction
+                    </button>
                 </div>
 
-                <div className="scenario-transactions">
-                    {transactionsLoading ? (
-                        <p>Loading transactions...</p>
-                    ) : scenarioTransactions.length === 0 ? (
-                        <div className="scenario-empty-state">
-                            <p>No scenario transactions yet.</p>
-                        </div>
-                    ) : (
-                        scenarioTransactions.map(transaction => (
-                            <div className="scenario-transaction-row" key={transaction.transactionid}>
-                                <div>
-                                    <strong>{transaction.category_name || "Uncategorized"}</strong>
-                                    <span>{new Date(transaction.date).toLocaleDateString()}</span>
-                                </div>
+                {showAddModal && (
+                    <AddTransactionModal
+                        availableTransactions={availableTransactions}
+                        onClose={() => setShowAddModal(false)}
+                        onAddExisting={handleAddExisting}
+                        onAddHypothetical={handleAddHypothetical}
+                    />
+                )}
 
-                                <div>
-                                    <span>Offset: ₹{transaction.amount_offset}</span>
-                                    <strong>₹{transaction.amount}</strong>
+                <div className="scenario-transactions">
+                    {transactionsLoading ? <p>Loading transactions...</p> :
+                        !scenarioTransactions.length ? <div className="scenario-empty-state"><p>No scenario transactions yet.</p></div> :
+                            scenarioTransactions.map(t => (
+                                <div className={`scenario-transaction-row ${t.type}`} key={getTransactionKey(t)}>
+                                    <div><strong>{t.category_name || "Uncategorized"}</strong><span>{new Date(t.date).toLocaleDateString()}</span></div>
+                                    <div>
+                                        {t.scenario_type === "real" && <span>Offset: ₹{t.amount_offset}</span>}
+                                        <strong>₹{t.amount}</strong>
+                                        <small>{t.scenario_type === "real" ? "Real" : "Hypothetical"}</small>
+                                        <button onClick={() => handleDeleteTransaction(t)}>🗑️</button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))
-                    )}
+                            ))}
                 </div>
             </div>
         </main>
+        
     );
 }
