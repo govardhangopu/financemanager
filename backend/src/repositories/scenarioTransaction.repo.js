@@ -28,10 +28,12 @@ export const fetchById = async ({ scenarioid, transactionid }) => {
         SELECT
             st.scenarioid,
             st.transactionid,
+            t.amount AS original_amount,
             t.amount + st.amount_offset AS amount,
             st.amount_offset,
             t.categoryid,
             c.name AS category_name,
+            c.type,
             t.date,
             t.is_partial
         FROM scenario_transactions st
@@ -43,7 +45,7 @@ export const fetchById = async ({ scenarioid, transactionid }) => {
           AND st.transactionid = ?
     `, [scenarioid, transactionid]);
     return rows;
-}
+};
 
 export const fetchAll = async ({ scenarioid }) => {
     const pool = connectDB();
@@ -51,6 +53,7 @@ export const fetchAll = async ({ scenarioid }) => {
         SELECT
             st.scenarioid,
             st.transactionid,
+            t.amount AS original_amount,
             t.amount + st.amount_offset AS amount,
             st.amount_offset,
             t.categoryid,
@@ -124,7 +127,7 @@ export const updateOffset = async ({ scenarioid, transactionid, amount_offset })
     return result;
 };
 
-export const updateHypotheticalTransaction = async ({ scenarioid, hypothetical_transactionid, amount, categoryid, is_partial, date }) => {
+export const updateHypothetical = async ({ scenarioid, hypothetical_transactionid, amount, categoryid, is_partial, date }) => {
     const pool = connectDB();
     const [result] = await pool.query(`
         UPDATE scenario_hypothetical_transactions

@@ -19,6 +19,10 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* =========================
+   Scenario Header
+   ========================= */
+
 .scenario-card-header {
     display: flex;
     justify-content: space-between;
@@ -42,6 +46,10 @@
     display: flex;
     gap: 10px;
 }
+
+/* =========================
+   Transaction Panel Header
+   ========================= */
 
 .scenario-panel-header {
     display: flex;
@@ -71,6 +79,10 @@
     flex-shrink: 0;
 }
 
+/* =========================
+   Transaction List
+   ========================= */
+
 .scenario-transactions {
     display: flex;
     flex-direction: column;
@@ -79,25 +91,97 @@
 
 .scenario-transaction-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 20px;
     padding: 16px 20px;
     background-color: var(--card-inner-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
+    transition: all 0.2s;
 }
 
-.scenario-transaction-row > div {
+.scenario-transaction-row:hover {
+    transform: scale(1.03);
+}
+
+/* =========================
+   Transaction Main Info
+   ========================= */
+
+.scenario-transaction-main {
+    width: 32%;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.scenario-transaction-row span,
-.scenario-transaction-row small {
+.scenario-transaction-main span {
     color: var(--text-muted);
+    font-size: 0.85rem;
 }
+
+/* =========================
+   Transaction Amount / Details
+   ========================= */
+
+.scenario-transaction-details {
+    width: 42%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 20px;
+    border-left: 1px solid var(--border-color);
+}
+
+.scenario-transaction-details > strong {
+    font-size: 1.1rem;
+}
+
+.scenario-transaction-offset {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+/* =========================
+   Transaction Type
+   ========================= */
+
+.scenario-transaction-type {
+    width: 12%;
+    text-align: center;
+}
+
+.scenario-transaction-type small {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* =========================
+   Transaction Actions
+   ========================= */
+
+.scenario-transaction-actions {
+    width: 60px;
+    display: flex;
+    gap: 6px;
+}
+
+.scenario-transaction-actions button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.scenario-transaction-actions button:hover {
+    background-color: var(--border-color);
+}
+
+/* =========================
+   Empty State
+   ========================= */
 
 .scenario-empty-state {
     padding: 30px;

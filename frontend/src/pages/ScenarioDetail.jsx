@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
-import { 
-    addScenarioTransaction, addHypotheticalTransaction, 
-    getScenarioById, getScenarioTransactions, 
-    updateScenario, updateScenarioTransaction,
+import {
+    addScenarioTransaction, addHypotheticalTransaction,
+    getScenarioById, getScenarioTransactions,
+    updateScenario, updateScenarioTransaction, updateHypotheticalTransaction,
     deleteScenario, deleteScenarioTransaction
 } from "../api/scenarioApi.js";
 import AddTransactionModal from "../components/AddTransactionModal.jsx";
@@ -18,6 +18,7 @@ export default function ScenarioDetail() {
     const [loading, setLoading] = useState(true);
     const [scenarioTransactions, setScenarioTransactions] = useState([]);
     const [transactionsLoading, setTransactionsLoading] = useState(true);
+    const [editingTransaction, setEditingTransaction] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [edits, setEdits] = useState({ name: "", description: "" });
@@ -40,7 +41,7 @@ export default function ScenarioDetail() {
         setTransactionsLoading(true);
         try {
             const data = await getScenarioTransactions(id);
-            setScenarioTransactions(data);            
+            setScenarioTransactions(data);
         } catch (err) {
             console.error("Failed to load scenario transactions:", err);
         } finally {
@@ -113,12 +114,24 @@ export default function ScenarioDetail() {
 
     async function handleUpdateTransaction(transaction, scenarioAmount) {
         try {
-            const amount_offset = Number(scenarioAmount) - Number(transaction.amount);
+            const amount_offset = Number(scenarioAmount) - Number(transaction.original_amount);
             await updateScenarioTransaction(id, transaction.transactionid, { amount_offset });
             await refreshScenarioTransactions();
         } catch (err) {
             console.error("Failed to update scenario transaction:", err);
             alert(err.response?.data?.message || "Failed to update transaction.");
+        }
+    }
+
+    async function handleUpdateHypothetical(transaction, data) {
+        try {
+            await updateHypotheticalTransaction(id, transaction.hypothetical_transactionid, data);
+            await refreshScenarioTransactions();
+            setShowAddModal(false);
+            setEditingTransaction(null);
+        } catch (err) {
+            console.error("Failed to update hypothetical transaction:", err);
+            alert(err.response?.data?.message || "Failed to update hypothetical transaction.");
         }
     }
 
@@ -193,9 +206,12 @@ export default function ScenarioDetail() {
                 {showAddModal && (
                     <AddTransactionModal
                         availableTransactions={availableTransactions}
-                        onClose={() => setShowAddModal(false)}
+                        onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
                         onAddExisting={handleAddExisting}
                         onAddHypothetical={handleAddHypothetical}
+                        editingTransaction={editingTransaction}
+                        onUpdateExisting={handleUpdateTransaction}
+                        onUpdateHypothetical={handleUpdateHypothetical}
                     />
                 )}
 
@@ -204,11 +220,25 @@ export default function ScenarioDetail() {
                         !scenarioTransactions.length ? <div className="scenario-empty-state"><p>No scenario transactions yet.</p></div> :
                             scenarioTransactions.map(t => (
                                 <div className={`scenario-transaction-row ${t.type}`} key={getTransactionKey(t)}>
-                                    <div><strong>{t.category_name || "Uncategorized"}</strong><span>{new Date(t.date).toLocaleDateString()}</span></div>
-                                    <div>
-                                        {t.scenario_type === "real" && <span>Offset: ₹{t.amount_offset}</span>}
+                                    <div className="scenario-transaction-main">
+                                        <strong>{t.category_name || "Uncategorized"}</strong>
+                                        <span>{new Date(t.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="scenario-transaction-details">
                                         <strong>₹{t.amount}</strong>
-                                        <small>{t.scenario_type === "real" ? "Real" : "Hypothetical"}</small>
+                                        <span className="scenario-transaction-offset">
+                                            {t.scenario_type === "real"
+                                                ? `Original: ₹${t.original_amount} · Offset: ₹${t.amount_offset}`
+                                                : "No original transaction"}
+                                        </span>
+                                    </div>
+                                    <div className="scenario-transaction-type">
+                                        <small>
+                                            {t.scenario_type === "real" ? "Real" : "Hypothetical"}
+                                        </small>
+                                    </div>
+                                    <div className="scenario-transaction-actions">
+                                        <button onClick={() => { setEditingTransaction(t); setShowAddModal(true); }}>✏️</button>
                                         <button onClick={() => handleDeleteTransaction(t)}>🗑️</button>
                                     </div>
                                 </div>
@@ -216,6 +246,6 @@ export default function ScenarioDetail() {
                 </div>
             </div>
         </main>
-        
+
     );
 }

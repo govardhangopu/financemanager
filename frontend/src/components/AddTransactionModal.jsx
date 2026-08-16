@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFinance } from "../context/FinanceContext";
 import "./AddTransactionModal.css";
 
-export default function AddTransactionModal({ availableTransactions, onClose, onAddExisting, onAddHypothetical }) {
+export default function AddTransactionModal({
+    availableTransactions,
+    onClose,
+    onAddExisting,
+    onAddHypothetical,
+    editingTransaction,
+    onUpdateExisting,
+    onUpdateHypothetical
+}) {
     const [step, setStep] = useState("menu"); // menu, existing, confirm, hypothetical
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [scenarioAmount, setScenarioAmount] = useState("");
@@ -14,6 +22,20 @@ export default function AddTransactionModal({ availableTransactions, onClose, on
 
     const parents = categories.filter(c => c.parent_categoryid === null);
     const sortedCategories = [];
+
+    useEffect(() => {
+        if (!editingTransaction) return;
+        if (editingTransaction.scenario_type === "real") {
+            setSelectedTransaction(editingTransaction);
+            setScenarioAmount(editingTransaction.amount);
+            setStep("confirm");
+        } else {
+            setStep("hypothetical");
+            setHypotheticalAmount(editingTransaction.amount);
+            setHypotheticalCategory(editingTransaction.categoryid);
+            setHypotheticalDate(editingTransaction.date.split("T")[0]);
+        }
+    }, [editingTransaction]);
 
     parents.forEach(parent => {
         sortedCategories.push({ ...parent, isChild: false });
@@ -51,7 +73,7 @@ export default function AddTransactionModal({ availableTransactions, onClose, on
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-header">
-                    <h3>Add Transaction to Scenario</h3>
+                    <h3>{editingTransaction ? "Edit Scenario Transaction" : "Add Transaction to Scenario"}</h3>
                     <button className="modal-close" onClick={resetModal}>✕</button>
                 </div>
 
@@ -99,7 +121,7 @@ export default function AddTransactionModal({ availableTransactions, onClose, on
                             <p className="form-value">{selectedTransaction.category_name || "Uncategorized"}</p>
 
                             <label>Actual Amount</label>
-                            <p className="form-value">₹{selectedTransaction.amount}</p>
+                            <p className="form-value">₹{selectedTransaction.original_amount}</p>
 
                             <label htmlFor="scenario-amount">Scenario Amount</label>
                             <input
@@ -114,8 +136,17 @@ export default function AddTransactionModal({ availableTransactions, onClose, on
                             {scenarioAmount && (
                                 <div className="offset-display">
                                     <span>Offset:</span>
-                                    <strong className={Number(scenarioAmount) > Number(selectedTransaction.amount) ? "positive" : "negative"}>
-                                        ₹{(Number(scenarioAmount) - Number(selectedTransaction.amount)).toFixed(2)}
+                                    <strong
+                                        className={
+                                            Number(scenarioAmount) >= Number(selectedTransaction.original_amount)
+                                                ? "positive"
+                                                : "negative"
+                                        }
+                                    >
+                                        ₹{(
+                                            Number(scenarioAmount) -
+                                            Number(selectedTransaction.original_amount)
+                                        ).toFixed(2)}
                                     </strong>
                                 </div>
                             )}
@@ -164,27 +195,52 @@ export default function AddTransactionModal({ availableTransactions, onClose, on
                 )}
 
                 <div className="modal-footer">
-                    {step !== "menu" && (
+                    {!editingTransaction && step !== "menu" && (
                         <button className="btn-secondary" onClick={() => setStep("menu")}>
                             ← Back
                         </button>
                     )}
                     {step === "confirm" && (
-                        <button className="btn-primary" onClick={handleConfirmExisting}>
-                            Add to Scenario
+                        <button
+                            className="btn-primary"
+                            onClick={async () => {
+                                try {
+                                    if (editingTransaction) {
+                                        await onUpdateExisting(
+                                            selectedTransaction,
+                                            Number(scenarioAmount)
+                                        );
+                                        resetModal();
+                                    } else {
+                                        await handleConfirmExisting();
+                                    }
+                                } catch (err) {
+                                    console.error(err);
+                                }
+                            }}
+                        >
+                            {editingTransaction ? "Save Changes" : "Add to Scenario"}
                         </button>
                     )}
                     {step === "hypothetical" && (
                         <button
                             className="btn-primary"
-                            onClick={() => onAddHypothetical({
-                                amount: Number(hypotheticalAmount),
-                                categoryid: Number(hypotheticalCategory),
-                                is_partial: 0,
-                                date: hypotheticalDate
-                            })}
+                            onClick={async () => {
+                                const data = {
+                                    amount: Number(hypotheticalAmount),
+                                    categoryid: Number(hypotheticalCategory),
+                                    is_partial: 0,
+                                    date: hypotheticalDate
+                                };
+                                if (editingTransaction) {
+                                    await onUpdateHypothetical(editingTransaction, data);
+                                } else {
+                                    await onAddHypothetical(data);
+                                }
+                                resetModal();
+                            }}
                         >
-                            Add to Scenario
+                            {editingTransaction ? "Save Changes" : "Add to Scenario"}
                         </button>
                     )}
                     <button className="btn-tertiary" onClick={resetModal}>
