@@ -22,6 +22,9 @@ export const addTransaction = async ({ userid, scenarioid, transactionid, amount
 
     if (!Number.isFinite(amount_offset))
         throw new Error("Invalid transaction offset.");
+    const scenarioAmount = Number(transaction[0].amount) + amount_offset;
+    if (scenarioAmount < 0)
+        throw new Error("Scenario transaction amount cannot be negative.");
 
     await repo.addTransaction({ scenarioid, transactionid, amount_offset });
     const result = await repo.fetchById({ scenarioid, transactionid });
@@ -79,6 +82,13 @@ export const fetchAllHypothetical = async ({ userid, scenarioid }) => {
     return await repo.fetchAllHypothetical({ scenarioid });
 };
 
+export const getSummary = async ({ userid, scenarioid }) => {
+    const scenario = await scenarioRepo.fetchById({ userid, scenarioid });
+    if (scenario.length === 0)
+        throw new Error("Scenario not found.");
+    return await repo.fetchSummary({ scenarioid });
+};
+
 // UPDATE
 export const updateOffset = async ({ userid, scenarioid, transactionid, amount_offset }) => {
     const scenario = await scenarioRepo.fetchById({ userid, scenarioid });
@@ -98,6 +108,9 @@ export const updateOffset = async ({ userid, scenarioid, transactionid, amount_o
 
     if (!Number.isFinite(amount_offset))
         throw new Error("Invalid transaction offset.");
+    const scenarioAmount = Number(transaction[0].amount) + amount_offset;
+    if (scenarioAmount < 0)
+        throw new Error("Scenario transaction amount cannot be negative.");
 
     await repo.updateOffset({ scenarioid, transactionid, amount_offset });
     const result = await repo.fetchById({ scenarioid, transactionid });

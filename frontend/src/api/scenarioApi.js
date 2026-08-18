@@ -103,6 +103,11 @@ export async function getHypotheticalTransactions(scenarioId) {
     return res.data;
 }
 
+export async function getScenarioSummary(id) {
+    const res = await api.get(`/${id}/summary`);
+    return res.data;
+}
+
 // UPDATE
 export async function updateHypotheticalTransaction(scenarioId, transactionId, data) {
     const res = await api.put(`/${scenarioId}/hypothetical-transactions/${transactionId}`, data);

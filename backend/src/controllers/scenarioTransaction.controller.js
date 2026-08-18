@@ -45,7 +45,6 @@ export const fetchHypotheticalById = async (req, res, next) => {
     }
 };
 
-// FETCH ALL
 export const fetchAllHypothetical = async (req, res, next) => {
     try {
         const { scenarioid } = req.params;
@@ -56,6 +55,17 @@ export const fetchAllHypothetical = async (req, res, next) => {
     }
 };
 
+export const getSummary = async (req, res, next) => {
+    try {
+        const { scenarioid } = req.params;
+        const response = await scenarioTransactionService.getSummary({ userid: req.user.id, scenarioid });
+        res.json(response);
+    } catch (err) {
+        next(err);
+    }
+};
+
+// UPDATE
 export const updateHypothetical = async (req, res, next) => {
     try {
         const { scenarioid, hypothetical_transactionid } = req.params;
@@ -67,7 +77,6 @@ export const updateHypothetical = async (req, res, next) => {
     }
 };
 
-// UPDATE
 export const updateOffset = async (req, res, next) => {
     try {
         const { scenarioid, transactionid } = req.params;

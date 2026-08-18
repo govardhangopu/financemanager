@@ -49,16 +49,20 @@ export default function AddTransactionModal({
     };
 
     const handleConfirmExisting = async () => {
-        if (!scenarioAmount) {
-            alert("Please enter a scenario amount");
+        const amount = Number(scenarioAmount);
+        if (!scenarioAmount || !Number.isFinite(amount) || amount < 0) {
             return;
         }
         try {
-            await onAddExisting(selectedTransaction, Number(scenarioAmount));
+            if (editingTransaction) {
+                await onUpdateExisting(selectedTransaction, amount);
+            } else {
+                await onAddExisting(selectedTransaction, amount);
+            }
             resetModal();
         } catch (err) {
-            console.error("Failed to add transaction:", err);
-            alert("Failed to add transaction");
+            console.error("Failed to save transaction:", err);
+            alert("Failed to save transaction");
         }
     };
 
@@ -121,35 +125,52 @@ export default function AddTransactionModal({
                             <p className="form-value">{selectedTransaction.category_name || "Uncategorized"}</p>
 
                             <label>Actual Amount</label>
-                            <p className="form-value">₹{selectedTransaction.original_amount}</p>
+                            <p className="form-value">₹{selectedTransaction.original_amount ?? selectedTransaction.amount}</p>
 
                             <label htmlFor="scenario-amount">Scenario Amount</label>
                             <input
                                 id="scenario-amount"
                                 type="number"
+                                min="0"
                                 value={scenarioAmount}
                                 onChange={e => setScenarioAmount(e.target.value)}
                                 placeholder="Enter scenario amount"
                                 step="0.01"
                             />
 
-                            {scenarioAmount && (
-                                <div className="offset-display">
-                                    <span>Offset:</span>
-                                    <strong
-                                        className={
-                                            Number(scenarioAmount) >= Number(selectedTransaction.original_amount)
-                                                ? "positive"
-                                                : "negative"
-                                        }
-                                    >
-                                        ₹{(
-                                            Number(scenarioAmount) -
-                                            Number(selectedTransaction.original_amount)
-                                        ).toFixed(2)}
-                                    </strong>
-                                </div>
+                            {scenarioAmount !== "" && !Number.isFinite(Number(scenarioAmount)) && (
+                                <small className="form-error">
+                                    Please enter a valid amount.
+                                </small>
                             )}
+
+                            {scenarioAmount !== "" &&
+                                Number.isFinite(Number(scenarioAmount)) &&
+                                Number(scenarioAmount) < 0 && (
+                                    <small className="form-error">
+                                        Scenario amount cannot be negative.
+                                    </small>
+                                )}
+
+                            {scenarioAmount !== "" &&
+                                Number.isFinite(Number(scenarioAmount)) &&
+                                Number(scenarioAmount) >= 0 && (
+                                    <div className="offset-display">
+                                        <span>Offset:</span>
+                                        <strong
+                                            className={
+                                                Number(scenarioAmount) >= Number(selectedTransaction.original_amount ?? selectedTransaction.amount)
+                                                    ? "positive"
+                                                    : "negative"
+                                            }
+                                        >
+                                            ₹{(
+                                                Number(scenarioAmount) -
+                                                Number(selectedTransaction.original_amount ?? selectedTransaction.amount)
+                                            ).toFixed(2)}
+                                        </strong>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 )}
@@ -201,24 +222,7 @@ export default function AddTransactionModal({
                         </button>
                     )}
                     {step === "confirm" && (
-                        <button
-                            className="btn-primary"
-                            onClick={async () => {
-                                try {
-                                    if (editingTransaction) {
-                                        await onUpdateExisting(
-                                            selectedTransaction,
-                                            Number(scenarioAmount)
-                                        );
-                                        resetModal();
-                                    } else {
-                                        await handleConfirmExisting();
-                                    }
-                                } catch (err) {
-                                    console.error(err);
-                                }
-                            }}
-                        >
+                        <button className="btn-primary" onClick={handleConfirmExisting}>
                             {editingTransaction ? "Save Changes" : "Add to Scenario"}
                         </button>
                     )}

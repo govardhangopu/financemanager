@@ -3,20 +3,49 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
 import {
     addScenarioTransaction, addHypotheticalTransaction,
-    getScenarioById, getScenarioTransactions,
+    getScenarioById, getScenarioTransactions, getScenarioSummary,
     updateScenario, updateScenarioTransaction, updateHypotheticalTransaction,
     deleteScenario, deleteScenarioTransaction
 } from "../api/scenarioApi.js";
 import AddTransactionModal from "../components/AddTransactionModal.jsx";
+import { GenericChart } from "../components/dashboard/GenericChart.jsx";
 import "../styles/ScenarioDetail.css";
 
 export default function ScenarioDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { transactions, refreshScenarios } = useFinance();
+    const { transactions, refreshScenarios, totalIncome, totalExpense, netWorth } = useFinance();
     const [scenario, setScenario] = useState();
     const [loading, setLoading] = useState(true);
     const [scenarioTransactions, setScenarioTransactions] = useState([]);
+    const [scenarioSummary, setScenarioSummary] = useState({ income: 0, expense: 0, net: 0 });
+    const incomeChange = Number(scenarioSummary.income) - totalIncome;
+    const expenseChange = Number(scenarioSummary.expense) - totalExpense;
+    const netChange = Number(scenarioSummary.net) - netWorth;
+    const comparisonLabels = ["Income", "Expenses", "Net"];
+    const comparisonDatasets = [
+        {
+            label: "Actual",
+            data: [
+                Number(totalIncome),
+                Number(totalExpense),
+                Number(netWorth)
+            ],
+            backgroundColor: "#6b7280",
+            borderColor: "#6b7280",
+        },
+        {
+            label: "Scenario",
+            data: [
+                Number(scenarioSummary.income),
+                Number(scenarioSummary.expense),
+                Number(scenarioSummary.net)
+            ],
+            backgroundColor: "#3b82f6",
+            borderColor: "#3b82f6",
+        }
+    ];
+
     const [transactionsLoading, setTransactionsLoading] = useState(true);
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -40,8 +69,12 @@ export default function ScenarioDetail() {
         if (!id) return;
         setTransactionsLoading(true);
         try {
-            const data = await getScenarioTransactions(id);
-            setScenarioTransactions(data);
+            const [transactionsData, summaryData] = await Promise.all([
+                getScenarioTransactions(id),
+                getScenarioSummary(id)
+            ]);
+            setScenarioTransactions(transactionsData);
+            setScenarioSummary(summaryData);
         } catch (err) {
             console.error("Failed to load scenario transactions:", err);
         } finally {
@@ -201,6 +234,62 @@ export default function ScenarioDetail() {
                     <button className="add-scenario-transaction-btn" onClick={() => setShowAddModal(true)}>
                         + Add Transaction
                     </button>
+                </div>
+
+                <div className="scenario-summary">
+                    <div className="scenario-summary-item">
+                        <span>Income</span>
+                        <strong>₹{Number(scenarioSummary.income).toFixed(2)}</strong>
+                    </div>
+                    <div className="scenario-summary-item">
+                        <span>Expenses</span>
+                        <strong>₹{Number(scenarioSummary.expense).toFixed(2)}</strong>
+                    </div>
+                    <div className="scenario-summary-item">
+                        <span>Net</span>
+                        <strong>₹{Number(scenarioSummary.net).toFixed(2)}</strong>
+                    </div>
+                </div>
+
+                <div className="scenario-comparison">
+                    <div className="scenario-comparison-header">
+                        <span></span>
+                        <span>Actual</span>
+                        <span>Scenario</span>
+                        <span>Change</span>
+                    </div>
+
+                    <div className="scenario-comparison-row">
+                        <strong>Income</strong>
+                        <span>₹{Number(totalIncome).toFixed(2)}</span>
+                        <span>₹{Number(scenarioSummary.income).toFixed(2)}</span>
+                        <span className={incomeChange > 0 ? "positive" : incomeChange < 0 ? "negative" : ""}>
+                            {incomeChange > 0 ? "+" : ""}₹{incomeChange.toFixed(2)}
+                        </span>
+                    </div>
+
+                    <div className="scenario-comparison-row">
+                        <strong>Expenses</strong>
+                        <span>₹{Number(totalExpense).toFixed(2)}</span>
+                        <span>₹{Number(scenarioSummary.expense).toFixed(2)}</span>
+                        <span className={expenseChange > 0 ? "positive" : expenseChange < 0 ? "negative" : ""}>
+                            {expenseChange > 0 ? "+" : ""}₹{expenseChange.toFixed(2)}
+                        </span>
+                    </div>
+
+                    <div className="scenario-comparison-row">
+                        <strong>Net</strong>
+                        <span>₹{Number(netWorth).toFixed(2)}</span>
+                        <span>₹{Number(scenarioSummary.net).toFixed(2)}</span>
+                        <span className={netChange > 0 ? "positive" : netChange < 0 ? "negative" : ""}>
+                            {netChange > 0 ? "+" : ""}₹{netChange.toFixed(2)}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="scenario-comparison-chart">
+                    <h3>Actual vs Scenario</h3>
+                    <GenericChart labels={comparisonLabels} datasets={comparisonDatasets} type="bar" />
                 </div>
 
                 {showAddModal && (

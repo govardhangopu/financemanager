@@ -115,6 +115,42 @@ export const fetchAllHypothetical = async ({ scenarioid }) => {
     return rows;
 };
 
+export const fetchSummary = async ({ scenarioid }) => {
+    const pool = connectDB();
+    const [rows] = await pool.query(`
+        SELECT
+            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
+            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense,
+            COALESCE(SUM(CASE
+                WHEN type = 'income' THEN amount
+                WHEN type = 'expense' THEN -amount
+                ELSE 0
+            END), 0) AS net
+        FROM (
+            SELECT
+                t.amount + st.amount_offset AS amount,
+                c.type
+            FROM scenario_transactions st
+            INNER JOIN transactions t
+                ON st.transactionid = t.transactionid
+            LEFT JOIN categories c
+                ON t.categoryid = c.categoryid
+            WHERE st.scenarioid = ?
+
+            UNION ALL
+
+            SELECT
+                ht.amount,
+                c.type
+            FROM scenario_hypothetical_transactions ht
+            LEFT JOIN categories c
+                ON ht.categoryid = c.categoryid
+            WHERE ht.scenarioid = ?
+        ) scenario_transactions
+    `, [scenarioid, scenarioid]);
+    return rows[0];
+};
+
 // UPDATE
 export const updateOffset = async ({ scenarioid, transactionid, amount_offset }) => {
     const pool = connectDB();
