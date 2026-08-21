@@ -108,6 +108,11 @@ export async function getScenarioSummary(id) {
     return res.data;
 }
 
+export async function getSimulatedScenarioTransactions(id) {
+    const res = await api.get(`/${id}/simulated-transactions`);
+    return res.data;
+}
+
 // UPDATE
 export async function updateHypotheticalTransaction(scenarioId, transactionId, data) {
     const res = await api.put(`/${scenarioId}/hypothetical-transactions/${transactionId}`, data);

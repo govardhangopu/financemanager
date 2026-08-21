@@ -47,38 +47,8 @@
     gap: 10px;
 }
 
-/* =================
-   Scenario Summary
-   =================*/
-
-.scenario-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.scenario-summary-item {
-    padding: 16px;
-    background-color: var(--card-inner-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.scenario-summary-item span {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-}
-
-.scenario-summary-item strong {
-    font-size: 1.2rem;
-}
-
 /* ====================
-   Scenario Comaprison
+   Scenario Comparison
    ====================*/
 
 .scenario-comparison {
@@ -128,6 +98,15 @@
 }
 
 .scenario-comparison-chart h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+}
+
+.scenario-timeline-chart {
+    margin-bottom: 24px;
+}
+
+.scenario-timeline-chart h3 {
     margin: 0 0 16px;
     font-size: 1.1rem;
 }

@@ -65,6 +65,16 @@ export const getSummary = async (req, res, next) => {
     }
 };
 
+export const fetchSimulatedTransactions = async (req, res, next) => {
+    try {
+        const { scenarioid } = req.params;
+        const response = await scenarioTransactionService.fetchSimulatedTransactions({ userid: req.user.id, scenarioid });
+        res.json(response);
+    } catch (err) {
+        next(err);
+    }
+};
+
 // UPDATE
 export const updateHypothetical = async (req, res, next) => {
     try {

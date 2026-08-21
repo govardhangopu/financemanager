@@ -3,12 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
 import {
     addScenarioTransaction, addHypotheticalTransaction,
-    getScenarioById, getScenarioTransactions, getScenarioSummary,
+    getScenarioById, getScenarioTransactions, getScenarioSummary, getSimulatedScenarioTransactions,
     updateScenario, updateScenarioTransaction, updateHypotheticalTransaction,
     deleteScenario, deleteScenarioTransaction
 } from "../api/scenarioApi.js";
 import AddTransactionModal from "../components/AddTransactionModal.jsx";
 import { GenericChart } from "../components/dashboard/GenericChart.jsx";
+import { buildScenarioTimeline } from "../utils/buildScenarioTimeline.js";
 import "../styles/ScenarioDetail.css";
 
 export default function ScenarioDetail() {
@@ -19,6 +20,7 @@ export default function ScenarioDetail() {
     const [loading, setLoading] = useState(true);
     const [scenarioTransactions, setScenarioTransactions] = useState([]);
     const [scenarioSummary, setScenarioSummary] = useState({ income: 0, expense: 0, net: 0 });
+    const [simulatedTransactions, setSimulatedTransactions] = useState([]);
     const incomeChange = Number(scenarioSummary.income) - totalIncome;
     const expenseChange = Number(scenarioSummary.expense) - totalExpense;
     const netChange = Number(scenarioSummary.net) - netWorth;
@@ -46,6 +48,22 @@ export default function ScenarioDetail() {
         }
     ];
 
+    const { labels: timelineLabels, actualData, scenarioData } = buildScenarioTimeline(simulatedTransactions);
+    const timelineDatasets = [
+        {
+            label: "Actual",
+            data: actualData,
+            borderColor: "#6b7280",
+            backgroundColor: "#6b7280",
+        },
+        {
+            label: "Scenario",
+            data: scenarioData,
+            borderColor: "#3b82f6",
+            backgroundColor: "#3b82f6",
+        }
+    ];
+
     const [transactionsLoading, setTransactionsLoading] = useState(true);
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -69,12 +87,14 @@ export default function ScenarioDetail() {
         if (!id) return;
         setTransactionsLoading(true);
         try {
-            const [transactionsData, summaryData] = await Promise.all([
+            const [transactionsData, summaryData, simulatedData] = await Promise.all([
                 getScenarioTransactions(id),
-                getScenarioSummary(id)
+                getScenarioSummary(id),
+                getSimulatedScenarioTransactions(id)
             ]);
             setScenarioTransactions(transactionsData);
             setScenarioSummary(summaryData);
+            setSimulatedTransactions(simulatedData);
         } catch (err) {
             console.error("Failed to load scenario transactions:", err);
         } finally {
@@ -228,27 +248,12 @@ export default function ScenarioDetail() {
             <div className="scenario-content-panel">
                 <div className="scenario-panel-header">
                     <div>
-                        <h2>Scenario Transactions</h2>
-                        <p>Transactions that exist only within this scenario.</p>
+                        <h2>Scenario Changes</h2>
+                        <p>Transactions modified or added by this scenario.</p>
                     </div>
                     <button className="add-scenario-transaction-btn" onClick={() => setShowAddModal(true)}>
                         + Add Transaction
                     </button>
-                </div>
-
-                <div className="scenario-summary">
-                    <div className="scenario-summary-item">
-                        <span>Income</span>
-                        <strong>₹{Number(scenarioSummary.income).toFixed(2)}</strong>
-                    </div>
-                    <div className="scenario-summary-item">
-                        <span>Expenses</span>
-                        <strong>₹{Number(scenarioSummary.expense).toFixed(2)}</strong>
-                    </div>
-                    <div className="scenario-summary-item">
-                        <span>Net</span>
-                        <strong>₹{Number(scenarioSummary.net).toFixed(2)}</strong>
-                    </div>
                 </div>
 
                 <div className="scenario-comparison">
@@ -290,6 +295,11 @@ export default function ScenarioDetail() {
                 <div className="scenario-comparison-chart">
                     <h3>Actual vs Scenario</h3>
                     <GenericChart labels={comparisonLabels} datasets={comparisonDatasets} type="bar" />
+                </div>
+
+                <div className="scenario-timeline-chart">
+                    <h3>Financial Trajectory</h3>
+                    <GenericChart labels={timelineLabels} datasets={timelineDatasets} type="line" />
                 </div>
 
                 {showAddModal && (

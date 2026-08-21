@@ -89,6 +89,13 @@ export const getSummary = async ({ userid, scenarioid }) => {
     return await repo.fetchSummary({ scenarioid });
 };
 
+export const fetchSimulatedTransactions = async ({ userid, scenarioid }) => {
+    const scenario = await scenarioRepo.fetchById({ userid, scenarioid });
+    if (scenario.length === 0)
+        throw new Error("Scenario not found.");
+    return await repo.fetchSimulatedTransactions({ scenarioid });
+};
+
 // UPDATE
 export const updateOffset = async ({ userid, scenarioid, transactionid, amount_offset }) => {
     const scenario = await scenarioRepo.fetchById({ userid, scenarioid });

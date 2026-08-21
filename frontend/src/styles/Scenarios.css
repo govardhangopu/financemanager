@@ -1,15 +1,376 @@
 .scenarios-page {
-    display: flex;
-    flex-direction: column;
+    width: 100%;
+    padding: 30px 40px;
+    box-sizing: border-box;
+
     background-color: var(--bg-color);
     color: var(--text-color);
-    align-items: center;
-    width: 100%;
-    height: 91vh;
-    gap: 20px;
-    overflow-y: auto;
 }
 
-.scenarios-page h1 {
+.scenarios-header,
+.scenarios-section {
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* =========================
+   Page Header
+   ========================= */
+
+.scenarios-header {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.scenarios-header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.scenarios-header p {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.scenario-create-btn {
+    white-space: nowrap;
+}
+
+/* =========================
+   Scenario Discovery
+   ========================= */
+
+.scenario-discovery {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto 8px;
+}
+
+.scenario-discovery>h2 {
+    margin: 0 0 16px;
+
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.scenario-discovery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.scenario-discovery-item {
     padding: 20px;
+
+    background-color: var(--card-inner-bg);
+
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+
+.scenario-discovery-item h3 {
+    margin: 0 0 8px;
+
+    font-size: 1rem;
+}
+
+.scenario-discovery-item p {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+/* =========================
+   Create Scenario Panel
+   ========================= */
+
+.scenario-create-panel {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 24px;
+    padding: 30px;
+    box-sizing: border-box;
+
+    background-color: var(--card-inner-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.scenario-create-panel h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.scenario-form-description {
+    margin: 6px 0 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* =========================
+   Form Fields
+   ========================= */
+
+.scenario-form-field {
+    margin-bottom: 18px;
+}
+
+.scenario-form-field label {
+    display: block;
+    margin-bottom: 6px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.scenario-form-field input,
+.scenario-form-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 10px 12px;
+
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+
+    background-color: var(--input-bg);
+    color: var(--input-color);
+
+    font-family: inherit;
+    font-size: 0.95rem;
+
+    outline: none;
+}
+
+.scenario-form-field input:focus,
+.scenario-form-field textarea:focus {
+    border-color: #4f7cff;
+}
+
+.scenario-form-field textarea {
+    min-height: 90px;
+    resize: none;
+    overflow: hidden;
+}
+
+/* =========================
+   Form Actions
+   ========================= */
+
+.scenario-create-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+/* =========================
+   Errors
+   ========================= */
+
+.scenario-error {
+    color: #ff4d4d;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+/* =========================
+   Scenario Section
+   ========================= */
+
+.scenarios-section {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.scenarios-section-title {
+    margin: 0 0 16px;
+
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* =========================
+   Scenario Grid
+   ========================= */
+
+.scenarios-grid {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit,
+            minmax(260px, 1fr));
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+/* =========================
+   Scenario Card
+   ========================= */
+
+.scenario-card {
+    padding: 22px;
+    box-sizing: border-box;
+
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.scenario-card:hover {
+    transform: translateY(-3px);
+
+    border-color: var(--text-muted);
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.scenario-card h3 {
+    margin: 0 0 8px;
+
+    font-size: 1.15rem;
+}
+
+.scenario-card p {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.scenario-card-link {
+    display: block;
+
+    margin-top: 16px;
+
+    color: var(--text-muted);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.scenario-card:hover .scenario-card-link {
+    color: var(--text-color);
+}
+
+/* =========================
+   Empty State
+   ========================= */
+
+.scenario-empty-state {
+    width: 100%;
+    max-width: 650px;
+
+    margin: 20px auto;
+    padding: 40px;
+    box-sizing: border-box;
+
+    text-align: center;
+
+    background-color: var(--card-inner-bg);
+
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+}
+
+.scenario-empty-state h3 {
+    margin: 0 0 12px;
+
+    font-size: 1.3rem;
+}
+
+.scenario-empty-state p {
+    margin: 8px 0;
+
+    color: var(--text-muted);
+
+    line-height: 1.5;
+}
+
+.scenario-empty-state button {
+    margin-top: 20px;
+}
+
+/* =========================
+   Loading State
+   ========================= */
+
+.scenario-list-state {
+    width: 100%;
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    color: var(--text-muted);
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 700px) {
+
+    .scenarios-page {
+        padding: 20px;
+    }
+
+    .scenarios-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .scenario-create-btn {
+        width: 100%;
+    }
+
+    .scenario-discovery-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scenario-create-panel {
+        padding: 22px;
+    }
+
+    .scenario-create-actions {
+        flex-direction: column;
+    }
+
+    .scenario-create-actions button {
+        width: 100%;
+    }
 }

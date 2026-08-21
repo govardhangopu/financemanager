@@ -23,19 +23,22 @@ function App() {
     <>
       <Router>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+        <main>
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
-          <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
-          <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
-          <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
-          <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
-          <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
-        </Routes>
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+            <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
+            <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
+            <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
+            <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
+            <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
+          </Routes>
+        </main>
+        
       </Router>
 
 

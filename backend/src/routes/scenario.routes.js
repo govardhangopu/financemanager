@@ -23,6 +23,7 @@ router.post("/:scenarioid/hypothetical-transactions", scenarioTransactionControl
 // FETCH
 router.get('/:scenarioid', fetchById);
 router.get("/:scenarioid/transactions", scenarioTransactionController.fetchAll);
+router.get('/:scenarioid/simulated-transactions', scenarioTransactionController.fetchSimulatedTransactions);
 router.get("/:scenarioid/hypothetical-transactions", scenarioTransactionController.fetchAllHypothetical);
 router.get("/:scenarioid/hypothetical-transactions/:hypothetical_transactionid", scenarioTransactionController.fetchHypotheticalById);
 router.get("/:scenarioid/summary", scenarioTransactionController.getSummary);

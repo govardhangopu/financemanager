@@ -127,6 +127,28 @@ export const fetchSummary = async ({ scenarioid }) => {
                 ELSE 0
             END), 0) AS net
         FROM (
+            /* Actual transactions that are NOT modified by this scenario */
+            SELECT
+                t.amount AS amount,
+                c.type
+            FROM transactions t
+            LEFT JOIN categories c
+                ON t.categoryid = c.categoryid
+            WHERE t.userid = (
+                SELECT userid
+                FROM scenarios
+                WHERE scenarioid = ?
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM scenario_transactions st
+                WHERE st.scenarioid = ?
+                  AND st.transactionid = t.transactionid
+            )
+
+            UNION ALL
+
+            /* Real transactions modified by this scenario */
             SELECT
                 t.amount + st.amount_offset AS amount,
                 c.type
@@ -139,6 +161,7 @@ export const fetchSummary = async ({ scenarioid }) => {
 
             UNION ALL
 
+            /* Hypothetical transactions added by this scenario */
             SELECT
                 ht.amount,
                 c.type
@@ -146,9 +169,78 @@ export const fetchSummary = async ({ scenarioid }) => {
             LEFT JOIN categories c
                 ON ht.categoryid = c.categoryid
             WHERE ht.scenarioid = ?
-        ) scenario_transactions
-    `, [scenarioid, scenarioid]);
+        ) simulated_transactions
+    `, [scenarioid, scenarioid, scenarioid, scenarioid]);
     return rows[0];
+};
+
+export const fetchSimulatedTransactions = async ({ scenarioid }) => {
+    const pool = connectDB();
+    const [rows] = await pool.query(`
+        SELECT
+            t.transactionid,
+            t.amount AS original_amount,
+            t.amount AS amount,
+            c.name AS category_name,
+            c.type,
+            t.categoryid,
+            t.date,
+            t.is_partial,
+            'real' AS scenario_type
+        FROM transactions t
+        LEFT JOIN categories c
+            ON t.categoryid = c.categoryid
+        WHERE t.userid = (
+            SELECT userid
+            FROM scenarios
+            WHERE scenarioid = ?
+        )
+        AND NOT EXISTS (
+            SELECT 1
+            FROM scenario_transactions st
+            WHERE st.scenarioid = ?
+              AND st.transactionid = t.transactionid
+        )
+
+        UNION ALL
+
+        SELECT
+            t.transactionid,
+            t.amount AS original_amount,
+            t.amount + st.amount_offset AS amount,
+            c.name AS category_name,
+            c.type,
+            t.categoryid,
+            t.date,
+            t.is_partial,
+            'real' AS scenario_type
+        FROM scenario_transactions st
+        INNER JOIN transactions t
+            ON st.transactionid = t.transactionid
+        LEFT JOIN categories c
+            ON t.categoryid = c.categoryid
+        WHERE st.scenarioid = ?
+
+        UNION ALL
+
+        SELECT
+            ht.hypothetical_transactionid AS transactionid,
+            NULL AS original_amount,
+            ht.amount,
+            c.name AS category_name,
+            c.type,
+            ht.categoryid,
+            ht.date,
+            ht.is_partial,
+            'hypothetical' AS scenario_type
+        FROM scenario_hypothetical_transactions ht
+        LEFT JOIN categories c
+            ON ht.categoryid = c.categoryid
+        WHERE ht.scenarioid = ?
+
+        ORDER BY date ASC
+    `, [scenarioid, scenarioid, scenarioid, scenarioid]);
+    return rows;
 };
 
 // UPDATE
