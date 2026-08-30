@@ -5,7 +5,7 @@ export const create = async ({ userid, name, description }) => {
     const pool = connectDB();
     const [result] = await pool.query(`INSERT INTO scenarios(userid, name, description)
         VALUES (?, ?, ?)`, [userid, name, description]);
-    return await fetchById(userid, result.insertId);;
+    return await fetchById({ userid, scenarioid: result.insertId});;
 }
 
 // FETCH

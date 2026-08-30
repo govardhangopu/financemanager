@@ -1,17 +1,31 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext";
 import { addScenario } from "../api/scenarioApi.js";
 import "../styles/Scenarios.css";
 
 export default function Scenarios() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { scenarios, refreshScenarios, scenariosLoading } = useFinance();
 
     const [showAddScenario, setShowAddScenario] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [errors, setErrors] = useState({ name: "", description: "" });
+    const [transactionToExplore, setTransactionToExplore] = useState(null);
+
+    useEffect(() => {
+        if (location.state?.openCreateScenario) {
+            setShowAddScenario(true);
+
+            if (location.state.transactionToExplore) {
+                setTransactionToExplore(
+                    location.state.transactionToExplore
+                );
+            }
+        }
+    }, [location.state]);
 
     function handleCreate() {
         const newErrors = {};
@@ -38,8 +52,12 @@ export default function Scenarios() {
                 setErrors({ name: "", description: "" });
                 setShowAddScenario(false);
 
-                if (res && res.insertId) {
-                    navigate(`/scenarios/${res.insertId}`);
+                if (res?.[0]?.scenarioid) {
+                    navigate(`/scenarios/${res[0].scenarioid}`, {
+                        state: transactionToExplore
+                            ? { transactionToExplore }
+                            : undefined
+                    });
                 }
             })
             .catch((err) => {

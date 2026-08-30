@@ -8,6 +8,7 @@ export default function AddTransactionModal({
     onAddExisting,
     onAddHypothetical,
     editingTransaction,
+    initialTransaction,
     onUpdateExisting,
     onUpdateHypothetical
 }) {
@@ -36,6 +37,14 @@ export default function AddTransactionModal({
             setHypotheticalDate(editingTransaction.date.split("T")[0]);
         }
     }, [editingTransaction]);
+
+    useEffect(() => {
+        if (!initialTransaction) return;
+
+        setSelectedTransaction(initialTransaction);
+        setScenarioAmount(initialTransaction.amount);
+        setStep("confirm");
+    }, [initialTransaction]);
 
     parents.forEach(parent => {
         sortedCategories.push({ ...parent, isChild: false });

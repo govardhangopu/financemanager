@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
 import {
     addScenarioTransaction, addHypotheticalTransaction,
@@ -15,6 +15,7 @@ import "../styles/ScenarioDetail.css";
 export default function ScenarioDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { transactions, refreshScenarios, totalIncome, totalExpense, netWorth } = useFinance();
     const [scenario, setScenario] = useState();
     const [loading, setLoading] = useState(true);
@@ -68,6 +69,7 @@ export default function ScenarioDetail() {
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [initialTransaction, setInitialTransaction] = useState(null);
     const [edits, setEdits] = useState({ name: "", description: "" });
 
     useEffect(() => {
@@ -82,6 +84,14 @@ export default function ScenarioDetail() {
             .finally(() => setLoading(false));
         refreshScenarioTransactions();
     }, [id])
+
+    useEffect(() => {
+        const transaction = location.state?.transactionToExplore;
+        if (!transaction) return;
+
+        setInitialTransaction(transaction);
+        setShowAddModal(true);
+    }, [location.state]);
 
     async function refreshScenarioTransactions() {
         if (!id) return;
@@ -305,10 +315,15 @@ export default function ScenarioDetail() {
                 {showAddModal && (
                     <AddTransactionModal
                         availableTransactions={availableTransactions}
-                        onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
+                        onClose={() => {
+                            setShowAddModal(false);
+                            setEditingTransaction(null);
+                            setInitialTransaction(null);
+                        }}
                         onAddExisting={handleAddExisting}
                         onAddHypothetical={handleAddHypothetical}
                         editingTransaction={editingTransaction}
+                        initialTransaction={initialTransaction}
                         onUpdateExisting={handleUpdateTransaction}
                         onUpdateHypothetical={handleUpdateHypothetical}
                     />
