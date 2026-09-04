@@ -163,3 +163,33 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_hypothetical_transactions`
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_changes` (
+    `scenario_changeid` INT NOT NULL AUTO_INCREMENT,
+    `scenarioid` INT NOT NULL,
+    `change_type` ENUM('recurring', 'one_time') NOT NULL,
+    `target_type` ENUM('category', 'pattern', 'new') NOT NULL,
+    `categoryid` INT NULL,
+    `type` ENUM('income', 'expense') NULL,
+    `direction` ENUM('increase', 'decrease') NOT NULL DEFAULT 'increase',
+    `amount` DECIMAL(10,2) NOT NULL,
+    `frequency` ENUM('monthly') NULL,
+    `start_date` DATE NOT NULL,
+    `end_date` DATE NULL,
+    `description` VARCHAR(255) NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`scenario_changeid`),
+    INDEX `scenario_change_scenario_idx` (`scenarioid`),
+    INDEX `scenario_change_category_idx` (`categoryid`),
+    CONSTRAINT `scenario_change_scenario_fk`
+        FOREIGN KEY (`scenarioid`)
+        REFERENCES `financemanager`.`scenarios` (`scenarioid`)
+        ON DELETE CASCADE,
+    CONSTRAINT `scenario_change_category_fk`
+        FOREIGN KEY (`categoryid`)
+        REFERENCES `financemanager`.`categories` (`categoryid`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);

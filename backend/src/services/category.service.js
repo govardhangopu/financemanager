@@ -14,6 +14,16 @@ export const fetchCategories = async (userid, is_partial) => {
     return fetchedCategories;
 }
 
+export const getCategorySubtree = async (userid, categoryid) => {
+    const categories = await repo.fetchDescendants(userid, categoryid);
+
+    if (categories.length === 0) {
+        throw new Error("Category not found.");
+    }
+
+    return categories;
+};
+
 export const editCategory = async (userid, categoryid, name, parent_categoryid, is_partial) => {
     if (!(categoryid && (name || parent_categoryid || is_partial))) throw new Error('No data to update.');
     const updated = await repo.updateCategory(
