@@ -53,10 +53,11 @@ export const fetchAll = async (scenarioid) => {
     const pool = connectDB();
 
     const [rows] = await pool.query(
-        `SELECT *
-         FROM scenario_changes
-         WHERE scenarioid = ?
-         ORDER BY created_at ASC`,
+        `SELECT sc.*, c.name AS category_name
+         FROM scenario_changes sc
+         LEFT JOIN categories c ON sc.categoryid = c.categoryid
+         WHERE sc.scenarioid = ?
+         ORDER BY sc.created_at ASC`,
         [scenarioid]
     );
 

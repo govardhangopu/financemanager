@@ -1,119 +1,114 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext.jsx";
 import {
-    addScenarioTransaction, addHypotheticalTransaction,
-    getScenarioById, getScenarioTransactions, getScenarioSummary, getSimulatedScenarioTransactions,
-    updateScenario, updateScenarioTransaction, updateHypotheticalTransaction,
-    deleteScenario, deleteScenarioTransaction
+    getScenarioById,
+    updateScenario,
+    deleteScenario,
+    getScenarioChanges,
+    getScenarioProjection,
+    addScenarioChange,
+    updateScenarioChange,
+    deleteScenarioChange
 } from "../api/scenarioApi.js";
-import AddTransactionModal from "../components/AddTransactionModal.jsx";
 import { GenericChart } from "../components/dashboard/GenericChart.jsx";
-import { buildScenarioTimeline } from "../utils/buildScenarioTimeline.js";
+import ScenarioChangeModal from "../components/ScenarioChangeModal.jsx";
 import "../styles/ScenarioDetail.css";
 
 export default function ScenarioDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
-    const { transactions, refreshScenarios, totalIncome, totalExpense, netWorth } = useFinance();
-    const [scenario, setScenario] = useState();
+    const { refreshScenarios } = useFinance();
+    const [scenario, setScenario] = useState(null);
+    const [changes, setChanges] = useState([]);
+    const [projection, setProjection] = useState(null);
+    const [showChangeModal, setShowChangeModal] = useState(false);
+    const [editingChange, setEditingChange] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [scenarioTransactions, setScenarioTransactions] = useState([]);
-    const [scenarioSummary, setScenarioSummary] = useState({ income: 0, expense: 0, net: 0 });
-    const [simulatedTransactions, setSimulatedTransactions] = useState([]);
-    const incomeChange = Number(scenarioSummary.income) - totalIncome;
-    const expenseChange = Number(scenarioSummary.expense) - totalExpense;
-    const netChange = Number(scenarioSummary.net) - netWorth;
-    const comparisonLabels = ["Income", "Expenses", "Net"];
-    const comparisonDatasets = [
-        {
-            label: "Actual",
-            data: [
-                Number(totalIncome),
-                Number(totalExpense),
-                Number(netWorth)
-            ],
-            backgroundColor: "#6b7280",
-            borderColor: "#6b7280",
-        },
-        {
-            label: "Scenario",
-            data: [
-                Number(scenarioSummary.income),
-                Number(scenarioSummary.expense),
-                Number(scenarioSummary.net)
-            ],
-            backgroundColor: "#3b82f6",
-            borderColor: "#3b82f6",
-        }
-    ];
 
-    const { labels: timelineLabels, actualData, scenarioData } = buildScenarioTimeline(simulatedTransactions);
-    const timelineDatasets = [
-        {
-            label: "Actual",
-            data: actualData,
-            borderColor: "#6b7280",
-            backgroundColor: "#6b7280",
-        },
-        {
-            label: "Scenario",
-            data: scenarioData,
-            borderColor: "#3b82f6",
-            backgroundColor: "#3b82f6",
-        }
-    ];
-
-    const [transactionsLoading, setTransactionsLoading] = useState(true);
-    const [editingTransaction, setEditingTransaction] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [initialTransaction, setInitialTransaction] = useState(null);
     const [edits, setEdits] = useState({ name: "", description: "" });
 
-    useEffect(() => {
-        setLoading(true);
-        getScenarioById(id)
-            .then(res => setScenario(res))
-            .catch(err => {
-                console.error(err);
-                alert(err);
-                navigate("/scenarios", { replace: true });
-            })
-            .finally(() => setLoading(false));
-        refreshScenarioTransactions();
-    }, [id])
+    const [horizon, setHorizon] = useState(12);
+    const projectionLabels = projection?.projection?.map(row => row.month) || [];
+    const projectionDatasets = [
+        {
+            label: "Baseline",
+            data: projection?.projection?.map(row => row.baselineCumulativeNetFlow) || [],
+            borderColor: "#6b7280",
+            backgroundColor: "#6b7280",
+            tension: 0.3,
+        },
+        {
+            label: "Scenario",
+            data: projection?.projection?.map(row => row.scenarioCumulativeNetFlow) || [],
+            borderColor: "#3b82f6",
+            backgroundColor: "#3b82f6",
+            borderDash: [6, 6],
+            tension: 0.3,
+        }
+    ];
 
     useEffect(() => {
-        const transaction = location.state?.transactionToExplore;
-        if (!transaction) return;
+        loadScenario();
+    }, [id]);
 
-        setInitialTransaction(transaction);
-        setShowAddModal(true);
-    }, [location.state]);
-
-    async function refreshScenarioTransactions() {
+    useEffect(() => {
         if (!id) return;
-        setTransactionsLoading(true);
+        loadProjection();
+    }, [id, horizon]);
+
+    async function loadScenario() {
+        if (!id) return;
+
+        setLoading(true);
+
         try {
-            const [transactionsData, summaryData, simulatedData] = await Promise.all([
-                getScenarioTransactions(id),
-                getScenarioSummary(id),
-                getSimulatedScenarioTransactions(id)
+            const [scenarioData, changesData] = await Promise.all([
+                getScenarioById(id),
+                getScenarioChanges(id)
             ]);
-            setScenarioTransactions(transactionsData);
-            setScenarioSummary(summaryData);
-            setSimulatedTransactions(simulatedData);
+
+            setScenario(scenarioData);
+            setChanges(changesData);
         } catch (err) {
-            console.error("Failed to load scenario transactions:", err);
+            console.error("Failed to load scenario:", err);
+            alert("Failed to load scenario.");
+            navigate("/scenarios", { replace: true });
         } finally {
-            setTransactionsLoading(false);
+            setLoading(false);
         }
     }
 
+    async function loadProjection() {
+        try {
+            const projectionData = await getScenarioProjection(id, horizon);
+            setProjection(projectionData);
+        } catch (err) {
+            console.error("Failed to load projection:", err);
+            alert("Failed to load projection.");
+        }
+    }
+
+    function startEditing() {
+        setEdits({
+            name: scenario?.name || "",
+            description: scenario?.description || ""
+        });
+
+        setIsEditing(true);
+    }
+
     async function handleUpdate() {
-        if (!confirm("Are you sure you want to save changes to this scenario?")) return;
+        if (!edits.name.trim()) {
+            alert("Scenario name is required.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to save changes to this scenario?")) {
+            return;
+        }
+
         try {
             const payload = {
                 name: edits.name.trim(),
@@ -121,8 +116,10 @@ export default function ScenarioDetail() {
             };
 
             const updated = await updateScenario(id, payload);
+
             setScenario(updated);
             setIsEditing(false);
+
             refreshScenarios();
         } catch (err) {
             console.error("Failed to update scenario:", err);
@@ -131,235 +128,324 @@ export default function ScenarioDetail() {
     }
 
     async function handleDelete() {
-        if (!confirm("Are you sure you want to permanently delete this scenario?")) return;
+        if (
+            !confirm(
+                "Are you sure you want to permanently delete this scenario?"
+            )
+        ) {
+            return;
+        }
+
         try {
-            const updated = await deleteScenario(id);
-            setScenario(updated);
+            await deleteScenario(id);
+
             refreshScenarios();
-            alert("Scenario deleted successfully!");
-            navigate("/scenarios", { replace: true });
+
+            navigate("/scenarios", {
+                replace: true
+            });
         } catch (err) {
             console.error("Failed to delete scenario:", err);
             alert("Failed to delete scenario.");
         }
     }
 
-    const getTransactionKey = t => `${t.scenario_type}-${t.transactionid ?? t.hypothetical_transactionid}`;
-
-    const scenarioTransactionIds = new Set(scenarioTransactions.filter(t => t.scenario_type === "real").map(t => t.transactionid));
-    const availableTransactions = transactions.filter(t => !scenarioTransactionIds.has(t.transactionid));
-
-    async function handleAddExisting(transaction, scenarioAmount) {
+    async function handleAddChange(data) {
         try {
-            const amountOffset = scenarioAmount - Number(transaction.amount);
-            await addScenarioTransaction(id, {
-                transactionid: transaction.transactionid,
-                amount_offset: amountOffset
-            });
-            await refreshScenarioTransactions();
-            setShowAddModal(false);
+            await addScenarioChange(id, data);
+            setShowChangeModal(false);
+
+            const [changesData, projectionData] = await Promise.all([
+                getScenarioChanges(id),
+                getScenarioProjection(id, horizon)
+            ]);
+
+            setChanges(changesData);
+            setProjection(projectionData);
         } catch (err) {
-            console.error("Failed to add transaction:", err);
-            alert("Failed to add transaction.");
+            console.error("Failed to add scenario change:", err);
+            alert(err.response?.data?.message || "Failed to add scenario change.");
         }
     }
 
-    const handleAddHypothetical = async (hypotheticalData) => {
+    async function handleEditChange(data) {
         try {
-            await addHypotheticalTransaction(id, hypotheticalData);
-            await refreshScenarioTransactions();
-            setShowAddModal(false);
-        } catch (err) {
-            console.error("Failed to add hypothetical transaction:", err);
-            alert(err.response?.data?.message || "Failed to add hypothetical transaction.");
-        }
-    };
+            await updateScenarioChange(id, editingChange.scenario_changeid, data);
+            setEditingChange(null);
 
-    async function handleUpdateTransaction(transaction, scenarioAmount) {
-        try {
-            const amount_offset = Number(scenarioAmount) - Number(transaction.original_amount);
-            await updateScenarioTransaction(id, transaction.transactionid, { amount_offset });
-            await refreshScenarioTransactions();
+            const [changesData, projectionData] = await Promise.all([
+                getScenarioChanges(id),
+                getScenarioProjection(id, horizon)
+            ]);
+
+            setChanges(changesData);
+            setProjection(projectionData);
         } catch (err) {
-            console.error("Failed to update scenario transaction:", err);
-            alert(err.response?.data?.message || "Failed to update transaction.");
+            console.error("Failed to update scenario change:", err);
+            alert(err.response?.data?.message || "Failed to update scenario change.");
         }
     }
 
-    async function handleUpdateHypothetical(transaction, data) {
+    async function handleDeleteChange(changeId) {
+        if (!confirm("Remove this change from the scenario?")) return;
+
         try {
-            await updateHypotheticalTransaction(id, transaction.hypothetical_transactionid, data);
-            await refreshScenarioTransactions();
-            setShowAddModal(false);
-            setEditingTransaction(null);
+            await deleteScenarioChange(id, changeId);
+            const [changesData, projectionData] = await Promise.all([
+                getScenarioChanges(id),
+                getScenarioProjection(id, horizon)
+            ]);
+            setChanges(changesData);
+            setProjection(projectionData);
         } catch (err) {
-            console.error("Failed to update hypothetical transaction:", err);
-            alert(err.response?.data?.message || "Failed to update hypothetical transaction.");
+            console.error("Failed to delete scenario change:", err);
+            alert(err.response?.data?.message || "Failed to delete scenario change.");
         }
     }
 
-    async function handleDeleteTransaction(transaction) {
-        if (!confirm("Remove this transaction from the scenario?")) return;
-        try {
-            if (transaction.scenario_type === "real") {
-                await deleteScenarioTransaction(id, transaction.transactionid);
-            } else {
-                await deleteHypotheticalTransaction(id, transaction.hypothetical_transactionid);
-            }
-            await refreshScenarioTransactions();
-        } catch (err) {
-            console.error("Failed to remove scenario transaction:", err);
-            alert(err.response?.data?.message || "Failed to remove transaction.");
-        }
+    if (loading) {
+        return (
+            <main className="scenario-detail-page">
+                <p>Loading scenario...</p>
+            </main>
+        );
+    }
+
+    if (!scenario) {
+        return null;
     }
 
     return (
         <main className="scenario-detail-page">
-            <button className="back-btn" onClick={() => navigate("/scenarios", { replace: true })}>←</button>
 
-            <div className={`scenario-detail-card ${isEditing ? "editing-mode" : ""}`}>
+            <button
+                className="back-btn"
+                onClick={() => navigate("/scenarios", { replace: true })}
+            >
+                ←
+            </button>
+
+            <div
+                className={`scenario-detail-card ${isEditing ? "editing-mode" : ""
+                    }`}
+            >
+
                 <div className="scenario-card-header">
+
                     <div className="scenario-title-area">
+
                         {isEditing ? (
                             <>
-                                <input className="inline-title-input" value={edits.name} onChange={(e) => setEdits({ ...edits, name: e.target.value })} placeholder="Scenario Name" />
-                                <textarea className="inline-desc-input" value={edits.description} onChange={(e) => setEdits({ ...edits, description: e.target.value })} placeholder="Add a description..." />
+                                <input
+                                    className="inline-title-input"
+                                    value={edits.name}
+                                    onChange={(e) =>
+                                        setEdits({
+                                            ...edits,
+                                            name: e.target.value
+                                        })
+                                    }
+                                    placeholder="Scenario Name"
+                                />
+
+                                <textarea
+                                    className="inline-desc-input"
+                                    value={edits.description}
+                                    onChange={(e) =>
+                                        setEdits({
+                                            ...edits,
+                                            description: e.target.value
+                                        })
+                                    }
+                                    placeholder="Add a description..."
+                                />
                             </>
                         ) : (
                             <>
-                                <h1>{loading ? "Loading..." : scenario?.name}</h1>
-                                {!loading && scenario?.description && <p className="scenario-description">{scenario.description}</p>}
+                                <h1>{scenario.name}</h1>
+
+                                {scenario.description && (
+                                    <p className="scenario-description">
+                                        {scenario.description}
+                                    </p>
+                                )}
                             </>
                         )}
+
                     </div>
 
                     <div className="scenario-actions">
-                        {!loading && (!isEditing ? (
+
+                        {!isEditing ? (
                             <>
-                                <button className="btn-edit" onClick={() => {
-                                    setEdits({
-                                        name: scenario.name,
-                                        description: scenario.description || ""
-                                    });
-                                    setIsEditing(true);
-                                }}>✏️ Edit</button>
-                                <button className="btn-delete" onClick={handleDelete}>🗑️ Delete</button>
+                                <button
+                                    className="btn-edit"
+                                    onClick={startEditing}
+                                >
+                                    ✏️ Edit
+                                </button>
+
+                                <button
+                                    className="btn-delete"
+                                    onClick={handleDelete}
+                                >
+                                    🗑️ Delete
+                                </button>
                             </>
                         ) : (
                             <>
-                                <button className="btn-save-inline" onClick={handleUpdate}>💾 Save</button>
-                                <button className="btn-cancel-inline" onClick={() => setIsEditing(false)}>❌ Cancel</button>
+                                <button
+                                    className="btn-save-inline"
+                                    onClick={handleUpdate}
+                                >
+                                    💾 Save
+                                </button>
+
+                                <button
+                                    className="btn-cancel-inline"
+                                    onClick={() => setIsEditing(false)}
+                                >
+                                    ❌ Cancel
+                                </button>
                             </>
-                        ))}
+                        )}
+
                     </div>
+
                 </div>
+
             </div>
+
+            {/* Simulator will be added here */}
 
             <div className="scenario-content-panel">
-                <div className="scenario-panel-header">
+
+                <div className="scenario-simulator-header">
+
                     <div>
-                        <h2>Scenario Changes</h2>
-                        <p>Transactions modified or added by this scenario.</p>
+                        <h2>What-If Simulator</h2>
+
+                        <p>
+                            Explore how changes to your future finances could
+                            affect your financial trajectory.
+                        </p>
                     </div>
-                    <button className="add-scenario-transaction-btn" onClick={() => setShowAddModal(true)}>
-                        + Add Transaction
+
+                    <button className="add-scenario-change-btn" onClick={() => setShowChangeModal(true)}>
+                        + Add change
                     </button>
+
                 </div>
 
-                <div className="scenario-comparison">
-                    <div className="scenario-comparison-header">
-                        <span></span>
-                        <span>Actual</span>
-                        <span>Scenario</span>
-                        <span>Change</span>
+                <p className="scenario-projection-context">
+                    Projected cumulative net flow
+                </p>
+
+                {projection?.hasData && (
+                    <div className="scenario-impact-summary">
+                        <div>
+                            <span>Baseline</span>
+                            <strong>₹{Number(projection.summary.baselineFinalCumulative).toFixed(0)}</strong>
+                        </div>
+
+                        <div>
+                            <span>Scenario</span>
+                            <strong>₹{Number(projection.summary.scenarioFinalCumulative).toFixed(0)}</strong>
+                        </div>
+
+                        <div>
+                            <span>Impact</span>
+                            <strong className={projection.summary.totalImpact >= 0 ? "positive" : "negative"}>
+                                {projection.summary.totalImpact >= 0 ? "+" : ""}
+                                ₹{Number(projection.summary.totalImpact).toFixed(0)}
+                            </strong>
+                        </div>
                     </div>
-
-                    <div className="scenario-comparison-row">
-                        <strong>Income</strong>
-                        <span>₹{Number(totalIncome).toFixed(2)}</span>
-                        <span>₹{Number(scenarioSummary.income).toFixed(2)}</span>
-                        <span className={incomeChange > 0 ? "positive" : incomeChange < 0 ? "negative" : ""}>
-                            {incomeChange > 0 ? "+" : ""}₹{incomeChange.toFixed(2)}
-                        </span>
-                    </div>
-
-                    <div className="scenario-comparison-row">
-                        <strong>Expenses</strong>
-                        <span>₹{Number(totalExpense).toFixed(2)}</span>
-                        <span>₹{Number(scenarioSummary.expense).toFixed(2)}</span>
-                        <span className={expenseChange > 0 ? "positive" : expenseChange < 0 ? "negative" : ""}>
-                            {expenseChange > 0 ? "+" : ""}₹{expenseChange.toFixed(2)}
-                        </span>
-                    </div>
-
-                    <div className="scenario-comparison-row">
-                        <strong>Net</strong>
-                        <span>₹{Number(netWorth).toFixed(2)}</span>
-                        <span>₹{Number(scenarioSummary.net).toFixed(2)}</span>
-                        <span className={netChange > 0 ? "positive" : netChange < 0 ? "negative" : ""}>
-                            {netChange > 0 ? "+" : ""}₹{netChange.toFixed(2)}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="scenario-comparison-chart">
-                    <h3>Actual vs Scenario</h3>
-                    <GenericChart labels={comparisonLabels} datasets={comparisonDatasets} type="bar" />
-                </div>
-
-                <div className="scenario-timeline-chart">
-                    <h3>Financial Trajectory</h3>
-                    <GenericChart labels={timelineLabels} datasets={timelineDatasets} type="line" />
-                </div>
-
-                {showAddModal && (
-                    <AddTransactionModal
-                        availableTransactions={availableTransactions}
-                        onClose={() => {
-                            setShowAddModal(false);
-                            setEditingTransaction(null);
-                            setInitialTransaction(null);
-                        }}
-                        onAddExisting={handleAddExisting}
-                        onAddHypothetical={handleAddHypothetical}
-                        editingTransaction={editingTransaction}
-                        initialTransaction={initialTransaction}
-                        onUpdateExisting={handleUpdateTransaction}
-                        onUpdateHypothetical={handleUpdateHypothetical}
-                    />
                 )}
 
-                <div className="scenario-transactions">
-                    {transactionsLoading ? <p>Loading transactions...</p> :
-                        !scenarioTransactions.length ? <div className="scenario-empty-state"><p>No scenario transactions yet.</p></div> :
-                            scenarioTransactions.map(t => (
-                                <div className={`scenario-transaction-row ${t.type}`} key={getTransactionKey(t)}>
-                                    <div className="scenario-transaction-main">
-                                        <strong>{t.category_name || "Uncategorized"}</strong>
-                                        <span>{new Date(t.date).toLocaleDateString()}</span>
-                                    </div>
-                                    <div className="scenario-transaction-details">
-                                        <strong>₹{t.amount}</strong>
-                                        <span className="scenario-transaction-offset">
-                                            {t.scenario_type === "real"
-                                                ? `Original: ₹${t.original_amount} · Offset: ₹${t.amount_offset}`
-                                                : "No original transaction"}
-                                        </span>
-                                    </div>
-                                    <div className="scenario-transaction-type">
-                                        <small>
-                                            {t.scenario_type === "real" ? "Real" : "Hypothetical"}
-                                        </small>
-                                    </div>
-                                    <div className="scenario-transaction-actions">
-                                        <button onClick={() => { setEditingTransaction(t); setShowAddModal(true); }}>✏️</button>
-                                        <button onClick={() => handleDeleteTransaction(t)}>🗑️</button>
-                                    </div>
-                                </div>
-                            ))}
+                <div className="scenario-horizon-controls">
+                    <button className={horizon === 12 ? "active" : ""} onClick={() => setHorizon(12)}>1Y</button>
+                    <button className={horizon === 36 ? "active" : ""} onClick={() => setHorizon(36)}>3Y</button>
+                    <button className={horizon === 60 ? "active" : ""} onClick={() => setHorizon(60)}>5Y</button>
+                    <button className={horizon === 120 ? "active" : ""} onClick={() => setHorizon(120)}>10Y</button>
                 </div>
-            </div>
-        </main>
 
+                {projection?.hasData ? (
+                    <div className="scenario-projection-chart">
+                        <h3>Financial Trajectory</h3>
+                        <GenericChart labels={projectionLabels} datasets={projectionDatasets} type="line" />
+                    </div>
+                ) : (
+                    <div className="scenario-empty-state">
+                        <p>Not enough transaction history to generate a projection yet.</p>
+                    </div>
+                )}
+
+                <div className="scenario-changes">
+                    {changes.length === 0 ? (
+                        <div className="scenario-empty-state">
+                            <p>No changes have been added to this scenario yet.</p>
+                        </div>
+                    ) : (
+                        changes.map(change => (
+                            <div className="scenario-change-row" key={change.scenario_changeid}>
+                                <div className="scenario-change-main">
+                                    <strong>
+                                        {change.target_type === "new"
+                                            ? change.type === "income" ? "+ New income" : "− New expense"
+                                            : change.direction === "increase"
+                                                ? `↑ Increase ${change.category_name}`
+                                                : `↓ Reduce ${change.category_name}`}
+                                    </strong>
+
+                                    <span>
+                                        ₹{Number(change.amount).toFixed(0)}
+                                        {change.change_type === "recurring"
+                                            ? " / month"
+                                            : " one-time"}
+                                    </span>
+                                </div>
+
+                                <div className="scenario-change-details">
+                                    <span>
+                                        Starts {new Date(change.start_date).toLocaleDateString()}
+                                    </span>
+
+                                    {change.end_date && (
+                                        <span>
+                                            Ends {new Date(change.end_date).toLocaleDateString()}
+                                        </span>
+                                    )}
+
+                                    {change.description && (
+                                        <span>{change.description}</span>
+                                    )}
+                                </div>
+
+                                <div className="scenario-change-actions">
+                                    <button onClick={() => setEditingChange(change)}>Edit</button>
+                                    <button onClick={() => handleDeleteChange(change.scenario_changeid)}>Delete</button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+            </div>
+
+            {showChangeModal && (
+                <ScenarioChangeModal
+                    onClose={() => setShowChangeModal(false)}
+                    onAdd={handleAddChange}
+                />
+            )}
+            {editingChange && (
+                <ScenarioChangeModal
+                    change={editingChange}
+                    onClose={() => setEditingChange(null)}
+                    onAdd={handleEditChange}
+                />
+            )}
+        </main>
     );
 }
