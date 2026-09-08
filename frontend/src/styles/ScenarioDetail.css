@@ -407,6 +407,26 @@
     font-size: 0.85rem;
 }
 
+.scenario-change-amount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.scenario-change-reset {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
+.scenario-change-reset:hover {
+    color: var(--text-color);
+}
+
 @media (max-width: 700px) {
     .scenario-change-row {
         flex-direction: column;

@@ -306,7 +306,8 @@ export const getScenarioProjection = async ({
     userid,
     scenarioid,
     projectionStartDate,
-    months
+    months,
+    changes = null
 }) => {
     const monthlyData =
         await baselineRepo.fetchMonthlyNetFlow(userid);
@@ -336,13 +337,12 @@ export const getScenarioProjection = async ({
             0
         ) / normalized.length;
 
-    const changes =
-        await scenarioChangeRepo.fetchAll(scenarioid);
+    const scenarioChanges = changes ?? await scenarioChangeRepo.fetchAll(scenarioid);
 
     const totalImpact =
         await calculateTotalScenarioImpact({
             userid,
-            changes,
+            changes: scenarioChanges,
             projectionStartDate,
             months
         });

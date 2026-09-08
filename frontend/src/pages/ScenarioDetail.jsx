@@ -7,6 +7,7 @@ import {
     deleteScenario,
     getScenarioChanges,
     getScenarioProjection,
+    getSimulatedScenarioProjection,
     addScenarioChange,
     updateScenarioChange,
     deleteScenarioChange
@@ -21,6 +22,7 @@ export default function ScenarioDetail() {
     const { refreshScenarios } = useFinance();
     const [scenario, setScenario] = useState(null);
     const [changes, setChanges] = useState([]);
+    const [simulatedChanges, setSimulatedChanges] = useState([]);
     const [projection, setProjection] = useState(null);
     const [showChangeModal, setShowChangeModal] = useState(false);
     const [editingChange, setEditingChange] = useState(null);
@@ -56,7 +58,7 @@ export default function ScenarioDetail() {
     useEffect(() => {
         if (!id) return;
         loadProjection();
-    }, [id, horizon]);
+    }, [id, horizon, simulatedChanges]);
 
     async function loadScenario() {
         if (!id) return;
@@ -71,6 +73,7 @@ export default function ScenarioDetail() {
 
             setScenario(scenarioData);
             setChanges(changesData);
+            setSimulatedChanges(changesData);
         } catch (err) {
             console.error("Failed to load scenario:", err);
             alert("Failed to load scenario.");
@@ -82,12 +85,38 @@ export default function ScenarioDetail() {
 
     async function loadProjection() {
         try {
-            const projectionData = await getScenarioProjection(id, horizon);
+            const projectionData = await getSimulatedScenarioProjection(id, simulatedChanges, horizon);
             setProjection(projectionData);
         } catch (err) {
             console.error("Failed to load projection:", err);
             alert("Failed to load projection.");
         }
+    }
+
+    function updateSimulatedChange(changeId, updates) {
+        setSimulatedChanges(current =>
+            current.map(change =>
+                change.scenario_changeid === changeId
+                    ? { ...change, ...updates }
+                    : change
+            )
+        );
+    }
+
+    function resetSimulatedChange(changeId) {
+        const originalChange = changes.find(
+            change => change.scenario_changeid === changeId
+        );
+
+        if (!originalChange) return;
+
+        updateSimulatedChange(changeId, {
+            amount: Number(originalChange.amount)
+        });
+    }
+
+    function getSliderMax(amount) {
+        return Math.max(1000, Math.ceil(Number(amount) * 2 / 1000) * 1000);
     }
 
     function startEditing() {
@@ -161,6 +190,7 @@ export default function ScenarioDetail() {
             ]);
 
             setChanges(changesData);
+            setSimulatedChanges(changesData);
             setProjection(projectionData);
         } catch (err) {
             console.error("Failed to add scenario change:", err);
@@ -179,6 +209,7 @@ export default function ScenarioDetail() {
             ]);
 
             setChanges(changesData);
+            setSimulatedChanges(changesData);
             setProjection(projectionData);
         } catch (err) {
             console.error("Failed to update scenario change:", err);
@@ -196,6 +227,7 @@ export default function ScenarioDetail() {
                 getScenarioProjection(id, horizon)
             ]);
             setChanges(changesData);
+            setSimulatedChanges(changesData);
             setProjection(projectionData);
         } catch (err) {
             console.error("Failed to delete scenario change:", err);
@@ -398,12 +430,46 @@ export default function ScenarioDetail() {
                                                 : `↓ Reduce ${change.category_name}`}
                                     </strong>
 
-                                    <span>
-                                        ₹{Number(change.amount).toFixed(0)}
-                                        {change.change_type === "recurring"
-                                            ? " / month"
-                                            : " one-time"}
-                                    </span>
+                                    {change.target_type === "category" && change.change_type === "recurring" ? (
+                                        <div className="scenario-change-slider">
+                                            <div className="scenario-change-amount">
+                                                <span>
+                                                    ₹{Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount).toFixed(0)}
+                                                    / month
+                                                </span>
+
+                                                {Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount) !== Number(change.amount) && (
+                                                    <button
+                                                        className="scenario-change-reset"
+                                                        onClick={() => resetSimulatedChange(change.scenario_changeid)}
+                                                    >
+                                                        ↻ Reset
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max={getSliderMax(change.amount)}
+                                                step="100"
+                                                value={simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount}
+                                                onChange={(e) =>
+                                                    updateSimulatedChange(change.scenario_changeid, {
+                                                        amount: Number(e.target.value)
+                                                    })
+                                                }
+                                            />
+
+                                        </div>
+                                    ) : (
+                                        <span>
+                                            ₹{Number(change.amount).toFixed(0)}
+                                            {change.change_type === "recurring"
+                                                ? " / month"
+                                                : " one-time"}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="scenario-change-details">

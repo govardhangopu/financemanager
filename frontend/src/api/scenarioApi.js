@@ -170,3 +170,8 @@ export async function getScenarioProjection(scenarioId, months = 12, startDate) 
     const res = await api.get(`/${scenarioId}/projection`, { params });
     return res.data;
 }
+
+export async function getSimulatedScenarioProjection(scenarioId, changes, months = 12, startDate) {
+    const res = await api.post(`/${scenarioId}/projection`, { months, start_date: startDate, changes });
+    return res.data;
+}

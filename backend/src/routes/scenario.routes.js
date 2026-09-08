@@ -48,5 +48,7 @@ router.put("/:scenarioid/changes/:scenario_changeid", scenarioChangeController.u
 router.delete("/:scenarioid/changes/:scenario_changeid", scenarioChangeController.remove);
 
 // Scenario Projection ROUTES
+// ADD
+router.post("/:scenarioid/projection", scenarioProjectionController.simulateProjection);
 // FETCH
 router.get("/:scenarioid/projection", scenarioProjectionController.getProjection);
