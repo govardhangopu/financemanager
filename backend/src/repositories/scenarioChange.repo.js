@@ -53,7 +53,22 @@ export const fetchAll = async (scenarioid) => {
     const pool = connectDB();
 
     const [rows] = await pool.query(
-        `SELECT sc.*, c.name AS category_name
+        `SELECT
+            sc.scenario_changeid,
+            sc.scenarioid,
+            sc.change_type,
+            sc.target_type,
+            sc.categoryid,
+            sc.type,
+            sc.direction,
+            sc.amount,
+            sc.frequency,
+            DATE_FORMAT(sc.start_date, '%Y-%m-%d') AS start_date,
+            DATE_FORMAT(sc.end_date, '%Y-%m-%d') AS end_date,
+            sc.description,
+            sc.created_at,
+            sc.updated_at,
+            c.name AS category_name
          FROM scenario_changes sc
          LEFT JOIN categories c ON sc.categoryid = c.categoryid
          WHERE sc.scenarioid = ?

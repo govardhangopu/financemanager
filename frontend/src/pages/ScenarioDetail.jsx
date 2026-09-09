@@ -111,12 +111,88 @@ export default function ScenarioDetail() {
         if (!originalChange) return;
 
         updateSimulatedChange(changeId, {
-            amount: Number(originalChange.amount)
+            amount: Number(originalChange.amount),
+            start_date: originalChange.start_date
+                ? originalChange.start_date.split("T")[0]
+                : ""
+        });
+    }
+
+    async function handleSaveSimulatedChanges() {
+        try {
+            const changed = simulatedChanges.filter((simulatedChange) => {
+                const originalChange = changes.find(
+                    change => change.scenario_changeid === simulatedChange.scenario_changeid
+                );
+
+                if (!originalChange) return false;
+
+                return (
+                    Number(simulatedChange.amount) !== Number(originalChange.amount) ||
+                    simulatedChange.start_date?.split("T")[0] !== originalChange.start_date?.split("T")[0]
+                );
+            });
+
+            if (changed.length === 0) return;
+
+            await Promise.all(
+                changed.map(change =>
+                    updateScenarioChange(
+                        id,
+                        change.scenario_changeid,
+                        {
+                            ...change,
+                            start_date: change.start_date?.split("T")[0] || null,
+                            end_date: change.end_date?.split("T")[0] || null
+                        }
+                    )
+                )
+            );
+
+            const [changesData, projectionData] = await Promise.all([
+                getScenarioChanges(id),
+                getScenarioProjection(id, horizon)
+            ]);
+
+            setChanges(changesData);
+            setSimulatedChanges(changesData);
+            setProjection(projectionData);
+        } catch (err) {
+            console.error("Failed to save simulated changes:", err);
+            alert(err.response?.data?.message || "Failed to save changes.");
+        }
+    }
+
+    function hasSimulatedChanges() {
+        return simulatedChanges.some((simulatedChange) => {
+            const originalChange = changes.find(
+                change => change.scenario_changeid === simulatedChange.scenario_changeid
+            );
+
+            if (!originalChange) return false;
+
+            return (
+                Number(simulatedChange.amount) !== Number(originalChange.amount) ||
+                simulatedChange.start_date?.split("T")[0] !== originalChange.start_date?.split("T")[0]
+            );
         });
     }
 
     function getSliderMax(amount) {
         return Math.max(1000, Math.ceil(Number(amount) * 2 / 1000) * 1000);
+    }
+
+    function formatScenarioDate(dateValue) {
+        if (!dateValue) return "";
+
+        const datePart = String(dateValue).split("T")[0];
+        const [year, month, day] = datePart.split("-");
+
+        return new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day)
+        ).toLocaleDateString();
     }
 
     function startEditing() {
@@ -363,9 +439,20 @@ export default function ScenarioDetail() {
                         </p>
                     </div>
 
-                    <button className="add-scenario-change-btn" onClick={() => setShowChangeModal(true)}>
-                        + Add change
-                    </button>
+                    <div className="scenario-simulator-actions">
+                        {hasSimulatedChanges() && (
+                            <button
+                                className="scenario-save-changes-btn"
+                                onClick={handleSaveSimulatedChanges}
+                            >
+                                Save changes
+                            </button>
+                        )}
+
+                        <button className="add-scenario-change-btn" onClick={() => setShowChangeModal(true)}>
+                            + Add change
+                        </button>
+                    </div>
 
                 </div>
 
@@ -430,22 +517,38 @@ export default function ScenarioDetail() {
                                                 : `↓ Reduce ${change.category_name}`}
                                     </strong>
 
-                                    {change.target_type === "category" && change.change_type === "recurring" ? (
+                                    {change.change_type === "recurring" || change.change_type === "one_time" ? (
                                         <div className="scenario-change-slider">
                                             <div className="scenario-change-amount">
                                                 <span>
                                                     ₹{Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount).toFixed(0)}
-                                                    / month
+                                                    {change.change_type === "recurring"
+                                                        ? " / month"
+                                                        : " one-time"}
                                                 </span>
 
-                                                {Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount) !== Number(change.amount) && (
-                                                    <button
-                                                        className="scenario-change-reset"
-                                                        onClick={() => resetSimulatedChange(change.scenario_changeid)}
-                                                    >
-                                                        ↻ Reset
-                                                    </button>
-                                                )}
+                                                {(() => {
+                                                    const simulatedChange = simulatedChanges.find(
+                                                        item => item.scenario_changeid === change.scenario_changeid
+                                                    );
+
+                                                    const amountChanged =
+                                                        Number(simulatedChange?.amount ?? change.amount) !== Number(change.amount);
+
+                                                    const dateChanged =
+                                                        change.change_type === "one_time" &&
+                                                        (simulatedChange?.start_date?.split("T")[0] ?? change.start_date?.split("T")[0]) !==
+                                                        (change.start_date?.split("T")[0] ?? "");
+
+                                                    return amountChanged || dateChanged;
+                                                })() && (
+                                                        <button
+                                                            className="scenario-change-reset"
+                                                            onClick={() => resetSimulatedChange(change.scenario_changeid)}
+                                                        >
+                                                            ↻ Reset
+                                                        </button>
+                                                    )}
                                             </div>
 
                                             <input
@@ -461,6 +564,28 @@ export default function ScenarioDetail() {
                                                 }
                                             />
 
+                                            {change.change_type === "one_time" && (
+                                                <div className="scenario-change-date">
+                                                    <input
+                                                        type="date"
+                                                        value={
+                                                            simulatedChanges.find(
+                                                                item => item.scenario_changeid === change.scenario_changeid
+                                                            )?.start_date?.split("T")[0] ??
+                                                            change.start_date?.split("T")[0] ??
+                                                            ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            updateSimulatedChange(
+                                                                change.scenario_changeid,
+                                                                {
+                                                                    start_date: e.target.value
+                                                                }
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <span>
@@ -474,12 +599,12 @@ export default function ScenarioDetail() {
 
                                 <div className="scenario-change-details">
                                     <span>
-                                        Starts {new Date(change.start_date).toLocaleDateString()}
+                                        Starts {formatScenarioDate(change.start_date)}
                                     </span>
 
                                     {change.end_date && (
                                         <span>
-                                            Ends {new Date(change.end_date).toLocaleDateString()}
+                                            Ends {formatScenarioDate(change.end_date)}
                                         </span>
                                     )}
 

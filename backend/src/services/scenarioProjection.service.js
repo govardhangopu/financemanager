@@ -3,6 +3,26 @@ import * as transactionRepo from "../repositories/transaction.repo.js";
 import * as scenarioChangeRepo from "../repositories/scenarioChange.repo.js";
 import * as baselineRepo from "../repositories/baseline.repo.js";
 
+function parseDateOnly(dateValue) {
+    const [year, month, day] = String(dateValue).split("T")[0].split("-").map(Number);
+
+    return {
+        year,
+        month: month - 1,
+        day
+    };
+}
+
+function addMonthsToDateOnly(dateValue, months) {
+    const { year, month } = parseDateOnly(dateValue);
+    const date = new Date(year, month + months, 1);
+
+    return {
+        year: date.getFullYear(),
+        month: date.getMonth()
+    };
+}
+
 export const calculateNewRecurringFlowImpact = ({ change, projectionStartDate, months }) => {
     const result = [];
 
@@ -159,19 +179,17 @@ export const calculateOneTimeFlowImpact = ({ change, projectionStartDate, months
         })
     );
 
-    const eventDate = new Date(change.start_date);
-    const startDate = new Date(projectionStartDate);
+    const eventDate = parseDateOnly(change.start_date);
 
     for (let i = 0; i < months; i++) {
-        const projectionDate = new Date(startDate);
-
-        projectionDate.setMonth(
-            projectionDate.getMonth() + i
+        const projectionDate = addMonthsToDateOnly(
+            projectionStartDate,
+            i
         );
 
         const sameMonth =
-            projectionDate.getFullYear() === eventDate.getFullYear() &&
-            projectionDate.getMonth() === eventDate.getMonth();
+            projectionDate.year === eventDate.year &&
+            projectionDate.month === eventDate.month;
 
         if (sameMonth) {
             if (change.type === "income") {
