@@ -9,7 +9,6 @@
 .scenario-detail-card,
 .scenario-content-panel {
     width: 100%;
-    max-width: 900px;
     margin: 20px auto;
     padding: 30px;
     box-sizing: border-box;
@@ -321,13 +320,6 @@
     font-size: 1.2rem;
 }
 
-.scenario-changes {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 28px;
-}
-
 .scenario-change-row {
     display: flex;
     align-items: center;
@@ -508,7 +500,41 @@
     font-size: .85rem;
 }
 
-@media (max-width: 700px) {
+.scenario-simulator-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: 24px;
+    height: 400px;
+}
+
+.scenario-projection-section {
+    min-width: 0;
+}
+
+.scenario-changes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 0;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.scenario-changes h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+}
+
+@media (max-width:700px) {
+    .scenario-simulator-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .scenario-changes {
+        margin-top: 12px;
+    }
+    
     .scenario-change-row {
         flex-direction: column;
         align-items: stretch;

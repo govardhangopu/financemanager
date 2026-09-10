@@ -313,9 +313,9 @@ export default function ScenarioDetail() {
 
     if (loading) {
         return (
-            <main className="scenario-detail-page">
+            <div className="scenario-detail-page">
                 <p>Loading scenario...</p>
-            </main>
+            </div>
         );
     }
 
@@ -324,7 +324,7 @@ export default function ScenarioDetail() {
     }
 
     return (
-        <main className="scenario-detail-page">
+        <div className="scenario-detail-page">
 
             <button
                 className="back-btn"
@@ -482,144 +482,153 @@ export default function ScenarioDetail() {
                     </div>
                 )}
 
-                <div className="scenario-horizon-controls">
-                    <button className={horizon === 12 ? "active" : ""} onClick={() => setHorizon(12)}>1Y</button>
-                    <button className={horizon === 36 ? "active" : ""} onClick={() => setHorizon(36)}>3Y</button>
-                    <button className={horizon === 60 ? "active" : ""} onClick={() => setHorizon(60)}>5Y</button>
-                    <button className={horizon === 120 ? "active" : ""} onClick={() => setHorizon(120)}>10Y</button>
-                </div>
+                <div className="scenario-simulator-workspace">
 
-                {projection?.hasData ? (
-                    <div className="scenario-projection-chart">
-                        <h3>Financial Trajectory</h3>
-                        <GenericChart labels={projectionLabels} datasets={projectionDatasets} type="line" />
-                    </div>
-                ) : (
-                    <div className="scenario-empty-state">
-                        <p>Not enough transaction history to generate a projection yet.</p>
-                    </div>
-                )}
+                    <div className="scenario-projection-section">
 
-                <div className="scenario-changes">
-                    {changes.length === 0 ? (
-                        <div className="scenario-empty-state">
-                            <p>No changes have been added to this scenario yet.</p>
+                        <div className="scenario-horizon-controls">
+                            <button className={horizon === 12 ? "active" : ""} onClick={() => setHorizon(12)}>1Y</button>
+                            <button className={horizon === 36 ? "active" : ""} onClick={() => setHorizon(36)}>3Y</button>
+                            <button className={horizon === 60 ? "active" : ""} onClick={() => setHorizon(60)}>5Y</button>
+                            <button className={horizon === 120 ? "active" : ""} onClick={() => setHorizon(120)}>10Y</button>
                         </div>
-                    ) : (
-                        changes.map(change => (
-                            <div className="scenario-change-row" key={change.scenario_changeid}>
-                                <div className="scenario-change-main">
-                                    <strong>
-                                        {change.target_type === "new"
-                                            ? change.type === "income" ? "+ New income" : "− New expense"
-                                            : change.direction === "increase"
-                                                ? `↑ Increase ${change.category_name}`
-                                                : `↓ Reduce ${change.category_name}`}
-                                    </strong>
 
-                                    {change.change_type === "recurring" || change.change_type === "one_time" ? (
-                                        <div className="scenario-change-slider">
-                                            <div className="scenario-change-amount">
-                                                <span>
-                                                    ₹{Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount).toFixed(0)}
-                                                    {change.change_type === "recurring"
-                                                        ? " / month"
-                                                        : " one-time"}
-                                                </span>
-
-                                                {(() => {
-                                                    const simulatedChange = simulatedChanges.find(
-                                                        item => item.scenario_changeid === change.scenario_changeid
-                                                    );
-
-                                                    const amountChanged =
-                                                        Number(simulatedChange?.amount ?? change.amount) !== Number(change.amount);
-
-                                                    const dateChanged =
-                                                        change.change_type === "one_time" &&
-                                                        (simulatedChange?.start_date?.split("T")[0] ?? change.start_date?.split("T")[0]) !==
-                                                        (change.start_date?.split("T")[0] ?? "");
-
-                                                    return amountChanged || dateChanged;
-                                                })() && (
-                                                        <button
-                                                            className="scenario-change-reset"
-                                                            onClick={() => resetSimulatedChange(change.scenario_changeid)}
-                                                        >
-                                                            ↻ Reset
-                                                        </button>
-                                                    )}
-                                            </div>
-
-                                            <input
-                                                type="range"
-                                                min="0"
-                                                max={getSliderMax(change.amount)}
-                                                step="100"
-                                                value={simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount}
-                                                onChange={(e) =>
-                                                    updateSimulatedChange(change.scenario_changeid, {
-                                                        amount: Number(e.target.value)
-                                                    })
-                                                }
-                                            />
-
-                                            {change.change_type === "one_time" && (
-                                                <div className="scenario-change-date">
-                                                    <input
-                                                        type="date"
-                                                        value={
-                                                            simulatedChanges.find(
-                                                                item => item.scenario_changeid === change.scenario_changeid
-                                                            )?.start_date?.split("T")[0] ??
-                                                            change.start_date?.split("T")[0] ??
-                                                            ""
-                                                        }
-                                                        onChange={(e) =>
-                                                            updateSimulatedChange(
-                                                                change.scenario_changeid,
-                                                                {
-                                                                    start_date: e.target.value
-                                                                }
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <span>
-                                            ₹{Number(change.amount).toFixed(0)}
-                                            {change.change_type === "recurring"
-                                                ? " / month"
-                                                : " one-time"}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div className="scenario-change-details">
-                                    <span>
-                                        Starts {formatScenarioDate(change.start_date)}
-                                    </span>
-
-                                    {change.end_date && (
-                                        <span>
-                                            Ends {formatScenarioDate(change.end_date)}
-                                        </span>
-                                    )}
-
-                                    {change.description && (
-                                        <span>{change.description}</span>
-                                    )}
-                                </div>
-
-                                <div className="scenario-change-actions">
-                                    <button onClick={() => setEditingChange(change)}>Edit</button>
-                                    <button onClick={() => handleDeleteChange(change.scenario_changeid)}>Delete</button>
-                                </div>
+                        {projection?.hasData ? (
+                            <div className="scenario-projection-chart">
+                                <h3>Financial Trajectory</h3>
+                                <GenericChart labels={projectionLabels} datasets={projectionDatasets} type="line" />
                             </div>
-                        ))
-                    )}
+                        ) : (
+                            <div className="scenario-empty-state">
+                                <p>Not enough transaction history to generate a projection yet.</p>
+                            </div>
+                        )}
+
+                    </div>
+
+                    <div className="scenario-changes">
+                        {changes.length === 0 ? (
+                            <div className="scenario-empty-state">
+                                <p>No changes have been added to this scenario yet.</p>
+                            </div>
+                        ) : (
+                            changes.map(change => (
+                                <div className="scenario-change-row" key={change.scenario_changeid}>
+                                    <div className="scenario-change-main">
+                                        <strong>
+                                            {change.target_type === "new"
+                                                ? change.type === "income" ? "+ New income" : "− New expense"
+                                                : change.direction === "increase"
+                                                    ? `↑ Increase ${change.category_name}`
+                                                    : `↓ Reduce ${change.category_name}`}
+                                        </strong>
+
+                                        {change.change_type === "recurring" || change.change_type === "one_time" ? (
+                                            <div className="scenario-change-slider">
+                                                <div className="scenario-change-amount">
+                                                    <span>
+                                                        ₹{Number(simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount).toFixed(0)}
+                                                        {change.change_type === "recurring"
+                                                            ? " / month"
+                                                            : " one-time"}
+                                                    </span>
+
+                                                    {(() => {
+                                                        const simulatedChange = simulatedChanges.find(
+                                                            item => item.scenario_changeid === change.scenario_changeid
+                                                        );
+
+                                                        const amountChanged =
+                                                            Number(simulatedChange?.amount ?? change.amount) !== Number(change.amount);
+
+                                                        const dateChanged =
+                                                            change.change_type === "one_time" &&
+                                                            (simulatedChange?.start_date?.split("T")[0] ?? change.start_date?.split("T")[0]) !==
+                                                            (change.start_date?.split("T")[0] ?? "");
+
+                                                        return amountChanged || dateChanged;
+                                                    })() && (
+                                                            <button
+                                                                className="scenario-change-reset"
+                                                                onClick={() => resetSimulatedChange(change.scenario_changeid)}
+                                                            >
+                                                                ↻ Reset
+                                                            </button>
+                                                        )}
+                                                </div>
+
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max={getSliderMax(change.amount)}
+                                                    step="100"
+                                                    value={simulatedChanges.find(item => item.scenario_changeid === change.scenario_changeid)?.amount ?? change.amount}
+                                                    onChange={(e) =>
+                                                        updateSimulatedChange(change.scenario_changeid, {
+                                                            amount: Number(e.target.value)
+                                                        })
+                                                    }
+                                                />
+
+                                                {change.change_type === "one_time" && (
+                                                    <div className="scenario-change-date">
+                                                        <input
+                                                            type="date"
+                                                            value={
+                                                                simulatedChanges.find(
+                                                                    item => item.scenario_changeid === change.scenario_changeid
+                                                                )?.start_date?.split("T")[0] ??
+                                                                change.start_date?.split("T")[0] ??
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                updateSimulatedChange(
+                                                                    change.scenario_changeid,
+                                                                    {
+                                                                        start_date: e.target.value
+                                                                    }
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>
+                                                ₹{Number(change.amount).toFixed(0)}
+                                                {change.change_type === "recurring"
+                                                    ? " / month"
+                                                    : " one-time"}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="scenario-change-details">
+                                        <span>
+                                            Starts {formatScenarioDate(change.start_date)}
+                                        </span>
+
+                                        {change.end_date && (
+                                            <span>
+                                                Ends {formatScenarioDate(change.end_date)}
+                                            </span>
+                                        )}
+
+                                        {change.description && (
+                                            <span>{change.description}</span>
+                                        )}
+                                    </div>
+
+                                    <div className="scenario-change-actions">
+                                        <button onClick={() => setEditingChange(change)}>Edit</button>
+                                        <button onClick={() => handleDeleteChange(change.scenario_changeid)}>Delete</button>
+                                    </div>
+
+                                </div>
+                            ))
+                        )}
+                    </div>
+
                 </div>
 
             </div>
@@ -637,6 +646,6 @@ export default function ScenarioDetail() {
                     onAdd={handleEditChange}
                 />
             )}
-        </main>
+        </div>
     );
 }
