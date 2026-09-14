@@ -208,7 +208,8 @@ const validateChange = ({
 
     if (!["increase", "decrease"].includes(direction)) {
         console.log(direction)
-        throw new Error("Invalid direction.");}
+        throw new Error("Invalid direction.");
+    }
 
     if (amount === undefined || amount === null || Number(amount) <= 0)
         throw new Error("Amount must be greater than zero.");

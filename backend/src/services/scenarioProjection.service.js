@@ -1,7 +1,7 @@
 import * as categoryRepo from "../repositories/category.repo.js";
 import * as transactionRepo from "../repositories/transaction.repo.js";
 import * as scenarioChangeRepo from "../repositories/scenarioChange.repo.js";
-import * as baselineRepo from "../repositories/baseline.repo.js";
+import * as baselineService from "../services/baseline.service.js";
 
 function parseDateOnly(dateValue) {
     const [year, month, day] = String(dateValue).split("T")[0].split("-").map(Number);
@@ -61,37 +61,6 @@ export const calculateNewRecurringFlowImpact = ({ change, projectionStartDate, m
     }
 
     return result;
-};
-
-export const generateScenarioProjection = ({ baselineMonthlyNetFlow, change, projectionStartDate, months }) => {
-    const impact = calculateNewRecurringFlowImpact({ change, projectionStartDate, months });
-
-    const projection = [];
-
-    let baselineCumulative = 0;
-    let scenarioCumulative = 0;
-
-    for (let i = 0; i < months; i++) {
-        baselineCumulative += baselineMonthlyNetFlow;
-
-        scenarioCumulative +=
-            baselineMonthlyNetFlow + impact[i].monthlyImpact;
-
-        projection.push({
-            month: i + 1,
-            baselineMonthlyNetFlow,
-            scenarioMonthlyNetFlow:
-                baselineMonthlyNetFlow +
-                impact[i].monthlyImpact,
-            baselineCumulativeNetFlow:
-                baselineCumulative,
-            scenarioCumulativeNetFlow:
-                scenarioCumulative,
-            monthlyImpact: impact[i].monthlyImpact
-        });
-    }
-
-    return projection;
 };
 
 export const calculateTotalScenarioImpact = async ({
@@ -327,10 +296,9 @@ export const getScenarioProjection = async ({
     months,
     changes = null
 }) => {
-    const monthlyData =
-        await baselineRepo.fetchMonthlyNetFlow(userid);
+    const baseline = await baselineService.getBaseline(userid);
 
-    if (monthlyData.length === 0) {
+    if (!baseline.hasData) {
         return {
             hasData: false,
             months,
@@ -344,16 +312,8 @@ export const getScenarioProjection = async ({
         };
     }
 
-    const normalized = monthlyData.map(row => ({
-        month: row.month,
-        netFlow: Number(row.net_flow)
-    }));
-
     const baselineMonthlyNetFlow =
-        normalized.reduce(
-            (sum, row) => sum + row.netFlow,
-            0
-        ) / normalized.length;
+        baseline.averageMonthlyNetFlow;
 
     const scenarioChanges = changes ?? await scenarioChangeRepo.fetchAll(scenarioid);
 

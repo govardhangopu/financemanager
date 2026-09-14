@@ -14,7 +14,7 @@ export const create = async ({ userid, name, description }) => {
 }
 
 // FETCH
-export const fetchAll = async (userid) => {
+export const fetchAll = async ({ userid }) => {
     return await repo.fetchAll(userid);
 }
 
