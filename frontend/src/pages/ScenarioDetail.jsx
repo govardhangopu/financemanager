@@ -12,7 +12,7 @@ import {
     updateScenarioChange,
     deleteScenarioChange
 } from "../api/scenarioApi.js";
-import { GenericChart } from "../components/dashboard/GenericChart.jsx";
+import { GenericChart } from "../components/GenericChart.jsx";
 import ScenarioChangeModal from "../components/ScenarioChangeModal.jsx";
 import "../styles/ScenarioDetail.css";
 

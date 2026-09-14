@@ -6,6 +6,7 @@ import categoriesRoutes from "./routes/category.routes.js";
 import budgetRoutes from "./routes/budget.routes.js";
 import scenarioRoutes from "./routes/scenario.routes.js";
 import baselineRoutes from "./routes/baseline.routes.js";
+import forecastRoutes from "./routes/forecast.routes.js";
 import { connectDB } from "../config/db.js";
 
 const pool = connectDB();
@@ -27,6 +28,7 @@ app.use('/categories', categoriesRoutes);
 app.use('/budgets', budgetRoutes);
 app.use('/scenarios', scenarioRoutes);
 app.use("/baseline", baselineRoutes);
+app.use("/forecast", forecastRoutes);
 
 // Health check
 app.get("/", async (req, res) => {

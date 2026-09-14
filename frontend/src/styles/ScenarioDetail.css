@@ -3,7 +3,8 @@
     min-height: 91vh;
     padding: 20px;
     box-sizing: border-box;
-    color: var(--text-color);
+    color: var(--text-color);    
+    text-align: left;
 }
 
 .scenario-detail-card,

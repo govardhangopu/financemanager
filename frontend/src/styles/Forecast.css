@@ -1,0 +1,171 @@
+.forecast-page {
+    width: 100%;
+    /* min-height: 91vh; */
+    padding: 20px;
+    box-sizing: border-box;
+    color: var(--text-color);
+    text-align: left;
+}
+
+.forecast-card {
+    width: 100%;
+    margin: 20px auto;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================
+   Forecast Header
+   ========================= */
+
+.forecast-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.forecast-title-area h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.forecast-description {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* =========================
+   Projection Summary
+   ========================= */
+
+.forecast-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.forecast-summary > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    background-color: var(--card-inner-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.forecast-summary > div:nth-child(1) {
+    border-left: 3px solid var(--text-muted);
+}
+
+.forecast-summary > div:nth-child(2) {
+    border-left: 3px solid var(--link-color);
+}
+
+.forecast-summary span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.forecast-summary strong {
+    font-size: 1.2rem;
+}
+
+/* =========================
+   Horizon Controls
+   ========================= */
+
+.forecast-horizon-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.forecast-horizon-controls button {
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.forecast-horizon-controls button.active {
+    background-color: var(--text-color);
+    color: var(--card-bg);
+}
+
+/* =========================
+   Projection Chart
+   ========================= */
+
+.forecast-projection-section {
+    min-width: 0;
+}
+
+.forecast-projection-chart {
+    height: 400px;
+    margin-top: 24px;
+}
+
+/* =========================
+   Empty State
+   ========================= */
+
+.forecast-empty-state {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* =========================
+   Loading / Error
+   ========================= */
+
+.forecast-message {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 700px) {
+    .forecast-page {
+        padding: 16px;
+    }
+
+    .forecast-card {
+        padding: 20px;
+    }
+
+    .forecast-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .forecast-horizon-controls {
+        width: 100%;
+    }
+
+    .forecast-horizon-controls button {
+        flex: 1;
+    }
+
+    .forecast-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .forecast-projection-chart {
+        height: 320px;
+    }
+}
