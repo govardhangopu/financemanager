@@ -20,11 +20,11 @@ ChartJS.register(
     Legend
 );
 
-export function GenericChart({ labels, datasets, type="line", }) {
+export function GenericChart({ labels, datasets, type = "line", }) {
     //console.log(props);
 
-    const chartData = { 
-        labels, 
+    const chartData = {
+        labels,
         datasets
     };
 
@@ -38,8 +38,14 @@ export function GenericChart({ labels, datasets, type="line", }) {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
+            x: {
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 12,
+                },
+            },
             y: {
-                beginAtZero: true,
+                beginAtZero: false,
                 ticks: {
                     callback: (value) => rupeeFormatter.format(value),
                 },
@@ -48,16 +54,16 @@ export function GenericChart({ labels, datasets, type="line", }) {
         plugins: {
             tooltip: {
                 callbacks: {
-                    label: (context) => rupeeFormatter.format(context.raw),
+                    label: (context) => `${context.dataset.label}: ${rupeeFormatter.format(context.raw)}`,
                 },
             },
         },
     };
-            
+
     return (
         <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%' }}>
             {labels.length > 0 ? (
-                type === "bar" 
+                type === "bar"
                     ? <Bar data={chartData} options={options} />
                     : <Line data={chartData} options={options} />
             ) : (
