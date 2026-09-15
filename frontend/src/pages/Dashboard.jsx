@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/Dashboard.css";
 import {
     NetWorthCard, IncomeCard, ExpenseCard, TransactionHistoryCard, BudgetCard,
-    IncomeVsExpenseCard, ScenarioDiscovery
+    IncomeVsExpenseCard, ScenarioDiscovery, ForecastDiscovery
 } from "../components/dashboard";
 
 const Dashboard = () => {
@@ -20,7 +20,10 @@ const Dashboard = () => {
                     <section className="transaction-history"><TransactionHistoryCard /></section>
                     <section className="income-vs-expense"><IncomeVsExpenseCard /></section>
                     <section className="budgets"><BudgetCard /></section>
-                    <ScenarioDiscovery />
+                    <div className="dashboard-discovery-row">
+                        <ScenarioDiscovery />
+                        <ForecastDiscovery />
+                    </div>
                 </div>
             </div>
         </main>

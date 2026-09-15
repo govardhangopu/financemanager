@@ -1,20 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import "./DiscoveryCard.css";
 
-const ScenarioDiscovery = () => {
+const ForecastDiscovery = () => {
     const navigate = useNavigate();
 
     return (
         <div className="discovery-card">
             <div className="discovery-content">
                 <div className="discovery-text">
-                    <span className="discovery-eyebrow">SCENARIO</span>
+                    <span className="discovery-eyebrow">FORECAST</span>
 
                     <div>
-                        <h2>What if you changed something?</h2>
+                        <h2>Where are you heading?</h2>
                         <p>
-                            Explore how different financial decisions could
-                            affect your future.
+                            See where your finances could go if nothing
+                            changes.
                         </p>
                     </div>
                 </div>
@@ -22,7 +22,7 @@ const ScenarioDiscovery = () => {
                 <button
                     type="button"
                     className="discovery-action"
-                    onClick={() => navigate("/scenarios")}
+                    onClick={() => navigate("/forecast")}
                 >
                     Explore
                     <span>→</span>
@@ -32,4 +32,4 @@ const ScenarioDiscovery = () => {
     );
 };
 
-export default ScenarioDiscovery;
+export default ForecastDiscovery;

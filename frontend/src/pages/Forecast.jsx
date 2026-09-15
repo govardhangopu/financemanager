@@ -43,8 +43,11 @@ export default function Forecast() {
     if (loading) {
         return (
             <div className="forecast-page">
-                <h1>Forecast</h1>
-                <p>Loading your forecast...</p>
+                <div className="forecast-card">
+                    <div className="forecast-message">
+                        Loading your forecast...
+                    </div>
+                </div>
             </div>
         );
     }
@@ -52,8 +55,11 @@ export default function Forecast() {
     if (error) {
         return (
             <div className="forecast-page">
-                <h1>Forecast</h1>
-                <p>{error}</p>
+                <div className="forecast-card">
+                    <div className="forecast-message">
+                        {error}
+                    </div>
+                </div>
             </div>
         );
     }
@@ -61,42 +67,48 @@ export default function Forecast() {
     if (!forecast?.hasData) {
         return (
             <div className="forecast-page">
-                <div className="forecast-header">
-                    <div>
-                        <h1>Forecast</h1>
+                <div className="forecast-card">
+                    <div className="forecast-header">
+                        <div className="forecast-title-area">
+                            <h1>Forecast</h1>
+                            <p className="forecast-description">
+                                See where your financial position could go if
+                                nothing changes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="forecast-empty-state">
+                        <h2>Not enough history yet</h2>
                         <p>
-                            See where your financial position could go if
-                            nothing changes.
+                            Add some transactions first. Once there is enough
+                            financial history, Forecast can project your future
+                            cumulative net flow.
                         </p>
                     </div>
-                </div>
-
-                <div className="forecast-empty-state">
-                    <h2>Not enough history yet</h2>
-                    <p>
-                        Add some transactions first. Once there is enough
-                        financial history, Forecast can project your future
-                        cumulative net flow.
-                    </p>
                 </div>
             </div>
         );
     }
 
-    const labels = forecast.projection.map(
-        (item) => item.month
-    );
-
-    const cumulativeNetFlow =
-        forecast.projection.map(
-            (item) => item.cumulativeNetFlow
-        );
+    const labels = forecast.projection.map((item) => item.month);
+    const cumulativeNetFlow = forecast.projection.map((item) => item.cumulativeNetFlow);
+    const linkColor = getComputedStyle(document.documentElement).getPropertyValue("--link-color").trim();
 
     const datasets = [
         {
             label: "Projected cumulative net flow",
             data: cumulativeNetFlow,
             tension: 0.3,
+
+            borderColor: linkColor,
+            backgroundColor: `${linkColor}`,
+
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+
+            fill: true,
         },
     ];
 
@@ -107,8 +119,8 @@ export default function Forecast() {
                     <div className="forecast-title-area">
                         <h1>Forecast</h1>
                         <p className="forecast-description">
-                            See where your financial position could go if
-                            nothing changes.
+                            See where your cumulative net flow could go if your current
+                            financial habits continue.
                         </p>
                     </div>
 
@@ -153,6 +165,13 @@ export default function Forecast() {
                 </div>
 
                 <div className="forecast-projection-section">
+                    <p className="forecast-projection-context">
+                        Projected over the next{" "}
+                        {horizon / 12 === 1
+                            ? "1 year"
+                            : `${horizon / 12} years`}
+                        {" "}using your average historical monthly net flow.
+                    </p>
                     <div className="forecast-projection-chart">
                         <GenericChart
                             type="line"

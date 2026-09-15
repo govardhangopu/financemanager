@@ -104,9 +104,15 @@ section {
     color: var(--text-color);
 
     position: relative;
+
+    transition: transform 0.2s ease;
 }
 
-#dashboard section > div:not(.scenario-discovery-content) {
+section:hover {
+    transform: translateY(-1px);
+}
+
+#dashboard section>div:not(.scenario-discovery-content) {
     display: flex;
     flex-direction: column;
 
@@ -114,104 +120,14 @@ section {
 }
 
 /* =========================================================
-   Scenario Discovery
+   Dashboard Discovery
    ========================================================= */
 
-.scenario-discovery {
-    width: 100%;
-    height: 100%;
-
-    padding: 8px 16px;
-
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-
-    color: var(--text-color);
-
-    box-sizing: border-box;
-}
-
-.scenario-discovery-content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-
+.dashboard-discovery-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
-}
-
-.scenario-discovery-content > div:first-child {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    gap: 8px;
-    min-width: 0;
-}
-
-.scenario-discovery-text {
-    min-width: 0;
-
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-}
-
-.scenario-discovery-eyebrow {
-    flex-shrink: 0;
-
-    color: var(--text-muted);
-
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-}
-
-.scenario-discovery h2 {
-    flex-shrink: 0;
-
-    margin: 0;
-
-    font-size: 0.9rem;
-    font-weight: 600;
-
-    color: var(--text-color);
-
-    white-space: nowrap;
-}
-
-.scenario-discovery p {
-    margin: 0;
-
-    color: var(--text-muted);
-
-    font-size: 0.75rem;
-    line-height: 1.2;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.scenario-discovery-actions {
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-}
-
-.scenario-discovery-actions button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 6px 12px;
-
-    white-space: nowrap;
-
-    font-size: 0.75rem;
+    width: 100%;
 }
 
 /* =========================================================
@@ -251,15 +167,21 @@ section {
         min-height: 0;
     }
 
-    .scenario-discovery {
+    .dashboard-discovery-row {
         grid-column: 1 / -1;
         grid-row: 5;
 
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+
         height: 64px;
+        min-width: 0;
+    }
 
-        padding: 8px 16px;
-
-        overflow: hidden;
+    .dashboard-discovery-row>* {
+        min-width: 0;
+        min-height: 0;
     }
 }
 
@@ -329,11 +251,13 @@ section {
         grid-row-start: 5;
     }
 
-    .scenario-discovery {
+    .dashboard-discovery-row {
         grid-column: 1 / -1;
         grid-row: auto;
 
-        padding: 10px 14px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 }
 
@@ -369,29 +293,11 @@ section {
         grid-row-start: 5;
     }
 
-    .scenario-discovery {
-        grid-column: auto;
-        grid-row: auto;
-
-        padding: 10px 12px;
+    .dashboard-discovery-row {
+        grid-template-columns: 1fr;
     }
 
-    .scenario-discovery-content {
-        align-items: center;
-        gap: 10px;
-    }
-
-    .scenario-discovery h2 {
-        font-size: 0.9rem;
-    }
-
-    .scenario-discovery p {
-        display: none;
-    }
-
-    .scenario-discovery-actions button {
-        padding: 7px 10px;
-
-        font-size: 0.75rem;
+    .dashboard-discovery-row>* {
+        min-width: 0;
     }
 }

@@ -1,4 +1,5 @@
 import * as baselineService from "./baseline.service.js";
+import { addMonthsToDateOnly } from "../utils/date.utils.js";
 
 export const getForecast = async ({
     userid,
@@ -27,19 +28,17 @@ export const getForecast = async ({
     let cumulativeNetFlow = 0;
 
     for (let i = 0; i < months; i++) {
-        const date = new Date(startDate);
+        const { year, month } =
+            addMonthsToDateOnly(startDate, i);
 
-        date.setMonth(date.getMonth() + i);
-
-        const year = date.getFullYear();
-        const month = String(
-            date.getMonth() + 1
+        const formattedMonth = String(
+            month + 1
         ).padStart(2, "0");
 
         cumulativeNetFlow += averageMonthlyNetFlow;
 
         projection.push({
-            month: `${year}-${month}`,
+            month: `${year}-${formattedMonth}`,
             monthlyNetFlow: averageMonthlyNetFlow,
             cumulativeNetFlow
         });

@@ -2,26 +2,7 @@ import * as categoryRepo from "../repositories/category.repo.js";
 import * as transactionRepo from "../repositories/transaction.repo.js";
 import * as scenarioChangeRepo from "../repositories/scenarioChange.repo.js";
 import * as baselineService from "../services/baseline.service.js";
-
-function parseDateOnly(dateValue) {
-    const [year, month, day] = String(dateValue).split("T")[0].split("-").map(Number);
-
-    return {
-        year,
-        month: month - 1,
-        day
-    };
-}
-
-function addMonthsToDateOnly(dateValue, months) {
-    const { year, month } = parseDateOnly(dateValue);
-    const date = new Date(year, month + months, 1);
-
-    return {
-        year: date.getFullYear(),
-        month: date.getMonth()
-    };
-}
+import { parseDateOnly, addMonthsToDateOnly } from "../utils/date.utils.js";
 
 export const calculateNewRecurringFlowImpact = ({ change, projectionStartDate, months }) => {
     const result = [];

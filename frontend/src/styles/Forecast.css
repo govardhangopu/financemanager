@@ -52,7 +52,7 @@
     margin: 24px 0;
 }
 
-.forecast-summary > div {
+.forecast-summary>div {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -62,11 +62,11 @@
     border-radius: 12px;
 }
 
-.forecast-summary > div:nth-child(1) {
+.forecast-summary>div:nth-child(1) {
     border-left: 3px solid var(--text-muted);
 }
 
-.forecast-summary > div:nth-child(2) {
+.forecast-summary>div:nth-child(2) {
     border-left: 3px solid var(--link-color);
 }
 
@@ -108,6 +108,12 @@
 
 .forecast-projection-section {
     min-width: 0;
+}
+
+.forecast-projection-context {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
 }
 
 .forecast-projection-chart {
