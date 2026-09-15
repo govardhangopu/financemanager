@@ -80,7 +80,6 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
 
     return (
         <div className="form-container">
-            (mode = {mode})
             <h2>{submitLabel}</h2>
             {saving ? <Loader overlay text="Saving transaction..." /> : <>
                 <form id="form" onSubmit={handleSubmit}>

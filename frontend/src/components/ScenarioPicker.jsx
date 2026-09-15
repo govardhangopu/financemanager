@@ -24,6 +24,8 @@ export default function ScenarioPicker({ scenarios = [], onSelect, onCreate, onC
                                 Your Scenarios
                             </p>
 
+                            <button type="button" className="scenario-picker-create" onClick={onCreate}>+ Create New Scenario</button>
+
                             <div className="scenario-picker-list">
                                 {scenarios.map(scenario => (
                                     <button key={scenario.scenarioid} type="button" 
@@ -42,9 +44,7 @@ export default function ScenarioPicker({ scenarios = [], onSelect, onCreate, onC
                                 ))}
                             </div>
                         </>
-                    )}
-
-                    <button type="button" className="scenario-picker-create" onClick={onCreate}>+ Create New Scenario</button>
+                    )}                    
                 </div>
             </div>
         </div>

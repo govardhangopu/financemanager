@@ -193,3 +193,27 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_changes` (
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`goals` (
+  `goalid` INT NOT NULL AUTO_INCREMENT,
+  `userid` INT NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `target_amount` DECIMAL(10,2) NOT NULL,
+  `target_date` DATE NOT NULL,
+  `description` VARCHAR(255) NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`goalid`),
+
+  UNIQUE INDEX `goalid_UNIQUE` (`goalid` ASC) VISIBLE,
+
+  INDEX `goal_user_fk_idx` (`userid` ASC) VISIBLE,
+
+  CONSTRAINT `goal_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
