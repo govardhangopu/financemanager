@@ -1,5 +1,6 @@
 import * as repo from "../repositories/goalProjection.repo.js";
 import * as baselineService from "./baseline.service.js";
+import { parseDateOnly } from "../utils/date.utils.js";
 
 export const getGoalProjection = async ({ userid, goalid }) => {
     const goals = await repo.fetchGoal(userid, goalid);
@@ -33,17 +34,14 @@ export const getGoalProjection = async ({ userid, goalid }) => {
     }
 
     const today = new Date();
-    const targetDate = new Date(goal.target_date);
-
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
 
-    const targetYear = targetDate.getFullYear();
-    const targetMonth = targetDate.getMonth();
+    const targetDate = parseDateOnly(goal.target_date);
 
     const monthsRemaining =
-        (targetYear - currentYear) * 12 +
-        (targetMonth - currentMonth);
+        (targetDate.year - currentYear) * 12 +
+        (targetDate.month - currentMonth);
 
     const targetAmount = Number(goal.target_amount);
     const averageMonthlyNetFlow =

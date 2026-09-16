@@ -1,0 +1,361 @@
+.goals-page {
+    width: 100%;
+    min-height: 91vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: var(--text-color);
+    text-align: left;
+}
+
+.goals-card {
+    width: 100%;
+    margin: 20px auto;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.goals-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.goals-header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.goals-header p {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.goals-add-button {
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.goals-add-button:hover {
+    border-color: var(--link-color);
+}
+
+.goals-empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.goals-empty-state h2 {
+    margin: 0 0 8px;
+}
+
+.goals-empty-state p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.goal-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px;
+    background-color: var(--card-inner-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.goal-item h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.goal-item p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.goal-target {
+    font-weight: 600;
+}
+
+.goal-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.goals-message {
+    margin: 0;
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.goal-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.55);
+    z-index: 1000;
+}
+
+.goal-modal-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 24px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    color: var(--text-color);
+}
+
+.goal-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.goal-modal-header h2 {
+    margin: 0;
+}
+
+.goal-modal-header button {
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.goal-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.goal-modal label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.goal-modal input,
+.goal-modal textarea {
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+    font: inherit;
+}
+
+.goal-modal input:focus,
+.goal-modal textarea:focus {
+    outline: none;
+    border-color: var(--link-color);
+}
+
+.goal-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.goal-modal-actions button {
+    padding: 9px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.goal-modal-actions button:last-child {
+    border-color: var(--link-color);
+}
+
+.goal-modal-actions button:hover {
+    border-color: var(--link-color);
+}
+
+.goal-item {
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.goal-item:hover,
+.goal-item.selected {
+    border-color: var(--link-color);
+}
+
+.goal-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.goal-actions button {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background-color: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.goal-actions button:hover {
+    border-color: var(--link-color);
+    color: var(--text-color);
+}
+
+.goal-projection {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--card-inner-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: transform 2s ease;
+}
+
+.goal-projection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.goal-projection-header>div:first-child>span {
+    color: var(--link-color);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.goal-projection h2 {
+    margin: 5px 0 0;
+    font-size: 1.1rem;
+}
+
+.goal-projection-target {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.goal-projection-target span,
+.goal-projection-target small {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.goal-projection-target strong {
+    font-size: 1.1rem;
+}
+
+.goal-projection-values {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.goal-projection-values>div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.goal-projection-values span {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.goal-projection-values strong {
+    font-size: 1rem;
+}
+
+.goal-projection-muted {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .goal-actions {
+        width: 100%;
+    }
+
+    .goal-actions button {
+        flex: 1;
+    }
+
+    .goal-projection-header {
+        flex-direction: column;
+    }
+
+    .goal-projection-target {
+        align-items: flex-start;
+    }
+
+    .goal-projection-values {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .goal-projection-values {
+        grid-template-columns: 1fr;
+    }
+
+    .goals-page {
+        padding: 16px;
+    }
+
+    .goals-card {
+        padding: 20px;
+    }
+
+    .goals-header {
+        flex-direction: column;
+    }
+
+    .goal-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}

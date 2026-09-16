@@ -12,6 +12,7 @@ import BudgetDetail from "./pages/BudgetDetail"
 import Scenarios from "./pages/Scenarios"
 import ScenarioDetail from './pages/ScenarioDetail'
 import Forecast from './pages/Forecast'
+import Goals from "./pages/Goals";
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -38,6 +39,7 @@ function App() {
             <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
             <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
             <Route path='/forecast' element={<ProtectedRoute><Forecast /></ProtectedRoute>} />
+            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
           </Routes>
         </main>
         

@@ -42,7 +42,7 @@ export const fetchAll = async (userid) => {
             userid,
             name,
             target_amount,
-            target_date,
+            DATE_FORMAT(target_date, '%Y-%m-%d') AS target_date,
             description,
             created_at,
             updated_at
@@ -66,7 +66,7 @@ export const fetchById = async (userid, goalid) => {
             userid,
             name,
             target_amount,
-            target_date,
+            DATE_FORMAT(target_date, '%Y-%m-%d') AS target_date,
             description,
             created_at,
             updated_at
