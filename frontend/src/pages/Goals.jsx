@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createGoal, deleteGoal, getGoalProjection, getGoals, updateGoal } from "../api/goalApi";
+import { GenericChart } from "../components/GenericChart";
 import "../styles/Goals.css";
 
 const Goals = () => {
@@ -59,6 +60,103 @@ const Goals = () => {
 
         loadProjection();
     }, [selectedGoal]);
+
+    const goalChartLabels = projection
+        ? [
+            "Today",
+            ...(projection.projection?.map((point) => {
+                const date = new Date();
+                date.setMonth(date.getMonth() + point.month);
+
+                return date.toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "numeric"
+                });
+            }) || [])
+        ]
+        : [];
+
+    const goalChartDatasets = projection?.projection
+        ? [
+            {
+                label: "Projected",
+                data: [
+                    projection.currentCumulativeNetFlow,
+                    ...projection.projection.map(
+                        (point) => point.cumulativeNetFlow
+                    )
+                ],
+                borderColor: "#646cff",
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                tension: 0.3,
+                pointRadius: [
+                    6,
+                    ...projection.projection.map((_, index) => {
+                        const projectionMonth = index + 1;
+
+                        if (index === projection.projection.length - 1) {
+                            return 7;
+                        }
+
+                        if (projectionMonth === projection.goalReachedAt) {
+                            return 5;
+                        }
+
+                        return 3;
+                    })
+                ],
+                pointHoverRadius: [
+                    8,
+                    ...projection.projection.map((_, index) => {
+                        const projectionMonth = index + 1;
+
+                        if (index === projection.projection.length - 1) {
+                            return 9;
+                        }
+
+                        if (projectionMonth === projection.goalReachedAt) {
+                            return 7;
+                        }
+
+                        return 5;
+                    })
+                ],
+            },
+            {
+                label: "Target",
+                data: [
+                    projection.goal.targetAmount,
+                    ...projection.projection.map(
+                        () => projection.goal.targetAmount
+                    )
+                ],
+                borderColor: "#888",
+                borderWidth: 1.5,
+                borderDash: [6, 6],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+            }
+        ]
+        : [];
+
+    const goalChartOptions = {
+        interaction: {
+            mode: "index",
+            intersect: false,
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        return `${context.dataset.label}: ₹${Number(context.raw).toLocaleString("en-IN", {
+                            maximumFractionDigits: 0
+                        })}`;
+                    }
+                }
+            }
+        }
+    };
 
     const handleEdit = (goal) => {
         setEditingGoal(goal);
@@ -286,35 +384,115 @@ const Goals = () => {
                                         financial path compares with this goal.
                                     </p>
                                 ) : (
-                                    <div className="goal-projection-values">
-                                        <div>
-                                            <span>Current cumulative net flow</span>
-                                            <strong>
-                                                ₹{Number(projection.currentCumulativeNetFlow).toLocaleString("en-IN")}
-                                            </strong>
+                                    <>
+                                        <div className="goal-projection-values">
+                                            <div>
+                                                <span>Current cumulative net flow</span>
+                                                <strong>
+                                                    ₹{Number(projection.currentCumulativeNetFlow).toLocaleString("en-IN")}
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>Projected at target date</span>
+                                                <strong>
+                                                    ₹{Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN")}
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>Required monthly net flow</span>
+                                                <strong>
+                                                    ₹{Number(projection.requiredMonthlyNetFlow).toLocaleString("en-IN")}
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>Time remaining</span>
+                                                <strong>
+                                                    {projection.monthsRemaining} months
+                                                </strong>
+                                            </div>
                                         </div>
 
-                                        <div>
-                                            <span>Projected at target date</span>
-                                            <strong>
-                                                ₹{Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN")}
-                                            </strong>
+                                        <div className="goal-progress">
+                                            <div className="goal-progress-header">
+                                                <span>Progress toward target</span>
+                                                <span>
+                                                    ₹{Number(projection.currentCumulativeNetFlow).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })}
+                                                    {" / "}
+                                                    ₹{Number(projection.goal.targetAmount).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })}
+                                                </span>
+                                            </div>
+
+                                            <div className="goal-progress-track">
+                                                <div
+                                                    className="goal-progress-current"
+                                                    style={{
+                                                        width: `${Math.min(
+                                                            100,
+                                                            Math.max(
+                                                                0,
+                                                                (projection.currentCumulativeNetFlow /
+                                                                    projection.goal.targetAmount) *
+                                                                100
+                                                            )
+                                                        )}%`
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <div className="goal-progress-projected">
+                                                Projected at deadline:{" "}
+                                                <strong>
+                                                    ₹{Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })}
+                                                </strong>
+                                            </div>
                                         </div>
 
-                                        <div>
-                                            <span>Required monthly net flow</span>
-                                            <strong>
-                                                ₹{Number(projection.requiredMonthlyNetFlow).toLocaleString("en-IN")}
-                                            </strong>
+                                        <div className="goal-projection-chart">
+                                            <span>Projection to target</span>
+
+                                            <div className="goal-projection-chart-container">
+                                                <GenericChart labels={goalChartLabels} datasets={goalChartDatasets} options={goalChartOptions} />
+                                            </div>
                                         </div>
 
-                                        <div>
-                                            <span>Time remaining</span>
+                                        <div className={`goal-projection-status ${projection.onTrack ? "on-track" : "behind"}`}>
                                             <strong>
-                                                {projection.monthsRemaining} months
+                                                {projection.onTrack
+                                                    ? "On track"
+                                                    : `Behind target by ₹${Number(projection.shortfall).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })}`}
                                             </strong>
+
+                                            <p>
+                                                {projection.onTrack
+                                                    ? projection.goalReachedDate
+                                                        ? projection.monthsEarly > 0
+                                                            ? `You are projected to reach your goal in ${new Date(projection.goalReachedDate).toLocaleDateString("en-IN", {
+                                                                month: "long",
+                                                                year: "numeric"
+                                                            })}, ${projection.monthsEarly} months before your deadline.`
+                                                            : `You are projected to reach your goal by the deadline.`
+                                                        : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                            maximumFractionDigits: 0
+                                                        })} by the deadline.`
+                                                    : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })} by the deadline. You need ₹${Number(projection.monthlyGap).toLocaleString("en-IN", {
+                                                        maximumFractionDigits: 0
+                                                    })} more per month than your current average to reach the goal on time.`}
+                                            </p>
                                         </div>
-                                    </div>
+                                    </>
                                 )}
                             </>
                         )}

@@ -1,6 +1,6 @@
 import * as repo from "../repositories/goalProjection.repo.js";
 import * as baselineService from "./baseline.service.js";
-import { parseDateOnly } from "../utils/date.utils.js";
+import { parseDateOnly, addMonthsToDateOnly } from "../utils/date.utils.js";
 
 export const getGoalProjection = async ({ userid, goalid }) => {
     const goals = await repo.fetchGoal(userid, goalid);
@@ -48,6 +48,8 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         baseline.averageMonthlyNetFlow;
 
     if (monthsRemaining <= 0) {
+        const shortfall = Math.max(0, targetAmount - currentCumulativeNetFlow);
+
         return {
             hasData: true,
             goal: {
@@ -59,6 +61,8 @@ export const getGoalProjection = async ({ userid, goalid }) => {
             currentCumulativeNetFlow,
             projectedCumulativeNetFlow: currentCumulativeNetFlow,
             requiredMonthlyNetFlow: 0,
+            shortfall,
+            monthlyGap: 0,
             monthsRemaining: 0,
             onTrack: currentCumulativeNetFlow >= targetAmount
         };
@@ -68,9 +72,39 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         currentCumulativeNetFlow +
         averageMonthlyNetFlow * monthsRemaining;
 
-    const requiredMonthlyNetFlow =
-        (targetAmount - currentCumulativeNetFlow) /
-        monthsRemaining;
+    const requiredMonthlyNetFlow = (targetAmount - currentCumulativeNetFlow) / monthsRemaining;
+
+    const shortfall = Math.max(0, targetAmount - projectedCumulativeNetFlow);
+
+    const monthlyGap = Math.max(0, requiredMonthlyNetFlow - averageMonthlyNetFlow);
+
+    const projection = [];
+
+    for (let month = 1; month <= monthsRemaining; month++) {
+        projection.push({
+            month,
+            cumulativeNetFlow:
+                currentCumulativeNetFlow +
+                averageMonthlyNetFlow * month
+        });
+    }
+
+    const goalReachedAt = projection.find(point => point.cumulativeNetFlow >= targetAmount);
+
+    const goalReachedDate = goalReachedAt
+        ? (() => {
+            const { year, month } = addMonthsToDateOnly(
+                new Date().toISOString().split("T")[0],
+                goalReachedAt.month
+            );
+
+            return `${year}-${String(month + 1).padStart(2, "0")}-01`;
+        })()
+        : null;
+
+    const monthsEarly = goalReachedAt
+        ? monthsRemaining - goalReachedAt.month
+        : 0;
 
     return {
         hasData: true,
@@ -83,7 +117,13 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         currentCumulativeNetFlow,
         projectedCumulativeNetFlow,
         requiredMonthlyNetFlow,
+        shortfall,
+        monthlyGap,
+        goalReachedAt: goalReachedAt ? goalReachedAt.month : null,
+        goalReachedDate,
+        monthsEarly,
         monthsRemaining,
+        projection,
         onTrack:
             projectedCumulativeNetFlow >= targetAmount
     };

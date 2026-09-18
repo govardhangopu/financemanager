@@ -20,7 +20,7 @@ ChartJS.register(
     Legend
 );
 
-export function GenericChart({ labels, datasets, type = "line", }) {
+export function GenericChart({ labels, datasets, type = "line", options: customOptions }) {
     //console.log(props);
 
     const chartData = {
@@ -60,12 +60,21 @@ export function GenericChart({ labels, datasets, type = "line", }) {
         },
     };
 
+    const finalOptions = {
+        ...options,
+        ...customOptions,
+        plugins: {
+            ...options.plugins,
+            ...customOptions?.plugins,
+        },
+    };
+
     return (
         <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%' }}>
             {labels.length > 0 ? (
                 type === "bar"
-                    ? <Bar data={chartData} options={options} />
-                    : <Line data={chartData} options={options} />
+                    ? <Bar data={chartData} options={finalOptions} />
+                    : <Line data={chartData} options={finalOptions} />
             ) : (
                 <p>No data to show for this time range.</p>
             )}
