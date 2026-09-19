@@ -11,8 +11,7 @@ export const getGoalProjection = async ({ userid, goalid }) => {
 
     const goal = goals[0];
 
-    const currentCumulativeNetFlow =
-        await repo.fetchCurrentCumulativeNetFlow(userid);
+    const currentCumulativeNetFlow = await repo.fetchCurrentCumulativeNetFlow(userid);
 
     const baseline = await baselineService.getBaseline(userid);
 
@@ -29,7 +28,9 @@ export const getGoalProjection = async ({ userid, goalid }) => {
             projectedCumulativeNetFlow: null,
             requiredMonthlyNetFlow: null,
             monthsRemaining: null,
-            onTrack: null
+            onTrack: null,
+            goalReached: false,
+            deadlinePassed: false
         };
     }
 
@@ -44,8 +45,31 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         (targetDate.month - currentMonth);
 
     const targetAmount = Number(goal.target_amount);
-    const averageMonthlyNetFlow =
-        baseline.averageMonthlyNetFlow;
+    const averageMonthlyNetFlow = baseline.averageMonthlyNetFlow;
+
+    if (currentCumulativeNetFlow >= targetAmount) {
+        return {
+            hasData: true,
+            goal: {
+                goalid: goal.goalid,
+                name: goal.name,
+                targetAmount,
+                targetDate: goal.target_date
+            },
+            currentCumulativeNetFlow,
+            projectedCumulativeNetFlow: currentCumulativeNetFlow,
+            requiredMonthlyNetFlow: 0,
+            shortfall: 0,
+            monthlyGap: 0,
+            monthsRemaining,
+            projection: [],
+            goalReachedAt: 0,
+            goalReachedDate: null,
+            monthsEarly: monthsRemaining > 0 ? monthsRemaining : 0,
+            onTrack: true,
+            goalReached: true
+        };
+    }
 
     if (monthsRemaining <= 0) {
         const shortfall = Math.max(0, targetAmount - currentCumulativeNetFlow);
@@ -64,7 +88,8 @@ export const getGoalProjection = async ({ userid, goalid }) => {
             shortfall,
             monthlyGap: 0,
             monthsRemaining: 0,
-            onTrack: currentCumulativeNetFlow >= targetAmount
+            onTrack: currentCumulativeNetFlow >= targetAmount,
+            deadlinePassed: true,
         };
     }
 
@@ -124,7 +149,8 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         monthsEarly,
         monthsRemaining,
         projection,
-        onTrack:
-            projectedCumulativeNetFlow >= targetAmount
+        onTrack: projectedCumulativeNetFlow >= targetAmount,
+        goalReached: false,
+        deadlinePassed: false,
     };
 };

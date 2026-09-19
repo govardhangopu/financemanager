@@ -9,6 +9,7 @@
 
 .goals-card {
     width: 100%;
+    max-width: 1400px;
     margin: 20px auto;
     padding: 30px;
     box-sizing: border-box;
@@ -68,39 +69,61 @@
 .goals-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     margin-top: 30px;
 }
 
 .goal-item {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
     padding: 18px;
     background-color: var(--card-inner-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.goal-item > div:first-child {
+    min-width: 0;
 }
 
 .goal-item h2 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .goal-item p {
     margin: 5px 0 0;
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
 }
 
-.goal-target {
-    font-weight: 600;
-}
-
+.goal-target,
 .goal-date {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.goal-target span,
+.goal-date span {
     color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+.goal-target strong,
+.goal-date strong {
     font-size: 0.85rem;
 }
 
@@ -364,11 +387,19 @@
     margin-top: 24px;
 }
 
-.goal-projection-chart>span {
-    display: block;
+.goal-projection-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 10px;
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+
+.goal-projection-chart-header span:last-child {
+    color: var(--text-color);
+    font-weight: 600;
 }
 
 .goal-projection-chart-container {
@@ -400,6 +431,14 @@
 }
 
 .goal-projection-status.behind {
+    border-color: var(--border-color);
+}
+
+.goal-projection-status.goal-reached {
+    border-color: var(--link-color);
+}
+
+.goal-projection-status.deadline-passed {
     border-color: var(--border-color);
 }
 

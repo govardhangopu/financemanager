@@ -50,6 +50,7 @@ const Goals = () => {
             try {
                 const data = await getGoalProjection(selectedGoal);
                 setProjection(data);
+                console.log(data)
             } catch (err) {
                 console.error(err);
                 setProjectionError("Unable to load goal projection.");
@@ -226,6 +227,14 @@ const Goals = () => {
                             : goal
                     )
                 );
+
+                if (selectedGoal === editingGoal.goalid) {
+                    const updatedProjection = await getGoalProjection(
+                        editingGoal.goalid
+                    );
+
+                    setProjection(updatedProjection);
+                }
             } else {
                 const newGoal = await createGoal(goalData);
                 setGoals((prev) => [...prev, newGoal]);
@@ -315,12 +324,23 @@ const Goals = () => {
                                 </div>
 
                                 <div className="goal-target">
-                                    ₹{Number(goal.target_amount).toLocaleString("en-IN")}
+                                    <span>Target</span>
+                                    <strong>
+                                        ₹{Number(goal.target_amount).toLocaleString("en-IN")}
+                                    </strong>
                                 </div>
 
                                 <div className="goal-date">
-                                    {goal.target_date}
+                                    <span>Deadline</span>
+                                    <strong>
+                                        {new Date(goal.target_date).toLocaleDateString("en-IN", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric"
+                                        })}
+                                    </strong>
                                 </div>
+                                
                                 <div className="goal-actions">
                                     <button
                                         type="button"
@@ -457,39 +477,71 @@ const Goals = () => {
                                         </div>
 
                                         <div className="goal-projection-chart">
-                                            <span>Projection to target</span>
+                                            <div className="goal-projection-chart-header">
+                                                <span>Projection to target</span>
+
+                                                {projection.goalReachedDate && (
+                                                    <span>
+                                                        Goal reached:{" "}
+                                                        {new Date(projection.goalReachedDate).toLocaleDateString("en-IN", {
+                                                            month: "short",
+                                                            year: "numeric"
+                                                        })}
+                                                    </span>
+                                                )}
+                                            </div>
 
                                             <div className="goal-projection-chart-container">
-                                                <GenericChart labels={goalChartLabels} datasets={goalChartDatasets} options={goalChartOptions} />
+                                                <GenericChart
+                                                    labels={goalChartLabels}
+                                                    datasets={goalChartDatasets}
+                                                    options={goalChartOptions}
+                                                />
                                             </div>
                                         </div>
 
-                                        <div className={`goal-projection-status ${projection.onTrack ? "on-track" : "behind"}`}>
+                                        <div
+                                            className={`goal-projection-status ${projection.goalReached
+                                                ? "goal-reached"
+                                                : projection.deadlinePassed
+                                                    ? "deadline-passed"
+                                                    : projection.onTrack
+                                                        ? "on-track"
+                                                        : "behind"
+                                                }`}
+                                        >
                                             <strong>
-                                                {projection.onTrack
-                                                    ? "On track"
-                                                    : `Behind target by ₹${Number(projection.shortfall).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })}`}
+                                                {projection.goalReached
+                                                    ? "Goal reached"
+                                                    : projection.deadlinePassed
+                                                        ? "Deadline passed"
+                                                        : projection.onTrack
+                                                            ? "On track"
+                                                            : `Behind target by ₹${Number(projection.shortfall).toLocaleString("en-IN", {
+                                                                maximumFractionDigits: 0
+                                                            })}`}
                                             </strong>
 
                                             <p>
-                                                {projection.onTrack
-                                                    ? projection.goalReachedDate
-                                                        ? projection.monthsEarly > 0
-                                                            ? `You are projected to reach your goal in ${new Date(projection.goalReachedDate).toLocaleDateString("en-IN", {
-                                                                month: "long",
-                                                                year: "numeric"
-                                                            })}, ${projection.monthsEarly} months before your deadline.`
-                                                            : `You are projected to reach your goal by the deadline.`
-                                                        : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                {projection.goalReached
+                                                    ? "You have already reached this goal with your current cumulative net flow."
+                                                    : projection.deadlinePassed
+                                                        ? `The target date has passed and you are ₹${Number(projection.shortfall).toLocaleString("en-IN", {
                                                             maximumFractionDigits: 0
-                                                        })} by the deadline.`
-                                                    : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })} by the deadline. You need ₹${Number(projection.monthlyGap).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })} more per month than your current average to reach the goal on time.`}
+                                                        })} short of the goal.`
+                                                        : projection.onTrack
+                                                            ? projection.goalReachedDate
+                                                                ? projection.monthsEarly > 0
+                                                                    ? `Your current financial path is projected to reach the target ${projection.monthsEarly} months before the deadline.`
+                                                                    : `Your current financial path is projected to reach the target by the deadline.`
+                                                                : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                                    maximumFractionDigits: 0
+                                                                })} by the deadline.`
+                                                            : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
+                                                                maximumFractionDigits: 0
+                                                            })} by the deadline. You need ₹${Number(projection.monthlyGap).toLocaleString("en-IN", {
+                                                                maximumFractionDigits: 0
+                                                            })} more per month than your current average to reach the goal on time.`}
                                             </p>
                                         </div>
                                     </>
