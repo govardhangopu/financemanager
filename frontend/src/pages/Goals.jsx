@@ -1,7 +1,48 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createGoal, deleteGoal, getGoalProjection, getGoals, updateGoal } from "../api/goalApi";
 import { GenericChart } from "../components/GenericChart";
+import { AnimatePresence, motion } from "motion/react";
 import "../styles/Goals.css";
+
+function GoalDescription({ description }) {
+    const descriptionRef = useRef(null);
+    const [isTruncated, setIsTruncated] = useState(false);
+
+    useEffect(() => {
+        const element = descriptionRef.current;
+
+        if (!element) return;
+
+        const checkTruncation = () => {
+            setIsTruncated(
+                element.scrollHeight > element.clientHeight
+            );
+        };
+
+        checkTruncation();
+
+        const observer = new ResizeObserver(checkTruncation);
+        observer.observe(element);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [description]);
+
+    return (
+        <div className="goal-description">
+            <p ref={descriptionRef}>
+                {description}
+            </p>
+
+            {isTruncated && (
+                <div className="goal-description-tooltip">
+                    {description}
+                </div>
+            )}
+        </div>
+    );
+}
 
 const Goals = () => {
     const [goals, setGoals] = useState([]);
@@ -310,247 +351,332 @@ const Goals = () => {
                     </div>
                 ) : (
                     <div className="goals-list">
-                        {goals.map((goal) => (
-                            <div
-                                className={`goal-item ${selectedGoal === goal.goalid ? "selected" : ""}`}
-                                key={goal.goalid}
-                                onClick={() => setSelectedGoal(selectedGoal === goal.goalid ? null : goal.goalid)}
-                            >
-                                <div>
-                                    <h2>{goal.name}</h2>
-                                    {goal.description && (
-                                        <p>{goal.description}</p>
-                                    )}
-                                </div>
+                        {goals.map((goal) => {
+                            const isSelected = selectedGoal === goal.goalid;
 
-                                <div className="goal-target">
-                                    <span>Target</span>
-                                    <strong>
-                                        ₹{Number(goal.target_amount).toLocaleString("en-IN")}
-                                    </strong>
-                                </div>
-
-                                <div className="goal-date">
-                                    <span>Deadline</span>
-                                    <strong>
-                                        {new Date(goal.target_date).toLocaleDateString("en-IN", {
-                                            day: "numeric",
-                                            month: "short",
-                                            year: "numeric"
-                                        })}
-                                    </strong>
-                                </div>
-                                
-                                <div className="goal-actions">
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleEdit(goal);
-                                        }}
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(goal.goalid);
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {selectedGoal && (
-                    <div className="goal-projection">
-                        {projectionLoading && (
-                            <p className="goals-message">
-                                Loading projection...
-                            </p>
-                        )}
-
-                        {projectionError && (
-                            <p className="goals-message">
-                                {projectionError}
-                            </p>
-                        )}
-
-                        {!projectionLoading && !projectionError && projection && (
-                            <>
-                                <div className="goal-projection-header">
-                                    <div>
-                                        <span>GOAL PROJECTION</span>
-                                        <h2>{projection.goal.name}</h2>
-                                    </div>
-
-                                    <div className="goal-projection-target">
-                                        <span>Target</span>
-                                        <strong>
-                                            ₹{Number(projection.goal.targetAmount).toLocaleString("en-IN")}
-                                        </strong>
-                                        <small>{projection.goal.targetDate}</small>
-                                    </div>
-                                </div>
-
-                                {!projection.hasData ? (
-                                    <p className="goal-projection-muted">
-                                        Add some transaction history to see how your current
-                                        financial path compares with this goal.
-                                    </p>
-                                ) : (
-                                    <>
-                                        <div className="goal-projection-values">
-                                            <div>
-                                                <span>Current cumulative net flow</span>
-                                                <strong>
-                                                    ₹{Number(projection.currentCumulativeNetFlow).toLocaleString("en-IN")}
-                                                </strong>
-                                            </div>
-
-                                            <div>
-                                                <span>Projected at target date</span>
-                                                <strong>
-                                                    ₹{Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN")}
-                                                </strong>
-                                            </div>
-
-                                            <div>
-                                                <span>Required monthly net flow</span>
-                                                <strong>
-                                                    ₹{Number(projection.requiredMonthlyNetFlow).toLocaleString("en-IN")}
-                                                </strong>
-                                            </div>
-
-                                            <div>
-                                                <span>Time remaining</span>
-                                                <strong>
-                                                    {projection.monthsRemaining} months
-                                                </strong>
-                                            </div>
-                                        </div>
-
-                                        <div className="goal-progress">
-                                            <div className="goal-progress-header">
-                                                <span>Progress toward target</span>
-                                                <span>
-                                                    ₹{Number(projection.currentCumulativeNetFlow).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })}
-                                                    {" / "}
-                                                    ₹{Number(projection.goal.targetAmount).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })}
-                                                </span>
-                                            </div>
-
-                                            <div className="goal-progress-track">
-                                                <div
-                                                    className="goal-progress-current"
-                                                    style={{
-                                                        width: `${Math.min(
-                                                            100,
-                                                            Math.max(
-                                                                0,
-                                                                (projection.currentCumulativeNetFlow /
-                                                                    projection.goal.targetAmount) *
-                                                                100
-                                                            )
-                                                        )}%`
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div className="goal-progress-projected">
-                                                Projected at deadline:{" "}
-                                                <strong>
-                                                    ₹{Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
-                                                        maximumFractionDigits: 0
-                                                    })}
-                                                </strong>
-                                            </div>
-                                        </div>
-
-                                        <div className="goal-projection-chart">
-                                            <div className="goal-projection-chart-header">
-                                                <span>Projection to target</span>
-
-                                                {projection.goalReachedDate && (
-                                                    <span>
-                                                        Goal reached:{" "}
-                                                        {new Date(projection.goalReachedDate).toLocaleDateString("en-IN", {
-                                                            month: "short",
-                                                            year: "numeric"
-                                                        })}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="goal-projection-chart-container">
-                                                <GenericChart
-                                                    labels={goalChartLabels}
-                                                    datasets={goalChartDatasets}
-                                                    options={goalChartOptions}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            className={`goal-projection-status ${projection.goalReached
-                                                ? "goal-reached"
-                                                : projection.deadlinePassed
-                                                    ? "deadline-passed"
-                                                    : projection.onTrack
-                                                        ? "on-track"
-                                                        : "behind"
-                                                }`}
+                            return (
+                                <motion.div
+                                    key={goal.goalid}
+                                    className={`goal-item ${isSelected ? "selected" : ""}`}
+                                    transition={{
+                                        layout: {
+                                            duration: 0.4,
+                                            ease: [0.4, 0, 0.2, 1]
+                                        }
+                                    }}
+                                    onClick={() =>
+                                        setSelectedGoal(
+                                            isSelected ? null : goal.goalid
+                                        )
+                                    }
+                                >
+                                    <div className="goal-header">
+                                        <motion.div
+                                            className="goal-main"
+                                            layout="position"
                                         >
-                                            <strong>
-                                                {projection.goalReached
-                                                    ? "Goal reached"
-                                                    : projection.deadlinePassed
-                                                        ? "Deadline passed"
-                                                        : projection.onTrack
-                                                            ? "On track"
-                                                            : `Behind target by ₹${Number(projection.shortfall).toLocaleString("en-IN", {
-                                                                maximumFractionDigits: 0
-                                                            })}`}
-                                            </strong>
+                                            <motion.h2 layout="position">
+                                                {goal.name}
+                                            </motion.h2>
 
-                                            <p>
-                                                {projection.goalReached
-                                                    ? "You have already reached this goal with your current cumulative net flow."
-                                                    : projection.deadlinePassed
-                                                        ? `The target date has passed and you are ₹${Number(projection.shortfall).toLocaleString("en-IN", {
-                                                            maximumFractionDigits: 0
-                                                        })} short of the goal.`
-                                                        : projection.onTrack
-                                                            ? projection.goalReachedDate
-                                                                ? projection.monthsEarly > 0
-                                                                    ? `Your current financial path is projected to reach the target ${projection.monthsEarly} months before the deadline.`
-                                                                    : `Your current financial path is projected to reach the target by the deadline.`
-                                                                : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
-                                                                    maximumFractionDigits: 0
-                                                                })} by the deadline.`
-                                                            : `You are projected to reach ₹${Number(projection.projectedCumulativeNetFlow).toLocaleString("en-IN", {
-                                                                maximumFractionDigits: 0
-                                                            })} by the deadline. You need ₹${Number(projection.monthlyGap).toLocaleString("en-IN", {
-                                                                maximumFractionDigits: 0
-                                                            })} more per month than your current average to reach the goal on time.`}
-                                            </p>
-                                        </div>
-                                    </>
-                                )}
-                            </>
-                        )}
+                                            {goal.description && (
+                                                <motion.div layout="position">
+                                                    <GoalDescription description={goal.description} />
+                                                </motion.div>
+                                            )}
+                                        </motion.div>
+
+                                        <motion.div
+                                            className="goal-target"
+                                            layout="position"
+                                        >
+                                            <span>Target</span>
+                                            <strong>
+                                                ₹{Number(goal.target_amount).toLocaleString("en-IN")}
+                                            </strong>
+                                        </motion.div>
+
+                                        <motion.div
+                                            className="goal-date"
+                                            layout="position"
+                                        >
+                                            <span>Deadline</span>
+                                            <strong>
+                                                {new Date(goal.target_date).toLocaleDateString("en-IN", {
+                                                    day: "numeric",
+                                                    month: "short",
+                                                    year: "numeric"
+                                                })}
+                                            </strong>
+                                        </motion.div>
+
+                                        <motion.div
+                                            className="goal-actions"
+                                            layout="position"
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEdit(goal);
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(goal.goalid);
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                        </motion.div>
+                                    </div>
+
+                                    <AnimatePresence initial={false}>
+                                        {isSelected && (
+                                            <motion.div
+                                                className="goal-projection-wrapper"
+                                                initial={false}
+                                                animate={{
+                                                    gridTemplateRows: isSelected ? "1fr" : "0fr",
+                                                    opacity: isSelected ? 1 : 0,
+                                                }}
+                                                transition={{
+                                                    gridTemplateRows: {
+                                                        duration: 0.4,
+                                                        ease: [0.4, 0, 0.2, 1],
+                                                    },
+                                                    opacity: {
+                                                        duration: 0.2,
+                                                    },
+                                                }}
+                                            >
+                                                <div className="goal-projection">
+
+                                                    {projectionLoading && (
+                                                        <p className="goals-message">
+                                                            Loading projection...
+                                                        </p>
+                                                    )}
+
+                                                    {projectionError && (
+                                                        <p className="goals-message">
+                                                            {projectionError}
+                                                        </p>
+                                                    )}
+
+                                                    {!projectionLoading &&
+                                                        !projectionError &&
+                                                        projection && (
+                                                            <>
+                                                                {!projection.hasData ? (
+                                                                    <p className="goal-projection-muted">
+                                                                        Add some transaction history to see how your current
+                                                                        financial path compares with this goal.
+                                                                    </p>
+                                                                ) : (
+                                                                    <>
+                                                                        <motion.div
+                                                                            className="goal-projection-values"
+                                                                            initial={{ opacity: 0, y: 8 }}
+                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                            transition={{
+                                                                                duration: 0.2,
+                                                                                delay: 0.08
+                                                                            }}
+                                                                        >
+                                                                            <div>
+                                                                                <span>Current cumulative net flow</span>
+                                                                                <strong>
+                                                                                    ₹{Number(
+                                                                                        projection.currentCumulativeNetFlow
+                                                                                    ).toLocaleString("en-IN")}
+                                                                                </strong>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <span>Projected at target date</span>
+                                                                                <strong>
+                                                                                    ₹{Number(
+                                                                                        projection.projectedCumulativeNetFlow
+                                                                                    ).toLocaleString("en-IN")}
+                                                                                </strong>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <span>Required monthly net flow</span>
+                                                                                <strong>
+                                                                                    ₹{Number(
+                                                                                        projection.requiredMonthlyNetFlow
+                                                                                    ).toLocaleString("en-IN")}
+                                                                                </strong>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <span>Time remaining</span>
+                                                                                <strong>
+                                                                                    {projection.monthsRemaining} months
+                                                                                </strong>
+                                                                            </div>
+                                                                        </motion.div>
+
+                                                                        <motion.div
+                                                                            className="goal-progress"
+                                                                            initial={{ opacity: 0, y: 8 }}
+                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                            transition={{
+                                                                                duration: 0.2,
+                                                                                delay: 0.12
+                                                                            }}
+                                                                        >
+                                                                            <div className="goal-progress-header">
+                                                                                <span>Progress toward target</span>
+
+                                                                                <span>
+                                                                                    ₹{Number(
+                                                                                        projection.currentCumulativeNetFlow
+                                                                                    ).toLocaleString("en-IN", {
+                                                                                        maximumFractionDigits: 0
+                                                                                    })}
+                                                                                    {" / "}
+                                                                                    ₹{Number(
+                                                                                        projection.goal.targetAmount
+                                                                                    ).toLocaleString("en-IN", {
+                                                                                        maximumFractionDigits: 0
+                                                                                    })}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            <div className="goal-progress-track">
+                                                                                <div
+                                                                                    className="goal-progress-current"
+                                                                                    style={{
+                                                                                        width: `${Math.min(
+                                                                                            100,
+                                                                                            Math.max(
+                                                                                                0,
+                                                                                                (
+                                                                                                    projection.currentCumulativeNetFlow /
+                                                                                                    projection.goal.targetAmount
+                                                                                                ) * 100
+                                                                                            )
+                                                                                        )}%`
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+
+                                                                            <div className="goal-progress-projected">
+                                                                                Projected at deadline:{" "}
+                                                                                <strong>
+                                                                                    ₹{Number(
+                                                                                        projection.projectedCumulativeNetFlow
+                                                                                    ).toLocaleString("en-IN", {
+                                                                                        maximumFractionDigits: 0
+                                                                                    })}
+                                                                                </strong>
+                                                                            </div>
+                                                                        </motion.div>
+
+                                                                        <motion.div
+                                                                            className="goal-projection-chart"
+                                                                            initial={{ opacity: 0 }}
+                                                                            animate={{ opacity: 1 }}
+                                                                            transition={{
+                                                                                opacity: { duration: 0.25, delay: 0.15 }
+                                                                            }}
+                                                                        >
+                                                                            <div className="goal-projection-chart-header">
+                                                                                Projection to target
+                                                                            </div>
+
+                                                                            <div className="goal-projection-chart-container">
+                                                                                <GenericChart
+                                                                                    labels={goalChartLabels}
+                                                                                    datasets={goalChartDatasets}
+                                                                                    options={goalChartOptions}
+                                                                                />
+                                                                            </div>
+                                                                        </motion.div>
+
+                                                                        <motion.div
+                                                                            className={`goal-projection-status ${projection.goalReached
+                                                                                ? "goal-reached"
+                                                                                : projection.deadlinePassed
+                                                                                    ? "deadline-passed"
+                                                                                    : projection.onTrack
+                                                                                        ? "on-track"
+                                                                                        : "behind"
+                                                                                }`}
+                                                                            initial={{ opacity: 0, y: 8 }}
+                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                            transition={{
+                                                                                duration: 0.2,
+                                                                                delay: 0.18
+                                                                            }}
+                                                                        >
+                                                                            <strong>
+                                                                                {projection.goalReached
+                                                                                    ? "Goal reached"
+                                                                                    : projection.deadlinePassed
+                                                                                        ? "Deadline passed"
+                                                                                        : projection.onTrack
+                                                                                            ? "On track"
+                                                                                            : `Behind target by ₹${Number(
+                                                                                                projection.shortfall
+                                                                                            ).toLocaleString("en-IN", {
+                                                                                                maximumFractionDigits: 0
+                                                                                            })}`}
+                                                                            </strong>
+
+                                                                            <p>
+                                                                                {projection.goalReached
+                                                                                    ? "You have already reached this goal with your current cumulative net flow."
+                                                                                    : projection.deadlinePassed
+                                                                                        ? `The target date has passed and you are ₹${Number(
+                                                                                            projection.shortfall
+                                                                                        ).toLocaleString("en-IN", {
+                                                                                            maximumFractionDigits: 0
+                                                                                        })} short of the goal.`
+                                                                                        : projection.onTrack
+                                                                                            ? projection.goalReachedDate
+                                                                                                ? projection.monthsEarly > 0
+                                                                                                    ? `Your current financial path is projected to reach the target ${projection.monthsEarly} months before the deadline.`
+                                                                                                    : "Your current financial path is projected to reach the target by the deadline."
+                                                                                                : `You are projected to reach ₹${Number(
+                                                                                                    projection.projectedCumulativeNetFlow
+                                                                                                ).toLocaleString("en-IN", {
+                                                                                                    maximumFractionDigits: 0
+                                                                                                })} by the deadline.`
+                                                                                            : `You are projected to reach ₹${Number(
+                                                                                                projection.projectedCumulativeNetFlow
+                                                                                            ).toLocaleString("en-IN", {
+                                                                                                maximumFractionDigits: 0
+                                                                                            })} by the deadline. You need ₹${Number(
+                                                                                                projection.monthlyGap
+                                                                                            ).toLocaleString("en-IN", {
+                                                                                                maximumFractionDigits: 0
+                                                                                            })} more per month than your current average to reach the goal on time.`}
+                                                                            </p>
+                                                                        </motion.div>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            );
+                        })}
                     </div>
-                )}
-            </div>
+                )
+                }
+            </div >
 
             {showForm && (
                 <div className="goal-modal">
@@ -632,7 +758,7 @@ const Goals = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </div >
     );
 };
 

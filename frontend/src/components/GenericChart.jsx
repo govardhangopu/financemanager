@@ -70,14 +70,16 @@ export function GenericChart({ labels, datasets, type = "line", options: customO
     };
 
     return (
-        <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%' }}>
-            {labels.length > 0 ? (
-                type === "bar"
-                    ? <Bar data={chartData} options={finalOptions} />
-                    : <Line data={chartData} options={finalOptions} />
-            ) : (
-                <p>No data to show for this time range.</p>
-            )}
-        </div>
+        <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%', height: '100%', minWidth: '0' }} >
+            {
+                labels.length > 0 ? (
+                    type === "bar"
+                        ? <Bar data={chartData} options={finalOptions} />
+                        : <Line data={chartData} options={finalOptions} />
+                ) : (
+                    <p>No data to show for this time range.</p>
+                )
+            }
+        </div >
     );
 }
