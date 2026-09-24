@@ -54,6 +54,16 @@ const Goals = () => {
     const [projectionLoading, setProjectionLoading] = useState(false);
     const [projectionError, setProjectionError] = useState("");
     const [editingGoal, setEditingGoal] = useState(null);
+    const selectedGoalRef = useRef(null);
+
+    useEffect(() => {
+        if (!selectedGoal || !selectedGoalRef.current) return;
+
+        selectedGoalRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, [selectedGoal]);
 
     const [form, setForm] = useState({
         name: "",
@@ -356,6 +366,7 @@ const Goals = () => {
 
                             return (
                                 <motion.div
+                                    ref={isSelected ? selectedGoalRef : null}
                                     key={goal.goalid}
                                     className={`goal-item ${isSelected ? "selected" : ""}`}
                                     transition={{
@@ -552,9 +563,10 @@ const Goals = () => {
                                                                             </div>
 
                                                                             <div className="goal-progress-track">
-                                                                                <div
+                                                                                <motion.div
                                                                                     className="goal-progress-current"
-                                                                                    style={{
+                                                                                    initial={{ width: 0 }}
+                                                                                    animate={{
                                                                                         width: `${Math.min(
                                                                                             100,
                                                                                             Math.max(

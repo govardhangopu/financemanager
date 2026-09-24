@@ -115,6 +115,7 @@
     cursor: pointer;
     overflow: visible;
     transition: border-color 0.2s ease, transform 0.2s ease;
+    scroll-margin-top: 24px;
 }
 
 .goal-item>div:first-child {
@@ -128,6 +129,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition:
+        font-size 0.35s ease,
+        color 0.25s ease;
+}
+
+.goal-item.selected .goal-main h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
 }
 
 .goal-description {
@@ -190,6 +199,18 @@
     transform: translateY(0);
 }
 
+.goal-item.selected .goal-description p {
+    line-height: 1.55;
+}
+
+.goal-target,
+.goal-date,
+.goal-actions {
+    transition: 
+        font-size 0.45s ease,
+        color 0.35s ease;
+}
+
 .goal-target,
 .goal-date {
     display: flex;
@@ -203,9 +224,20 @@
     font-size: 0.7rem;
 }
 
+.goal-item.selected .goal-target span,
+.goal-item.selected .goal-date span {
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+}
+
 .goal-target strong,
 .goal-date strong {
     font-size: 0.85rem;
+}
+
+.goal-item.selected .goal-target strong,
+.goal-item.selected .goal-date strong {
+    font-size: 0.95rem;
 }
 
 .goals-message {
@@ -338,6 +370,10 @@
     color: var(--text-color);
 }
 
+.goal-item.selected .goal-actions {
+    padding-top: 4px;
+}
+
 .goal-projection-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
@@ -387,13 +423,14 @@
     gap: 12px;
 }
 
-.goal-projection-values>div {
+.goal-projection-values > div {
     display: flex;
     flex-direction: column;
     gap: 6px;
     padding: 14px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
+    background-color: var(--card-inner-bg);
 }
 
 .goal-projection-values span {
@@ -412,7 +449,7 @@
 }
 
 .goal-progress {
-    margin-top: 18px;
+    margin-top: 22px;
 }
 
 .goal-progress-header {
@@ -420,7 +457,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 9px;
     color: var(--text-muted);
     font-size: 0.8rem;
 }
@@ -442,11 +479,11 @@
     height: 100%;
     background-color: var(--link-color);
     border-radius: inherit;
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
 }
 
 .goal-progress-projected {
-    margin-top: 7px;
+    margin-top: 8px;
     color: var(--text-muted);
     font-size: 0.75rem;
 }
@@ -463,6 +500,7 @@
 }
 
 .goal-projection {
+    min-width: 0;
     min-height: 0;
     margin-top: 24px;
     padding-top: 24px;
