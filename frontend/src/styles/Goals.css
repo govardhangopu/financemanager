@@ -101,6 +101,7 @@
 
 .goal-header {
     display: grid;
+    min-width: 0;
     grid-template-columns: minmax(0, 1fr) auto auto auto;
     align-items: start;
     gap: 16px;
@@ -118,7 +119,7 @@
     scroll-margin-top: 24px;
 }
 
-.goal-item>div:first-child {
+.goal-main {
     min-width: 0;
 }
 
@@ -206,7 +207,7 @@
 .goal-target,
 .goal-date,
 .goal-actions {
-    transition: 
+    transition:
         font-size 0.45s ease,
         color 0.35s ease;
 }
@@ -256,11 +257,13 @@
     padding: 20px;
     background-color: rgba(0, 0, 0, 0.55);
     z-index: 1000;
+    overflow-y: auto;
 }
 
 .goal-modal-card {
     width: 100%;
     max-width: 500px;
+    max-height: calc(100vh - 40px);
     padding: 24px;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -352,6 +355,7 @@
 .goal-actions {
     display: flex;
     gap: 6px;
+    min-width: 0;
 }
 
 .goal-actions button {
@@ -374,56 +378,15 @@
     padding-top: 4px;
 }
 
-.goal-projection-header {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: start;
-    gap: 24px;
-    margin-bottom: 20px;
-}
-
-.goal-projection-main {
-    min-width: 0;
-}
-
-.goal-projection-main>span {
-    color: var(--link-color);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-}
-
-.goal-projection-main h2 {
-    margin: 5px 0 0;
-    font-size: 1.3rem;
-}
-
-.goal-projection-target,
-.goal-projection-date {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-}
-
-.goal-projection-target span,
-.goal-projection-date span {
-    color: var(--text-muted);
-    font-size: 0.7rem;
-}
-
-.goal-projection-target strong,
-.goal-projection-date strong {
-    font-size: 0.9rem;
-}
-
 .goal-projection-values {
+    width: 100%;
+    min-width: 0;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
-.goal-projection-values > div {
+.goal-projection-values>div {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -568,41 +531,251 @@
     border-color: var(--border-color);
 }
 
-@media (max-width: 700px) {
-    .goal-actions {
-        width: 100%;
-    }
-
-    .goal-actions button {
-        flex: 1;
-    }
-
-    .goal-projection-header {
-        flex-direction: column;
-    }
-
-    .goal-projection-target {
-        align-items: flex-start;
-    }
-
-    .goal-projection-values {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 1000px) {
 
     .goals-page {
         padding: 16px;
     }
 
     .goals-card {
-        padding: 20px;
+        padding: 24px;
+    }
+
+    .goal-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "main target"
+            "main date"
+            "main actions";
+        align-items: start;
+        gap: 14px;
+    }
+
+    .goal-main {
+        grid-area: main;
+    }
+
+    .goal-target {
+        grid-area: target;
+    }
+
+    .goal-date {
+        grid-area: date;
+    }
+
+    .goal-actions {
+        grid-area: actions;
+    }
+
+    .goal-projection-values {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .goal-projection-chart-container {
+        height: 320px;
+    }
+}
+
+
+
+@media (max-width: 700px) {
+
+    .goals-page {
+        padding: 12px;
+    }
+
+    .goals-card {
+        margin: 12px auto;
+        padding: 16px;
+        border-radius: 16px;
     }
 
     .goals-header {
-        flex-direction: column;
+        gap: 14px;
+        margin: 5px;
+    }
+
+    .goals-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .goals-header p {
+        font-size: 0.9rem;
+    }
+
+    .goals-add-button {
+        width: 100%;
+        padding: 10px 14px;
+    }
+
+    .goals-list {
+        margin-top: 24px;
+        gap: 8px;
     }
 
     .goal-item {
+        padding: 16px;
+    }
+
+    /*
+     * Normal goal
+     */
+    .goal-header {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "main main"
+            "target date"
+            "actions actions";
+        gap: 12px;
+    }
+
+    .goal-main {
+        grid-area: main;
+    }
+
+    .goal-target {
+        grid-area: target;
+    }
+
+    .goal-date {
+        grid-area: date;
+    }
+
+    .goal-target,
+    .goal-date {
+        align-items: flex-start;
+    }
+
+    .goal-actions {
+        grid-area: actions;
+        width: 100%;
+    }
+
+    .goal-actions button {
+        flex: 1;
+        min-height: 38px;
+    }
+
+    /*
+     * Selected goal
+     */
+    .goal-item.selected {
+        margin-block: 8px;
+    }
+
+    .goal-item.selected .goal-header {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "main main"
+            "target date"
+            "actions actions";
+    }
+
+    .goal-item.selected .goal-target,
+    .goal-item.selected .goal-date {
+        align-items: flex-start;
+    }
+
+    .goal-item.selected .goal-actions {
+        padding-top: 4px;
+    }
+
+    /*
+     * Projection
+     */
+    .goal-projection {
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+
+    .goal-projection-values {
         grid-template-columns: 1fr;
-        gap: 8px;
+    }
+
+    .goal-projection-chart {
+        margin-block: 20px;
+    }
+
+    .goal-projection-chart-container {
+        height: 240px;
+    }
+
+    .goal-projection-status {
+        margin-top: 14px;
+        padding: 13px 14px;
+    }
+
+    /*
+     * Modal
+     */
+    .goal-modal {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .goal-modal-card {
+        max-height: calc(100vh - 24px);
+        padding: 20px;
+    }
+}
+
+
+
+@media (max-width: 450px) {
+
+    .goals-page {
+        padding: 8px;
+    }
+
+    .goals-card {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .goals-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .goal-item {
+        padding: 14px;
+    }
+
+    .goal-header,
+    .goal-item.selected .goal-header {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "main"
+            "target"
+            "date"
+            "actions";
+    }
+
+    .goal-item.selected .goal-main h2 {
+        font-size: 1.2rem;
+    }
+
+    .goal-projection-values>div {
+        padding: 13px;
+    }
+
+    .goal-projection-chart-container {
+        height: 220px;
+    }
+
+    .goal-modal {
+        padding: 8px;
+    }
+
+    .goal-modal-card {
+        padding: 16px;
+    }
+
+    .goal-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .goal-modal-actions button {
+        width: 100%;
+        min-height: 40px;
     }
 }

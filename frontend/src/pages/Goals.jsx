@@ -54,16 +54,18 @@ const Goals = () => {
     const [projectionLoading, setProjectionLoading] = useState(false);
     const [projectionError, setProjectionError] = useState("");
     const [editingGoal, setEditingGoal] = useState(null);
-    const selectedGoalRef = useRef(null);
+    const goalRefs = useRef({});
 
-    useEffect(() => {
-        if (!selectedGoal || !selectedGoalRef.current) return;
+    const scrollToGoal = (goalId) => {
+        const element = goalRefs.current[goalId];
 
-        selectedGoalRef.current.scrollIntoView({
+        if (!element) return;
+
+        element.scrollIntoView({
             behavior: "smooth",
             block: "start"
         });
-    }, [selectedGoal]);
+    };
 
     const [form, setForm] = useState({
         name: "",
@@ -366,7 +368,13 @@ const Goals = () => {
 
                             return (
                                 <motion.div
-                                    ref={isSelected ? selectedGoalRef : null}
+                                    ref={(element) => {
+                                        if (element) {
+                                            goalRefs.current[goal.goalid] = element;
+                                        } else {
+                                            delete goalRefs.current[goal.goalid];
+                                        }
+                                    }}
                                     key={goal.goalid}
                                     className={`goal-item ${isSelected ? "selected" : ""}`}
                                     transition={{
@@ -375,11 +383,20 @@ const Goals = () => {
                                             ease: [0.4, 0, 0.2, 1]
                                         }
                                     }}
-                                    onClick={() =>
-                                        setSelectedGoal(
-                                            isSelected ? null : goal.goalid
-                                        )
-                                    }
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            setSelectedGoal(null);
+                                            return;
+                                        }
+
+                                        setSelectedGoal(goal.goalid);
+
+                                        requestAnimationFrame(() => {
+                                            requestAnimationFrame(() => {
+                                                scrollToGoal(goal.goalid);
+                                            });
+                                        });
+                                    }}
                                 >
                                     <div className="goal-header">
                                         <motion.div
