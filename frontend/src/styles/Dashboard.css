@@ -16,19 +16,31 @@ main,
 #header {
     width: 100%;
     padding: 20px;
+
     background-color: var(--header-bg);
     color: var(--text-color);
+
     border-bottom-left-radius: 25px;
     border-bottom-right-radius: 25px;
 }
 
+/* =========================
+   Dashboard Grid
+   ========================= */
+
 #dashboard {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
+
     padding: 5px;
     gap: 4px;
+
     box-sizing: border-box;
 }
+
+/* =========================
+   Dashboard Cards
+   ========================= */
 
 .net-worth {
     grid-column: span 3 / span 3;
@@ -38,6 +50,7 @@ main,
 .incomes {
     grid-column: span 3 / span 3;
     grid-row: span 2 / span 2;
+
     grid-column-start: 4;
     grid-row-start: 1;
 }
@@ -45,6 +58,7 @@ main,
 .expenses {
     grid-column: span 3 / span 3;
     grid-row: span 2 / span 2;
+
     grid-column-start: 7;
     grid-row-start: 1;
 }
@@ -52,6 +66,7 @@ main,
 .transaction-history {
     grid-column: span 3 / span 3;
     grid-row: span 4 / span 4;
+
     grid-column-start: 10;
     grid-row-start: 1;
 }
@@ -59,51 +74,87 @@ main,
 .income-vs-expense {
     grid-column: span 5 / span 5;
     grid-row: span 2 / span 2;
+
     grid-row-start: 3;
 }
 
 .budgets {
     grid-column: span 4 / span 4;
     grid-row: span 2 / span 2;
+
     grid-column-start: 6;
     grid-row-start: 3;
 }
+
+/* =========================
+   Generic Dashboard Sections
+   ========================= */
 
 section {
     display: flex;
     justify-content: center;
     flex-direction: column;
+
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 12px;
+
     padding: 15px;
+
     color: var(--text-color);
+
     position: relative;
+
+    transition: transform 0.2s ease;
 }
 
-#dashboard section > div {
+section:hover {
+    transform: translateY(-1px);
+}
+
+#dashboard section>div:not(.scenario-discovery-content) {
     display: flex;
     flex-direction: column;
+
     position: relative;
 }
 
-/* Apply height-locking constraints only on desktop viewports */
+/* =========================================================
+   Dashboard Discovery
+   ========================================================= */
+
+.dashboard-discovery-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* =========================================================
+   Desktop
+   ========================================================= */
+
 @media (min-width: 1025px) {
+
     main:has(#dashboard) {
         overflow: hidden;
     }
 
     #container {
         height: 100%;
+
         display: flex;
         flex-direction: column;
+
         overflow: hidden;
     }
 
     #dashboard {
         flex: 1;
         min-height: 0;
-        grid-template-rows: repeat(4, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(4, minmax(0, 1fr)) 64px;
     }
 
     section {
@@ -111,21 +162,48 @@ section {
         overflow: hidden;
     }
 
-    #dashboard section > div {
+    #dashboard section>div {
         height: 100%;
+        min-height: 0;
+    }
+
+    .dashboard-discovery-row {
+        grid-column: 1 / -1;
+        grid-row: 5;
+
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+
+        height: 64px;
+        min-width: 0;
+    }
+
+    .dashboard-discovery-row>* {
+        min-width: 0;
         min-height: 0;
     }
 }
 
+/* =========================
+   Time Range
+   ========================= */
+
 #timerange {
     background: none;
     border: none;
+
     color: grey;
+
     position: absolute;
+
     right: 0;
     top: 0;
+
     padding-top: 5px;
+
     cursor: pointer;
+
     transition: 0.2s ease;
 }
 
@@ -133,7 +211,12 @@ section {
     transform: scale(1.03);
 }
 
+/* =========================================================
+   Tablet
+   ========================================================= */
+
 @media (max-width: 1024px) {
+
     #dashboard {
         grid-template-columns: repeat(6, 1fr);
         gap: 8px;
@@ -141,6 +224,7 @@ section {
 
     .transaction-history {
         grid-column: span 6 / span 6;
+
         grid-column-start: auto;
         grid-row-start: auto;
     }
@@ -152,6 +236,7 @@ section {
     .budgets {
         grid-column: span 3 / span 3;
         grid-row: span 2 / span 2;
+
         grid-column-start: auto;
         grid-row-start: auto;
     }
@@ -165,9 +250,23 @@ section {
         grid-column: span 6 / span 6;
         grid-row-start: 5;
     }
+
+    .dashboard-discovery-row {
+        grid-column: 1 / -1;
+        grid-row: auto;
+
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
 }
 
+/* =========================================================
+   Mobile
+   ========================================================= */
+
 @media (max-width: 600px) {
+
     #dashboard {
         grid-template-columns: auto;
         grid-template-rows: auto;
@@ -181,6 +280,7 @@ section {
     .budgets {
         grid-column: span 1 / span 1;
         grid-row: span 1 / span 1;
+
         grid-column-start: auto;
         grid-row-start: auto;
     }
@@ -191,5 +291,13 @@ section {
 
     .income-vs-expense {
         grid-row-start: 5;
+    }
+
+    .dashboard-discovery-row {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-discovery-row>* {
+        min-width: 0;
     }
 }

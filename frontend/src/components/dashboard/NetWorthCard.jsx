@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { prepareTransactionsForRange } from '../../utils/prepareTransactionsForRange.js';
 import { buildCumulativeSeries } from '../../utils/buildCumulativeSeries.js';
-import { GenericChart } from "./GenericChart.jsx";
+import { GenericChart } from "../GenericChart.jsx";
 import Loader from '../Loader.jsx';
 import './NetWorthCard.css';
 

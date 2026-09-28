@@ -24,15 +24,56 @@ export const fetchById = async (userid, transactionid) => {
 export const fetchTransactions = async (userid, is_partial = null) => {
     const pool = connectDB();
     const values = [userid];
+
     if (is_partial) values.push(is_partial);
+
     const [rows] = await pool.query(`
-        SELECT t.*, c.name as category_name, c.type, c.parent_categoryid 
-        FROM transactions t 
-        join categories c on t.categoryid = c.categoryid 
-        WHERE t.userid = ? ${is_partial ? "and is_partial = ?" : ""}`, 
-        values);
+        SELECT t.*, c.name AS category_name, c.type, c.parent_categoryid
+        FROM transactions t
+        LEFT JOIN categories c
+            ON t.categoryid = c.categoryid
+        WHERE t.userid = ?
+        ${is_partial ? "AND is_partial = ?" : ""}
+    `, values);
+
     return rows;
 }
+
+export const fetchMonthlyNetFlowByCategories = async (userid, categoryids) => {
+    if (!categoryids || categoryids.length === 0) {
+        return [];
+    }
+
+    const pool = connectDB();
+
+    const placeholders = categoryids
+        .map(() => "?")
+        .join(", ");
+
+    const [rows] = await pool.query(
+        `
+        SELECT
+            DATE_FORMAT(t.date, '%Y-%m') AS month,
+            SUM(
+                CASE
+                    WHEN c.type = 'income' THEN t.amount
+                    WHEN c.type = 'expense' THEN -t.amount
+                    ELSE 0
+                END
+            ) AS net_flow
+        FROM transactions t
+        LEFT JOIN categories c
+            ON t.categoryid = c.categoryid
+        WHERE t.userid = ?
+          AND t.categoryid IN (${placeholders})
+        GROUP BY DATE_FORMAT(t.date, '%Y-%m')
+        ORDER BY month ASC
+        `,
+        [userid, ...categoryids]
+    );
+
+    return rows;
+};
 
 export const updateRow = async (userid, transactionid, amount, categoryid, is_partial, date) => {
     const pool = connectDB();

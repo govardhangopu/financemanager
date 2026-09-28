@@ -4,3 +4,5 @@ export { default as ExpenseCard } from "./ExpenseCard";
 export { default as TransactionHistoryCard } from "./TransactionHistoryCard";
 export { default as BudgetCard } from "./BudgetCard";
 export { default as IncomeVsExpenseCard } from "./IncomeVsExpenseCard";
+export { default as ScenarioDiscovery } from './ScenarioDiscovery';
+export { default as ForecastDiscovery } from "./ForecastDiscovery";

@@ -9,6 +9,10 @@ import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
 import Budgets from "./pages/Budgets"
 import BudgetDetail from "./pages/BudgetDetail"
+import Scenarios from "./pages/Scenarios"
+import ScenarioDetail from './pages/ScenarioDetail'
+import Forecast from './pages/Forecast'
+import Goals from "./pages/Goals";
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -21,17 +25,24 @@ function App() {
     <>
       <Router>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+        <main>
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
-          <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
-          <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
-          <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
-        </Routes>
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+            <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
+            <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />
+            <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
+            <Route path="/scenarios" element={<ProtectedRoute><Scenarios /></ProtectedRoute>} />
+            <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
+            <Route path='/forecast' element={<ProtectedRoute><Forecast /></ProtectedRoute>} />
+            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+          </Routes>
+        </main>
+        
       </Router>
 
 

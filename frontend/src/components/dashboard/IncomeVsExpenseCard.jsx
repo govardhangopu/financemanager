@@ -1,7 +1,7 @@
 import { useState }from "react";
 import { useFinance } from "../../context/FinanceContext";
 import { prepareTransactionsForRange } from "../../utils/prepareTransactionsForRange.js";
-import { GenericChart } from "./GenericChart.jsx";
+import { GenericChart } from "../GenericChart.jsx";
 import Loader from '../Loader.jsx';
 
 export default function IncomeVsExpenseCard() {
