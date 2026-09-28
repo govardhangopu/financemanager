@@ -109,7 +109,7 @@ export default function Scenarios() {
                     </div>
 
                     <div className="scenario-discovery-item">
-                        <h3>Add hypothetical transactions</h3>
+                        <h3>Add future changes</h3>
                         <p>
                             Explore future income or expenses that haven't
                             happened yet.
@@ -231,9 +231,8 @@ export default function Scenarios() {
                         </p>
 
                         <p>
-                            Modify existing transactions, add
-                            hypothetical ones, and compare the
-                            result with your current finances.
+                            Modify existing transactions, add future changes,
+                            and compare the result with your current finances.
                         </p>
 
                         {!showAddScenario && (

@@ -207,7 +207,6 @@ const validateChange = ({
         throw new Error("Invalid target type.");
 
     if (!["increase", "decrease"].includes(direction)) {
-        console.log(direction)
         throw new Error("Invalid direction.");
     }
 
