@@ -11,17 +11,22 @@ export const ThemeProvider = ({ children }) => {
         setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
     };
 
+    const changeTheme = (newTheme) => {
+        if (newTheme !== 'light' && newTheme !== 'dark') return;
+        setTheme(newTheme);
+    };
+
     useEffect(() => {
         localStorage.setItem('theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme, changeTheme }}>
             {children}
         </ThemeContext.Provider>
     );
-}
+};
 
 /**
  * Hook to use the theme context
@@ -33,4 +38,4 @@ export const useTheme = () => {
         throw new Error('useTheme must be used within a ThemeProvider');
     }
     return context;
-}
+};

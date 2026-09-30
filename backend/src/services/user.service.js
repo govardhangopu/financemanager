@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { fetchUsers, findUser, createUser } from "../repositories/user.repo.js";
+import { fetchUsers, findUser, createUser, findUserById, updatePassword } from "../repositories/user.repo.js";
 import jwt from 'jsonwebtoken';
 
 export const getAllUsers = async () => {
@@ -30,3 +30,27 @@ export const loginService = async ({ username, password }) => {
     );
     return { token, user: { username, email, name } };
 }
+
+export const changePasswordService = async ({ userid, currentPassword, newPassword }) => {
+    const user = await findUserById(userid);
+
+    if (!user) {
+        throw new Error("User not found.");
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!passwordMatch) {
+        throw new Error("Current password is incorrect.");
+    }
+
+    if (currentPassword === newPassword) {
+        throw new Error("New password must be different from your current password.");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await updatePassword(userid, hashedPassword);
+
+    return { message: "Password changed successfully." };
+};

@@ -13,6 +13,7 @@ import Scenarios from "./pages/Scenarios"
 import ScenarioDetail from './pages/ScenarioDetail'
 import Forecast from './pages/Forecast'
 import Goals from "./pages/Goals";
+import Settings from "./pages/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute"
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -26,7 +27,7 @@ function App() {
       <Router>
         <Navbar />
         <main>
-            <Routes>
+          <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
@@ -40,6 +41,7 @@ function App() {
             <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
             <Route path='/forecast' element={<ProtectedRoute><Forecast /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           </Routes>
         </main>
         

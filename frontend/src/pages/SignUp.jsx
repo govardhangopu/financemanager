@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { signUp } from "../api/authApi.js";
 import "../styles/Auth.css";
-
-const baseURL = import.meta.env.VITE_API_URL;
 
 const SignUp = () => {
     const [name, setName] = useState("");
@@ -11,17 +9,16 @@ const SignUp = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    
+
     const handleSignUp = async () => {
-        axios.post(`${baseURL}/users/signup`, { name, email, username, password })
-        .then(res => {
-            console.log(res);
-            navigate("/login"); 
-        })
-        .catch((err) => {
+        try {
+            const data = await signUp(name, email, username, password);
+            console.log(data);
+            navigate("/login");
+        } catch(err) {
             console.error(err);
-        })
-    }
+        }
+    };
 
     return (
         <main className="auth-page">

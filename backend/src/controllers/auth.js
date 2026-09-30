@@ -1,4 +1,4 @@
-import { getAllUsers, signUpService, loginService } from "../services/user.service.js";
+import { getAllUsers, signUpService, loginService, changePasswordService } from "../services/user.service.js";
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -26,3 +26,17 @@ export const login = async (req, res, next) => {
         next(err);
     }
 }
+
+export const changePassword = async (req, res, next) => {
+    try {
+        const response = await changePasswordService({
+            userid: req.user.id,
+            currentPassword: req.body.currentPassword,
+            newPassword: req.body.newPassword
+        });
+
+        res.json(response);
+    } catch (err) {
+        next(err);
+    }
+};

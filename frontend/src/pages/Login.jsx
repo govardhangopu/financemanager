@@ -1,11 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Loader from '../components/Loader.jsx';
+import { login } from "../api/authApi";
 import "../styles/Auth.css";
-
-const baseURL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -13,20 +11,25 @@ const Login = () => {
     const { setUser, setToken } = useAuth();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    
+
     const handleLogin = async () => {
         setLoading(true);
+
         try {
-            const res = await axios.post(`${baseURL}/users/login`, { username, password });
-            const { user, token } = res.data.token;
+            const data = await login(username, password);
+            const { user, token } = data.token;
+
             setUser(user);
             setToken(token);
+
             localStorage.setItem("user", JSON.stringify(user));
             localStorage.setItem("token", token);
-            navigate("/dashboard"); 
+
+            navigate("/dashboard");
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.message || "Login failed. Please try again.");
+        } finally {
             setLoading(false);
         }
     };
@@ -75,7 +78,7 @@ const Login = () => {
                                 id="username"
                                 placeholder="Enter your username"
                                 onChange={(e) => setUsername(e.target.value)}
-                                /*required*/
+                            /*required*/
                             />
                         </div>
 
@@ -87,7 +90,7 @@ const Login = () => {
                                 id="password"
                                 placeholder="Enter your password"
                                 onChange={(e) => setPassword(e.target.value)}
-                                /*required*/
+                            /*required*/
                             />
                         </div>
 
