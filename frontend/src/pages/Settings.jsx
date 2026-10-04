@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { changePassword } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
+import { changePassword, updateProfile, deleteAccount } from "../api/authApi";
 import "../styles/Settings.css";
 
 export default function Settings() {
-    const { user, token } = useAuth();
+    const { user, token, setUser } = useAuth();
     const { theme, changeTheme } = useTheme();
+    const navigate = useNavigate();
+    const isGoogleAccount = user?.authProvider === "google";
     const [activeSection, setActiveSection] = useState("account");
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordLoading, setPasswordLoading] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletingAccount, setDeletingAccount] = useState(false);
+    const [deleteError, setDeleteError] = useState("");
+
+    const [editingProfile, setEditingProfile] = useState(false);
+    const [name, setName] = useState(user?.name || "");
+    const [username, setUsername] = useState(user?.username || "");
+    const [email, setEmail] = useState(user?.email || "");
+
+    const [savingProfile, setSavingProfile] = useState(false);
 
     // 1. DYNAMIC CHECKS: Derived directly from existing input state
     // Only show errors if the user has actually started typing in those fields
@@ -38,7 +51,7 @@ export default function Settings() {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
 
-        if (showMatchError || showSameError) return; // Block submit if dynamic errors exist
+        if (matchError || sameError) return; // Block submit if dynamic errors exist
 
         setPasswordLoading(true);
 
@@ -60,28 +73,93 @@ export default function Settings() {
         }
     };
 
+    const handleProfileSave = async (e) => {
+        e.preventDefault();
+
+        setSavingProfile(true);
+
+        try {
+            const response = await updateProfile(
+                { name, username, email },
+                token
+            );
+
+            setUser(response.user);
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(response.user)
+            );
+
+            setEditingProfile(false);
+        } catch (err) {
+            console.error(err);
+            alert(
+                err.response?.data?.message ||
+                "Failed to update profile."
+            );
+        } finally {
+            setSavingProfile(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setDeletingAccount(true);
+        setDeleteError("");
+
+        try {
+            await deleteAccount(token);
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
+            setUser(null);
+
+            navigate("/login", { replace: true });
+        } catch (err) {
+            console.error(err);
+
+            setDeleteError(
+                err.response?.data?.message ||
+                "Failed to delete account."
+            );
+        } finally {
+            setDeletingAccount(false);
+        }
+    };
+
     useEffect(() => {
-        const sectionElements = sections
-            .map(section => document.getElementById(section.id))
-            .filter(Boolean);
+        const handleScroll = () => {
+            const viewportMiddle = window.innerHeight / 2;
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveSection(entry.target.id);
-                    }
-                });
-            },
-            {
-                threshold: 0.1,
-                rootMargin: "-20% 0px -50% 0px",
-            }
-        );
+            let closestSection = sections[0].id;
+            let closestDistance = Infinity;
 
-        sectionElements.forEach(section => observer.observe(section));
+            sections.forEach((section) => {
+                const element = document.getElementById(section.id);
 
-        return () => observer.disconnect();
+                if (!element) return;
+
+                const rect = element.getBoundingClientRect();
+
+                const sectionMiddle = rect.top + rect.height / 2;
+                const distance = Math.abs(sectionMiddle - viewportMiddle);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestSection = section.id;
+                }
+            });
+
+            setActiveSection(closestSection);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        handleScroll();
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
     return (
@@ -115,38 +193,133 @@ export default function Settings() {
 
                     <div id="account" className="settings-section">
                         <div className="settings-section-header">
-                            <h2>Account</h2>
-                            <p>Your account information.</p>
-                        </div>
-
-                        <div className="settings-account">
-                            <div className="settings-field">
-                                <span className="settings-field-label">
-                                    Name
-                                </span>
-                                <span className="settings-field-value">
-                                    {user?.name || "Not available"}
-                                </span>
-                            </div>
-
-                            <div className="settings-field">
-                                <span className="settings-field-label">
-                                    Username
-                                </span>
-                                <span className="settings-field-value">
-                                    {user?.username || "Not available"}
-                                </span>
-                            </div>
-
-                            <div className="settings-field">
-                                <span className="settings-field-label">
-                                    Email
-                                </span>
-                                <span className="settings-field-value">
-                                    {user?.email || "Not available"}
-                                </span>
+                            <div>
+                                <h2>Account</h2>
+                                <p>Your account information.</p>
                             </div>
                         </div>
+
+                        {!editingProfile ? (
+                            <>
+                                <div className="settings-account">
+                                    <div className="settings-field">
+                                        <span className="settings-field-label">
+                                            Name
+                                        </span>
+                                        <p className="settings-field-value">
+                                            {user?.name || "Not available"}
+                                        </p>
+                                    </div>
+
+                                    <div className="settings-field">
+                                        <span className="settings-field-label">
+                                            Username
+                                        </span>
+                                        <p className="settings-field-value">
+                                            {user?.username || "Not available"}
+                                        </p>
+                                    </div>
+
+                                    <div className="settings-field">
+                                        <span className="settings-field-label">
+                                            Email
+                                        </span>
+                                        <p className="settings-field-value">
+                                            {user?.email || "Not available"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="settings-primary-button"
+                                    onClick={() => setEditingProfile(true)}
+                                >
+                                    Edit profile
+                                </button>
+                            </>
+                        ) : (
+                            <form
+                                className="settings-profile-form"
+                                onSubmit={handleProfileSave}
+                            >
+                                <div className="settings-field">
+                                    <label
+                                        className="settings-field-label"
+                                        htmlFor="profile-name"
+                                    >
+                                        Name
+                                    </label>
+
+                                    <input
+                                        id="profile-name"
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="settings-field">
+                                    <label
+                                        className="settings-field-label"
+                                        htmlFor="profile-username"
+                                    >
+                                        Username
+                                    </label>
+
+                                    <input
+                                        id="profile-username"
+                                        type="text"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="settings-field">
+                                    <label
+                                        className="settings-field-label"
+                                        htmlFor="profile-email"
+                                    >
+                                        Email
+                                    </label>
+
+                                    {isGoogleAccount ? (
+                                        <div className="settings-field-disabled">
+                                            {email}
+                                        </div>
+                                    ) : (
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                    )}
+
+                                    {isGoogleAccount && (
+                                        <p className="settings-field-hint">
+                                            Your email is managed by Google and cannot be changed here.
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="settings-form-actions">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingProfile(false)}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        className="settings-primary-button"
+                                        disabled={savingProfile}
+                                    >
+                                        {savingProfile ? "Saving..." : "Save changes"}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
 
                     <div id="appearance" className="settings-section">
@@ -195,21 +368,51 @@ export default function Settings() {
                             <p>Manage your account security.</p>
                         </div>
 
-                        <div className="settings-security">
-                            <div>
+                        {user.authProvider === "google" ? (
+                            <div className="settings-field">
                                 <span className="settings-field-label">Password</span>
-                                <p className="settings-option-description">
-                                    Keep your account protected with a strong password.
-                                </p>
+                                <p className="settings-option-description">Your account uses Google sign-in. Password changes are managed through Google.</p>
+                            </div>
+                        ) : (
+                            <div className="settings-security">
+                                <div>
+                                    <span className="settings-field-label">Password</span>
+                                    <p className="settings-option-description">
+                                        Keep your account protected with a strong password.
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="settings-primary-button"
+                                    onClick={() => setIsPasswordModalOpen(true)}
+                                >
+                                    Change password
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="divider"></div>
+
+                        <div className="settings-section">
+                            <div className="settings-section-header">
+                                <h4>Danger Zone</h4>
+                                <p>Irreversible account actions.</p>
                             </div>
 
-                            <button
-                                type="button"
-                                className="settings-primary-button"
-                                onClick={() => setIsPasswordModalOpen(true)}
-                            >
-                                Change password
-                            </button>
+                            <div className="settings-danger">
+                                <h3>Delete account</h3>
+
+                                <p>
+                                    Permanently delete your account and all associated financial data.
+                                    This action cannot be undone.
+                                </p>
+
+                                <button type="button" className="settings-danger-button" onClick={() => setShowDeleteModal(true)}>
+                                    {/* <button type="button" className="settings-danger-button" onClick={handleDeleteAccount}></button> */}
+                                    Delete account
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -231,18 +434,18 @@ export default function Settings() {
                                 <span className="settings-field-label">
                                     Application
                                 </span>
-                                <span className="settings-field-value">
+                                <p className="settings-field-value">
                                     Finance Manager
-                                </span>
+                                </p>
                             </div>
 
                             <div className="settings-field">
                                 <span className="settings-field-label">
                                     Version
                                 </span>
-                                <span className="settings-field-value">
+                                <p className="settings-field-value">
                                     v1.0.0
-                                </span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -367,6 +570,59 @@ export default function Settings() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {showDeleteModal && (
+                <div className="settings-modal-overlay">
+                    <div className="settings-modal">
+                        <div className="settings-modal-header">
+                            <div>
+                                <h2>Delete account?</h2>
+                                <p>
+                                    This will permanently delete your account and all
+                                    associated financial data.
+                                </p>
+                            </div>
+
+                            <button
+                                className="settings-modal-close"
+                                onClick={() => setShowDeleteModal(false)}
+                                aria-label="Close"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <p className="settings-option-description">
+                            This action cannot be undone. Your transactions, budgets,
+                            scenarios, goals, and other account data will be permanently
+                            removed.
+                        </p>
+
+                        {deleteError && (
+                            <p className="error-message">
+                                {deleteError}
+                            </p>
+                        )}
+
+                        <div className="settings-modal-actions">
+                            <button
+                                className="settings-secondary-button"
+                                onClick={() => setShowDeleteModal(false)}
+                                disabled={deletingAccount}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className="settings-danger-button"
+                                onClick={handleDeleteAccount}
+                                disabled={deletingAccount}
+                            >
+                                {deletingAccount ? "Deleting..." : "Delete account"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

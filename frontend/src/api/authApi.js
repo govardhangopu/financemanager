@@ -25,3 +25,32 @@ export const changePassword = async (token, currentPassword, newPassword) => {
 
     return response.data;
 };
+
+//UPDATE
+export const updateProfile = async (data, token) => {
+    const res = await axios.patch(
+        `${baseURL}/users/profile`,
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return res.data;
+};
+
+// DELETE
+export const deleteAccount = async (token) => {
+    const res = await axios.delete(
+        `${baseURL}/users/account`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return res.data;
+};

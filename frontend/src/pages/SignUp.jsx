@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { signUp } from "../api/authApi.js";
 import "../styles/Auth.css";
+import googleLogo from "../assets/google.svg";
 
 const SignUp = () => {
     const [name, setName] = useState("");
@@ -15,13 +16,13 @@ const SignUp = () => {
             const data = await signUp(name, email, username, password);
             console.log(data);
             navigate("/login");
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     };
 
     return (
-        <main className="auth-page">
+        <div className="auth-page">
             <section className="auth-card">
                 <article className="auth-visual">
                     <div>
@@ -77,13 +78,33 @@ const SignUp = () => {
                         </div>
 
                         <button className="auth-button" type="submit">Create account</button>
+
+                        <div className="auth-divider">
+                            <span>OR</span>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="auth-google-button"
+                            onClick={() => {
+                                window.location.href = `${API_URL}/users/google`;
+                            }}
+                        >
+                            <img
+                                src={googleLogo}
+                                alt=""
+                                className="google-logo"
+                            />
+                            <span>Continue with Google</span>
+                        </button>
+
                         <p className="auth-switch">
                             Already have an account? <Link to="/login">Sign in</Link>
                         </p>
                     </form>
                 </article>
             </section>
-        </main>
+        </div>
     );
 }
 

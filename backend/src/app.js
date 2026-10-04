@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import passport from "../config/passport.js";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import categoriesRoutes from "./routes/category.routes.js";
@@ -21,6 +22,8 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+
+app.use(passport.initialize());
 
 // Routes
 app.use("/users", userRoutes);

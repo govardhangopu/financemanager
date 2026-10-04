@@ -4,6 +4,9 @@ import { useAuth } from "../context/AuthContext";
 import Loader from '../components/Loader.jsx';
 import { login } from "../api/authApi";
 import "../styles/Auth.css";
+import googleLogo from "../assets/google.svg";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -17,7 +20,9 @@ const Login = () => {
 
         try {
             const data = await login(username, password);
-            const { user, token } = data.token;
+            const { user, token } = data;
+
+            console.log(user, token)
 
             setUser(user);
             setToken(token);
@@ -101,6 +106,26 @@ const Login = () => {
                         >
                             {loading ? <Loader size="small" /> : "Login"}
                         </button>
+
+                        <div className="auth-divider">
+                            <span>OR</span>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="auth-google-button"
+                            onClick={() => {
+                                window.location.href = `${API_URL}/users/google`;
+                            }}
+                        >
+                            <img
+                                src={googleLogo}
+                                alt=""
+                                className="google-logo"
+                            />
+                            <span>Continue with Google</span>
+                        </button>
+
                         <p className="auth-switch">
                             New here? <Link to="/signup">Create an account</Link>
                         </p>

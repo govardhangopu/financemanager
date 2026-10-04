@@ -41,6 +41,7 @@
 .settings-sidebar {
     border-right: 1px solid var(--border-color);
     padding: 14px;
+    border-radius: 18px;
 }
 
 .settings-sidebar nav {
@@ -129,30 +130,129 @@
 .settings-account {
     display: flex;
     flex-direction: column;
-    gap: 22px;
 }
 
-.settings-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.settings-account .settings-field {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-account .settings-field:first-child {
+    padding-top: 0;
+}
+
+.settings-account .settings-field:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .settings-field-label {
     color: var(--text-muted);
-
     font-size: 0.78rem;
     font-weight: 600;
-
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 
 .settings-field-value {
     color: var(--text-color);
-
     font-size: 0.95rem;
     font-weight: 500;
+}
+
+
+/* Profile editing */
+
+.settings-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 560px;
+}
+
+.settings-profile-form .settings-field {
+    gap: 7px;
+}
+
+.settings-profile-form input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 13px;
+
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+
+    background: var(--bg-color);
+    color: var(--text-color);
+
+    font-size: 0.9rem;
+    outline: none;
+
+    transition: border-color 0.2s ease;
+}
+
+.settings-profile-form input:focus {
+    border-color: var(--text-muted);
+}
+
+.settings-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 6px;
+}
+
+.settings-form-actions button {
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+
+    padding: 9px 15px;
+
+    background: transparent;
+    color: var(--text-color);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-form-actions button:hover {
+    background: var(--bg-color);
+}
+
+.settings-form-actions .settings-primary-button {
+    border: none;
+}
+
+.settings-account + .settings-primary-button {
+    margin-top: 24px;
+}
+
+.settings-field-disabled {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 9px;
+    background: rgba(15, 23, 42, 0.55);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.settings-field-hint {
+    grid-column: 2 / -1;
+    margin: 2px 0 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
 }
 
 
@@ -251,6 +351,80 @@
     font-size: 0.9rem;
 }
 
+/* Danger Zone */
+
+.settings-danger {
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.settings-danger h3 {
+    margin: 0;
+    color: #ef4444;
+    font-size: 1rem;
+}
+
+.settings-danger p {
+    margin: 6px 0 16px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.settings-danger-button {
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 9px;
+
+    padding: 9px 15px;
+
+    background: transparent;
+    color: #ef4444;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.settings-danger-button:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: #ef4444;
+}
+
+.settings-modal-actions .settings-danger-button {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.settings-modal-actions .settings-danger-button:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.divider::before {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.settings-danger-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 
 /* Modal */
 
@@ -430,14 +604,25 @@
     }
 
     .settings-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         padding: 10px;
+
+        background: var(--card-bg);
     }
 
     .settings-sidebar nav {
         flex-direction: row;
         overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .settings-sidebar nav::-webkit-scrollbar {
+        display: none;
     }
 
     .settings-sidebar button {

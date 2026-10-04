@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar"
 import Index from "./pages/Index"
 import Login from "./pages/Login"
 import SignUp from "./pages/SignUp"
+import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard"
 import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
@@ -31,6 +32,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/oauth/callback" element={<OAuthCallback />} />
 
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />

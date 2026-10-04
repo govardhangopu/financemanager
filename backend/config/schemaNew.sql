@@ -5,9 +5,21 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`users` (
   `userid` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `username` VARCHAR(45) NOT NULL UNIQUE,
-  `password` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NULL DEFAULT NULL,
   `email` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`userid`));
+  PRIMARY KEY (`userid`)
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`oauth_accounts` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `userid` INT NOT NULL UNIQUE,
+    `provider_user_id` VARCHAR(255) NOT NULL UNIQUE,
+    `provider_email` VARCHAR(255) NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`userid`)
+        REFERENCES `users`(`userid`)
+        ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS `financemanager`.`categories` (
   `categoryid` INT NOT NULL AUTO_INCREMENT,
@@ -19,8 +31,22 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`categories` (
   PRIMARY KEY (`categoryid`),
   UNIQUE KEY `categoryid_UNIQUE` (`categoryid`),
   KEY `parent_categoryid_fk_idx` (`parent_categoryid`),
-  CONSTRAINT `parent_categoryid_fk` FOREIGN KEY (`parent_categoryid`) REFERENCES `categories` (`categoryid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `categories_chk_1` CHECK ((`type` in (_utf8mb4'income',_utf8mb4'expense')))
+  KEY `categories_user_fk_idx` (`userid`),
+
+  CONSTRAINT `parent_categoryid_fk`
+    FOREIGN KEY (`parent_categoryid`)
+    REFERENCES `categories` (`categoryid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `categories_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `users` (`userid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `categories_chk_1`
+    CHECK ((`type` in (_utf8mb4'income',_utf8mb4'expense')))
 );
 
 CREATE TABLE IF NOT EXISTS `financemanager`.`transactions` (
