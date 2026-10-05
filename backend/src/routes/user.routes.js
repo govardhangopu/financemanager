@@ -1,5 +1,17 @@
 import { Router } from 'express';
-import { getUsers, signUp, login, changePassword, updateProfile, googleCallback, deleteAccount } from "../controllers/auth.js";
+import {
+    getUsers,
+    signUp,
+    login,
+    changePassword,
+    updateProfile,
+    googleCallback,
+    startGoogleLink,
+    googleLinkCallback,
+    getGoogleStatus,
+    unlinkGoogle,
+    deleteAccount
+} from "../controllers/auth.js";
 import { authorizer } from "../middlewares/authMiddleware.js";
 import passport from "../../config/passport.js";
 
@@ -7,19 +19,44 @@ const router = Router();
 
 router.get(
     "/google",
-    passport.authenticate("google", {
-        scope: ["profile", "email"],
+    passport.authenticate("google-login", {
+        scope: ["profile", "email"]
     })
 );
 
 router.get(
     "/google/callback",
-    passport.authenticate("google", {
+    passport.authenticate("google-login", {
         session: false,
         failureRedirect: `${process.env.FRONTEND_URL}/login`,
     }),
     googleCallback
 );
+
+router.get("/google/status", authorizer, getGoogleStatus);
+
+router.get("/google/link/start", authorizer, startGoogleLink);
+
+router.get(
+    "/google/link",
+    (req, res, next) => {
+        passport.authenticate("google-link", {
+            scope: ["profile", "email"],
+            state: req.query.state
+        })(req, res, next);
+    }
+);
+
+router.get(
+    "/google/link/callback",
+    passport.authenticate("google-link", {
+        session: false,
+        failureRedirect: `${process.env.FRONTEND_URL}/settings`
+    }),
+    googleLinkCallback
+);
+
+router.delete("/google/link", authorizer, unlinkGoogle);
 
 router.get('/', getUsers);
 router.post('/signup', signUp);

@@ -10,7 +10,8 @@ import {
     createOAuthAccount,
     findOAuthAccount,
     findOAuthAccountByUserId,
-    deleteUser
+    deleteUser,
+    unlinkGoogleAccount
 } from "../repositories/user.repo.js";
 import jwt from 'jsonwebtoken';
 
@@ -127,6 +128,91 @@ export const googleLoginService = async (googleUser) => {
     const user = await findUserById(userid);
 
     return createAuthResponse(user, "google");
+};
+
+export const linkGoogleAccountService = async (userid, googleUser) => {
+    const { googleId, email } = googleUser;
+
+    if (!googleId || !email) {
+        throw new Error("Google account information is incomplete.");
+    }
+
+    // 1. Make sure the current Finance Manager user exists
+    const user = await findUserById(userid);
+
+    if (!user) {
+        throw new Error("User not found.");
+    }
+
+    // 2. Check whether this Google account is already linked
+    const existingOAuthAccount = await findOAuthAccount(googleId);
+
+    if (existingOAuthAccount) {
+        // Already linked to this same user
+        if (existingOAuthAccount.userid === userid) {
+            throw new Error("This Google account is already linked.");
+        }
+
+        // Linked to somebody else
+        throw new Error(
+            "This Google account is already linked to another account."
+        );
+    }
+
+    // 3. Check whether this Finance Manager account already has Google linked
+    const existingUserOAuthAccount = await findOAuthAccountByUserId(userid);
+
+    if (existingUserOAuthAccount) {
+        throw new Error(
+            "A Google account is already linked to this account."
+        );
+    }
+
+    // 4. Link Google to the existing user
+    await createOAuthAccount({
+        userid,
+        providerUserId: googleId,
+        providerEmail: email
+    });
+
+    return {
+        message: "Google account linked successfully."
+    };
+};
+
+export const unlinkGoogleService = async (userid) => {
+    const user = await findUserById(userid);
+
+    if (!user) {
+        throw new Error("User not found.");
+    }
+
+    if (!user.password) {
+        throw new Error(
+            "You must set a password before disconnecting your Google account."
+        );
+    }
+
+    await unlinkGoogleAccount(userid);
+
+    return {
+        message: "Google account disconnected successfully."
+    };
+};
+
+export const getGoogleStatusService = async (userid) => {
+    const oauthAccount = await findOAuthAccountByUserId(userid);
+
+    if (!oauthAccount) {
+        return {
+            connected: false
+        };
+    }
+
+    return {
+        connected: true,
+        email: oauthAccount.provider_email
+    };
 };
 
 export const loginService = async ({ username, password }) => {

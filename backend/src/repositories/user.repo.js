@@ -113,3 +113,14 @@ export const deleteUser = async (userid) => {
 
     return result;
 };
+
+export const unlinkGoogleAccount = async (userid) => {
+    const pool = connectDB();
+
+    const [result] = await pool.query(
+        "DELETE FROM oauth_accounts WHERE userid = ?",
+        [userid]
+    );
+
+    return result;
+};

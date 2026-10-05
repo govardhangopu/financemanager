@@ -2,6 +2,45 @@ import axios from "axios";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
+export const startGoogleLink = async (token) => {
+    const response = await axios.get(
+        `${baseURL}/users/google/link/start`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const unlinkGoogle = async (token) => {
+    const res = await axios.delete(
+        `${baseURL}/users/google/link`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return res.data;
+};
+
+export const getGoogleStatus = async (token) => {
+    const res = await axios.get(
+        `${baseURL}/users/google/status`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return res.data;
+};
+
 export const login = async (username, password) => {
     const response = await axios.post(`${baseURL}/users/login`, { username, password, });
     return response.data;

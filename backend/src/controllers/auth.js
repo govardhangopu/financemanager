@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import {
     getAllUsers,
     signUpService,
@@ -5,6 +6,9 @@ import {
     changePasswordService,
     updateProfileService,
     googleLoginService,
+    linkGoogleAccountService,
+    getGoogleStatusService,
+    unlinkGoogleService,
     deleteAccountService
 } from "../services/user.service.js";
 
@@ -12,7 +16,7 @@ export const getUsers = async (req, res, next) => {
     try {
         const users = await getAllUsers();
         res.json(users);
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 };
@@ -46,6 +50,75 @@ export const googleCallback = async (req, res) => {
                 err.message
             )}`
         );
+    }
+};
+
+export const startGoogleLink = async (req, res, next) => {
+    try {
+        const state = jwt.sign(
+            {
+                userid: req.user.id,
+                purpose: "google-link"
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "10m"
+            }
+        );
+
+        const googleAuthUrl =
+            `${process.env.BACKEND_URL}/users/google/link?state=${encodeURIComponent(state)}`;
+
+        res.json({ url: googleAuthUrl });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const googleLinkCallback = async (req, res) => {
+    try {
+        const state = jwt.verify(
+            req.query.state,
+            process.env.JWT_SECRET
+        );
+
+        if (state.purpose !== "google-link") {
+            throw new Error("Invalid OAuth state.");
+        }
+
+        await linkGoogleAccountService(state.userid, req.user);
+
+        res.redirect(
+            `${process.env.FRONTEND_URL}/settings`
+        );
+    } catch (err) {
+        console.error(err);
+
+        res.redirect(
+            `${process.env.FRONTEND_URL}/settings?googleError=${encodeURIComponent(
+                err.message
+            )}`
+        );
+    }
+};
+
+export const unlinkGoogle = async (req, res, next) => {
+    try {
+        const response = await unlinkGoogleService(req.user.id);
+
+        res.json(response);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getGoogleStatus = async (req, res, next) => {
+    try {
+        const response = await getGoogleStatusService(req.user.id);
+
+        res.json(response);
+    } catch (err) {
+        next(err);
     }
 };
 

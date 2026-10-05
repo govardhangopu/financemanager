@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { useNavigate } from "react-router-dom";
-import { changePassword, updateProfile, deleteAccount } from "../api/authApi";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { changePassword, updateProfile, deleteAccount, startGoogleLink, unlinkGoogle, getGoogleStatus } from "../api/authApi";
 import "../styles/Settings.css";
 
+const sections = [
+    { id: "account", label: "Account" },
+    { id: "appearance", label: "Appearance" },
+    { id: "security", label: "Security" },
+    { id: "about", label: "About" },
+];
+
 export default function Settings() {
-    const { user, token, setUser } = useAuth();
+    const { user, token, setUser, setToken } = useAuth();
     const { theme, changeTheme } = useTheme();
     const navigate = useNavigate();
+
     const isGoogleAccount = user?.authProvider === "google";
+    const [googleStatus, setGoogleStatus] = useState({ connected: false, email: null });
+    const [googleStatusLoading, setGoogleStatusLoading] = useState(true);
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const [activeSection, setActiveSection] = useState("account");
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");
@@ -33,13 +45,6 @@ export default function Settings() {
     const sameError = newPassword.length > 0 && currentPassword === newPassword
         ? "New password must be different from your current password."
         : "";
-
-    const sections = [
-        { id: "account", label: "Account" },
-        { id: "appearance", label: "Appearance" },
-        { id: "security", label: "Security" },
-        { id: "about", label: "About" },
-    ];
 
     const scrollToSection = (id) => {
         document.getElementById(id)?.scrollIntoView({
@@ -114,6 +119,7 @@ export default function Settings() {
             localStorage.removeItem("user");
 
             setUser(null);
+            setToken(null);
 
             navigate("/login", { replace: true });
         } catch (err) {
@@ -128,37 +134,128 @@ export default function Settings() {
         }
     };
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const viewportMiddle = window.innerHeight / 2;
+    const handleConnectGoogle = async () => {
+        try {
+            const { url } = await startGoogleLink(token);
 
-            let closestSection = sections[0].id;
-            let closestDistance = Infinity;
+            window.location.href = url;
+        } catch (err) {
+            console.error(err);
+
+            alert(
+                err.response?.data?.message ||
+                "Unable to connect Google account."
+            );
+        }
+    };
+
+    const handleUnlinkGoogle = async () => {
+        try {
+            await unlinkGoogle(token);
+
+            setGoogleStatus({
+                connected: false,
+                email: null
+            });
+        } catch (err) {
+            console.error(err);
+
+            alert(
+                err.response?.data?.message ||
+                "Unable to disconnect Google account."
+            );
+        }
+    };
+
+    useEffect(() => {
+        const loadGoogleStatus = async () => {
+            if (!token) return;
+
+            try {
+                const status = await getGoogleStatus(token);
+                setGoogleStatus(status);
+            } catch (err) {
+                console.error("Failed to load Google account status:", err);
+            } finally {
+                setGoogleStatusLoading(false);
+            }
+        };
+
+        loadGoogleStatus();
+    }, [token]);
+
+    useEffect(() => {
+        const googleError = searchParams.get("googleError");
+        const googleLinked = searchParams.get("googleLinked");
+
+        if (googleError) {
+            alert(googleError);
+        }
+
+        if (googleLinked === "true") {
+            alert("Google account connected successfully.");
+        }
+
+        if (googleError || googleLinked) {
+            searchParams.delete("googleError");
+            searchParams.delete("googleLinked");
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    useEffect(() => {
+        const firstSection = document.getElementById(sections[0].id);
+        const usesPageScroll = window.matchMedia("(max-width: 1024px)").matches;
+        let scrollContainer = usesPageScroll ? null : firstSection?.parentElement;
+
+        while (scrollContainer && scrollContainer !== document.body) {
+            const { overflowY } = window.getComputedStyle(scrollContainer);
+            const canScroll =
+                /(auto|scroll|overlay)/.test(overflowY) &&
+                scrollContainer.scrollHeight > scrollContainer.clientHeight;
+
+            if (canScroll) break;
+            scrollContainer = scrollContainer.parentElement;
+        }
+
+        const handleScroll = () => {
+            const viewport = scrollContainer
+                ? scrollContainer.getBoundingClientRect()
+                : { top: 0, height: window.innerHeight };
+
+            const activationLine = viewport.top + Math.min(120, viewport.height * 0.25);
+            let currentSection = sections[0].id;
 
             sections.forEach((section) => {
                 const element = document.getElementById(section.id);
 
-                if (!element) return;
-
-                const rect = element.getBoundingClientRect();
-
-                const sectionMiddle = rect.top + rect.height / 2;
-                const distance = Math.abs(sectionMiddle - viewportMiddle);
-
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestSection = section.id;
+                if (element && element.getBoundingClientRect().top <= activationLine) {
+                    currentSection = section.id;
                 }
             });
 
-            setActiveSection(closestSection);
+            const hasReachedBottom = scrollContainer
+                ? scrollContainer.scrollTop + scrollContainer.clientHeight >=
+                scrollContainer.scrollHeight - 1
+                : window.scrollY + window.innerHeight >=
+                document.documentElement.scrollHeight - 1;
+
+            if (hasReachedBottom) {
+                currentSection = sections[sections.length - 1].id;
+            }
+
+            setActiveSection(currentSection);
         };
 
         window.addEventListener("scroll", handleScroll);
+        scrollContainer?.addEventListener("scroll", handleScroll);
+        window.addEventListener("resize", handleScroll);
         handleScroll();
 
         return () => {
             window.removeEventListener("scroll", handleScroll);
+            scrollContainer?.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleScroll);
         };
     }, []);
 
@@ -391,6 +488,54 @@ export default function Settings() {
                                 </button>
                             </div>
                         )}
+
+                        <div className="settings-security">
+                            <div>
+                                <span className="settings-field-label">
+                                    Google account
+                                </span>
+
+                                {googleStatusLoading ? (
+                                    <p className="settings-option-description">
+                                        Checking...
+                                    </p>
+                                ) : googleStatus.connected ? (
+                                    <p className="settings-option-description">
+                                        Connected as {googleStatus.email}
+                                    </p>
+                                ) : (
+                                    <p className="settings-option-description">
+                                        Connect your Google account for easier sign-in.
+                                    </p>
+                                )}
+                            </div>
+
+                            {googleStatusLoading ? (
+                                <button
+                                    type="button"
+                                    className="settings-secondary-button"
+                                    disabled
+                                >
+                                    Checking...
+                                </button>
+                            ) : googleStatus.connected ? (
+                                <button
+                                    type="button"
+                                    className="settings-secondary-button"
+                                    onClick={handleUnlinkGoogle}
+                                >
+                                    Disconnect
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="settings-primary-button"
+                                    onClick={handleConnectGoogle}
+                                >
+                                    Connect Google
+                                </button>
+                            )}
+                        </div>
 
                         <div className="divider"></div>
 
