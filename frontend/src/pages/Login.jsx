@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Loader from '../components/Loader.jsx';
 import { login } from "../api/authApi";
@@ -13,6 +13,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const { setUser, setToken } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
 
     const handleLogin = async () => {
@@ -22,7 +23,7 @@ const Login = () => {
             const data = await login(username, password);
             const { user, token } = data;
 
-            console.log(user, token)
+            // console.log(user, token)
 
             setUser(user);
             setToken(token);
@@ -38,6 +39,25 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const googleError = searchParams.get("googleError");
+        const googleLinked = searchParams.get("googleLinked");
+
+        if (googleError) {
+            alert(googleError);
+        }
+
+        if (googleLinked === "true") {
+            alert("Google account connected successfully.");
+        }
+
+        if (googleError || googleLinked) {
+            searchParams.delete("googleError");
+            searchParams.delete("googleLinked");
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     return (
         <main className="auth-page">
@@ -125,6 +145,10 @@ const Login = () => {
                             />
                             <span>Continue with Google</span>
                         </button>
+
+                        <Link to="/forgot-password">
+                            Forgot password?
+                        </Link>
 
                         <p className="auth-switch">
                             New here? <Link to="/signup">Create an account</Link>

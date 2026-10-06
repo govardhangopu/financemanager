@@ -4,6 +4,10 @@ import {
     signUp,
     login,
     changePassword,
+    setPassword,
+    requestPasswordReset,
+    verifyPasswordResetToken,
+    resetPassword,
     updateProfile,
     googleCallback,
     startGoogleLink,
@@ -62,6 +66,10 @@ router.get('/', getUsers);
 router.post('/signup', signUp);
 router.post('/login', login);
 router.put('/password', authorizer, changePassword);
+router.put("/password/set", authorizer, setPassword);
+router.post("/password/forgot", requestPasswordReset);
+router.get("/password/reset/verify", verifyPasswordResetToken);
+router.post("/password/reset", resetPassword);
 router.patch('/profile', authorizer, updateProfile);
 router.delete("/account", authorizer, deleteAccount);
 

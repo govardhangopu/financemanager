@@ -65,6 +65,38 @@ export const changePassword = async (token, currentPassword, newPassword) => {
     return response.data;
 };
 
+export const requestPasswordReset = async (email) => {
+    const response = await axios.post(
+        `${baseURL}/users/password/forgot`,
+        { email }
+    );
+
+    return response.data;
+};
+
+export const verifyPasswordResetToken = async (token) => {
+    const response = await axios.get(
+        `${baseURL}/users/password/reset/verify`,
+        {
+            params: { token }
+        }
+    );
+
+    return response.data;
+};
+
+export const resetPassword = async (token, newPassword) => {
+    const response = await axios.post(
+        `${baseURL}/users/password/reset`,
+        {
+            token,
+            newPassword
+        }
+    );
+
+    return response.data;
+};
+
 //UPDATE
 export const updateProfile = async (data, token) => {
     const res = await axios.patch(

@@ -4,6 +4,7 @@ import {
     signUpService,
     loginService,
     changePasswordService,
+    setPasswordService,
     updateProfileService,
     googleLoginService,
     linkGoogleAccountService,
@@ -11,6 +12,11 @@ import {
     unlinkGoogleService,
     deleteAccountService
 } from "../services/user.service.js";
+import {
+    requestPasswordResetService,
+    verifyPasswordResetTokenService,
+    resetPasswordService
+} from "../services/passwordReset.service.js";
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -126,6 +132,59 @@ export const login = async (req, res, next) => {
     try {
         const response = await loginService(req.body);
         res.json(response);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const setPassword = async (req, res, next) => {
+    try {
+        const { newPassword } = req.body;
+        const result = await setPasswordService({ userid: req.user.id, newPassword });
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const requestPasswordReset = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        await requestPasswordResetService(email);
+
+        res.json({
+            message:
+                "If an account exists for this email, a password reset link has been sent."
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const verifyPasswordResetToken = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+
+        const result =
+            await verifyPasswordResetTokenService(token);
+
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const resetPassword = async (req, res, next) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        const result = await resetPasswordService({
+            rawToken: token,
+            newPassword
+        });
+
+        res.json(result);
     } catch (err) {
         next(err);
     }

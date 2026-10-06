@@ -606,7 +606,7 @@
     .settings-sidebar {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 1;
 
         border-right: none;
         border-bottom: 1px solid var(--border-color);

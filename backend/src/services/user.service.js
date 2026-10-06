@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import {
     fetchUsers,
     findUser,
@@ -13,7 +14,7 @@ import {
     deleteUser,
     unlinkGoogleAccount
 } from "../repositories/user.repo.js";
-import jwt from 'jsonwebtoken';
+import { validatePassword } from "../utils/password.utils.js";
 
 const createAuthResponse = (user, authProvider = "password") => {
     const token = jwt.sign(
@@ -46,6 +47,15 @@ export const signUpService = async ({ name, email, username, password }) => {
     if (existingUser[0]) {
         throw new Error("Username already exists.");
     }
+
+    const existingEmail = await findUserByEmail(email);
+
+    if (existingEmail) {
+        throw new Error("An account with this email already exists.");
+    }
+
+    validatePassword(password);
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return createUser({ name, email, username, password: hashedPassword });
@@ -229,6 +239,30 @@ export const loginService = async ({ username, password }) => {
     return createAuthResponse(user[0], "password");
 };
 
+export const setPasswordService = async ({ userid, newPassword }) => {
+    const user = await findUserById(userid);
+
+    if (!user) {
+        throw new Error("User not found.");
+    }
+
+    if (user.password) {
+        throw new Error(
+            "A password is already set for this account."
+        );
+    }
+
+    validatePassword(newPassword);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await updatePassword(userid, hashedPassword);
+
+    return {
+        message: "Password set successfully."
+    };
+};
+
 export const changePasswordService = async ({ userid, currentPassword, newPassword }) => {
     const user = await findUserById(userid);
 
@@ -250,6 +284,8 @@ export const changePasswordService = async ({ userid, currentPassword, newPasswo
     if (currentPassword === newPassword) {
         throw new Error("New password must be different from your current password.");
     }
+
+    validatePassword(newPassword);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 

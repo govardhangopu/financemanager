@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`users` (
   `name` VARCHAR(50) NOT NULL,
   `username` VARCHAR(45) NOT NULL UNIQUE,
   `password` VARCHAR(255) NULL DEFAULT NULL,
-  `email` VARCHAR(45) NULL DEFAULT NULL,
+  `email` VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY (`userid`)
 );
 
