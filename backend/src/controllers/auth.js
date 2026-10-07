@@ -8,7 +8,7 @@ import {
     updateProfileService,
     googleLoginService,
     linkGoogleAccountService,
-    getGoogleStatusService,
+    getAuthStatusService,
     unlinkGoogleService,
     deleteAccountService
 } from "../services/user.service.js";
@@ -118,10 +118,9 @@ export const unlinkGoogle = async (req, res, next) => {
     }
 };
 
-export const getGoogleStatus = async (req, res, next) => {
+export const getAuthStatus = async (req, res, next) => {
     try {
-        const response = await getGoogleStatusService(req.user.id);
-
+        const response = await getAuthStatusService(req.user.id);
         res.json(response);
     } catch (err) {
         next(err);

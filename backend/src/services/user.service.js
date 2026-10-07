@@ -16,7 +16,9 @@ import {
 } from "../repositories/user.repo.js";
 import { validatePassword } from "../utils/password.utils.js";
 
-const createAuthResponse = (user, authProvider = "password") => {
+const createAuthResponse = async (user) => {
+    const oauthAccount = await findOAuthAccountByUserId(user.userid);
+
     const token = jwt.sign(
         {
             id: user.userid
@@ -33,7 +35,10 @@ const createAuthResponse = (user, authProvider = "password") => {
             username: user.username,
             email: user.email,
             name: user.name,
-            authProvider
+            authMethods: {
+                password: !!user.password,
+                google: !!oauthAccount
+            }
         }
     };
 };
@@ -104,7 +109,7 @@ export const googleLoginService = async (googleUser) => {
             throw new Error("Linked user account was not found.");
         }
 
-        return createAuthResponse(user, "google");
+        return createAuthResponse(user);
     }
 
     // Email already belongs to an existing account
@@ -137,7 +142,7 @@ export const googleLoginService = async (googleUser) => {
     // Fetch the actual user
     const user = await findUserById(userid);
 
-    return createAuthResponse(user, "google");
+    return createAuthResponse(user);
 };
 
 export const linkGoogleAccountService = async (userid, googleUser) => {
@@ -210,18 +215,21 @@ export const unlinkGoogleService = async (userid) => {
     };
 };
 
-export const getGoogleStatusService = async (userid) => {
-    const oauthAccount = await findOAuthAccountByUserId(userid);
+export const getAuthStatusService = async (userid) => {
+    const user = await findUserById(userid);
 
-    if (!oauthAccount) {
-        return {
-            connected: false
-        };
+    if (!user) {
+        throw new Error("User not found.");
     }
 
+    const oauthAccount = await findOAuthAccountByUserId(userid);
+
     return {
-        connected: true,
-        email: oauthAccount.provider_email
+        authMethods: {
+            password: !!user.password,
+            google: !!oauthAccount
+        },
+        googleEmail: oauthAccount?.provider_email || null
     };
 };
 
@@ -236,7 +244,7 @@ export const loginService = async ({ username, password }) => {
 
     const passwordMatch = await bcrypt.compare(password, user[0].password);
     if (!passwordMatch) throw new Error("Incorrect password.");
-    return createAuthResponse(user[0], "password");
+    return createAuthResponse(user[0]);
 };
 
 export const setPasswordService = async ({ userid, newPassword }) => {
@@ -308,20 +316,13 @@ export const updateProfileService = async (userid, { name, username, email }) =>
         throw new Error("Username already exists.");
     }
 
-    const oauthAccount = await findOAuthAccountByUserId(userid);
-
-    if (oauthAccount && email !== user.email) {
-        throw new Error("Email cannot be changed for Google accounts.");
-    }
-
     const updatedUser = await updateUser({ userid, name, username, email });
 
     return {
         user: {
             name: updatedUser.name,
             username: updatedUser.username,
-            email: updatedUser.email,
-            authProvider: oauthAccount ? "google" : "password"
+            email: updatedUser.email
         }
     };
 };

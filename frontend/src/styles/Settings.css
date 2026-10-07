@@ -343,6 +343,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 24px;
+    margin-bottom: 10px;
 }
 
 .settings-option-description {

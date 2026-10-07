@@ -12,7 +12,7 @@ import {
     googleCallback,
     startGoogleLink,
     googleLinkCallback,
-    getGoogleStatus,
+    getAuthStatus,
     unlinkGoogle,
     deleteAccount
 } from "../controllers/auth.js";
@@ -37,7 +37,7 @@ router.get(
     googleCallback
 );
 
-router.get("/google/status", authorizer, getGoogleStatus);
+router.get("/auth/status", authorizer, getAuthStatus);
 
 router.get("/google/link/start", authorizer, startGoogleLink);
 

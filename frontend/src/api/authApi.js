@@ -28,9 +28,9 @@ export const unlinkGoogle = async (token) => {
     return res.data;
 };
 
-export const getGoogleStatus = async (token) => {
+export const getAuthStatus = async (token) => {
     const res = await axios.get(
-        `${baseURL}/users/google/status`,
+        `${baseURL}/users/auth/status`,
         {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -48,6 +48,20 @@ export const login = async (username, password) => {
 
 export const signUp = async (name, email, username, password) => {
     const response = await axios.post(`${baseURL}/users/signup`, { name, email, username, password, });
+    return response.data;
+};
+
+export const setPassword = async (token, newPassword) => {
+    const response = await axios.put(
+        `${baseURL}/users/password/set`,
+        { newPassword },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
     return response.data;
 };
 

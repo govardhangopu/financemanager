@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { changePassword, updateProfile, deleteAccount, startGoogleLink, unlinkGoogle, getGoogleStatus } from "../api/authApi";
+import { setPassword, changePassword, updateProfile, deleteAccount, startGoogleLink, unlinkGoogle, getAuthStatus } from "../api/authApi";
 import "../styles/Settings.css";
 
 const sections = [
@@ -17,9 +17,17 @@ export default function Settings() {
     const { theme, changeTheme } = useTheme();
     const navigate = useNavigate();
 
-    const isGoogleAccount = user?.authProvider === "google";
-    const [googleStatus, setGoogleStatus] = useState({ connected: false, email: null });
-    const [googleStatusLoading, setGoogleStatusLoading] = useState(true);
+    const [authStatus, setAuthStatus] = useState({
+        authMethods: {
+            password: false,
+            google: false
+        },
+        googleEmail: null
+    });
+    const hasPasswordAuth = authStatus?.authMethods?.password === true;
+    const hasGoogleAuth = authStatus?.authMethods?.google === true;
+    const googleEmail = authStatus.googleEmail;
+    const [authStatusLoading, setAuthStatusLoading] = useState(true);
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [activeSection, setActiveSection] = useState("account");
@@ -56,23 +64,34 @@ export default function Settings() {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
 
-        if (matchError || sameError) return; // Block submit if dynamic errors exist
+        if (matchError || (hasPasswordAuth && sameError)) {
+            return;
+        }
 
         setPasswordLoading(true);
 
         try {
-            await changePassword(token, currentPassword, newPassword);
+            if (hasPasswordAuth) {
+                await changePassword(token, currentPassword, newPassword);
+            } else {
+                await setPassword(token, newPassword);
+            }
 
-            alert("Password changed successfully.");
+            alert(
+                hasPasswordAuth
+                    ? "Password changed successfully."
+                    : "Password set successfully."
+            );
+            const status = await getAuthStatus(token);
+            setAuthStatus(status);
 
+            setIsPasswordModalOpen(false);
             setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
-
-            setIsPasswordModalOpen(false);
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.message || "Failed to change password. Please try again.");
+            alert(err.response?.data?.message || "Unable to update password.");
         } finally {
             setPasswordLoading(false);
         }
@@ -153,35 +172,29 @@ export default function Settings() {
         try {
             await unlinkGoogle(token);
 
-            setGoogleStatus({
-                connected: false,
-                email: null
-            });
+            const status = await getAuthStatus(token);
+            setAuthStatus(status);
         } catch (err) {
             console.error(err);
-
-            alert(
-                err.response?.data?.message ||
-                "Unable to disconnect Google account."
-            );
+            alert(err.response?.data?.message || "Unable to disconnect Google account.");
         }
     };
 
     useEffect(() => {
-        const loadGoogleStatus = async () => {
+        const loadAuthStatus = async () => {
             if (!token) return;
 
             try {
-                const status = await getGoogleStatus(token);
-                setGoogleStatus(status);
+                const status = await getAuthStatus(token);
+                setAuthStatus(status);
             } catch (err) {
-                console.error("Failed to load Google account status:", err);
+                console.error("Failed to load authentication status:", err);
             } finally {
-                setGoogleStatusLoading(false);
+                setAuthStatusLoading(false);
             }
         };
 
-        loadGoogleStatus();
+        loadAuthStatus();
     }, [token]);
 
     useEffect(() => {
@@ -380,23 +393,12 @@ export default function Settings() {
                                         Email
                                     </label>
 
-                                    {isGoogleAccount ? (
-                                        <div className="settings-field-disabled">
-                                            {email}
-                                        </div>
-                                    ) : (
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                        />
-                                    )}
-
-                                    {isGoogleAccount && (
-                                        <p className="settings-field-hint">
-                                            Your email is managed by Google and cannot be changed here.
-                                        </p>
-                                    )}
+                                    <input
+                                        id="profile-email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="settings-form-actions">
@@ -465,17 +467,32 @@ export default function Settings() {
                             <p>Manage your account security.</p>
                         </div>
 
-                        {user.authProvider === "google" ? (
-                            <div className="settings-field">
-                                <span className="settings-field-label">Password</span>
-                                <p className="settings-option-description">Your account uses Google sign-in. Password changes are managed through Google.</p>
+                        {hasPasswordAuth ? (
+                            <div className="settings-security">
+                                <div>
+                                    <span className="settings-field-label">
+                                        Password
+                                    </span>
+
+                                    <p className="settings-option-description">
+                                        Change your Finance Manager password.
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="settings-secondary-button"
+                                    onClick={() => setIsPasswordModalOpen(true)}
+                                >
+                                    Change password
+                                </button>
                             </div>
                         ) : (
                             <div className="settings-security">
                                 <div>
                                     <span className="settings-field-label">Password</span>
                                     <p className="settings-option-description">
-                                        Keep your account protected with a strong password.
+                                        Add a password so you can also sign in without Google.
                                     </p>
                                 </div>
 
@@ -484,7 +501,7 @@ export default function Settings() {
                                     className="settings-primary-button"
                                     onClick={() => setIsPasswordModalOpen(true)}
                                 >
-                                    Change password
+                                    Set password
                                 </button>
                             </div>
                         )}
@@ -495,13 +512,13 @@ export default function Settings() {
                                     Google account
                                 </span>
 
-                                {googleStatusLoading ? (
+                                {authStatusLoading ? (
                                     <p className="settings-option-description">
                                         Checking...
                                     </p>
-                                ) : googleStatus.connected ? (
+                                ) : hasGoogleAuth ? (
                                     <p className="settings-option-description">
-                                        Connected as {googleStatus.email}
+                                        Connected as {googleEmail}
                                     </p>
                                 ) : (
                                     <p className="settings-option-description">
@@ -510,7 +527,7 @@ export default function Settings() {
                                 )}
                             </div>
 
-                            {googleStatusLoading ? (
+                            {authStatusLoading ? (
                                 <button
                                     type="button"
                                     className="settings-secondary-button"
@@ -518,7 +535,7 @@ export default function Settings() {
                                 >
                                     Checking...
                                 </button>
-                            ) : googleStatus.connected ? (
+                            ) : hasGoogleAuth ? (
                                 <button
                                     type="button"
                                     className="settings-secondary-button"
@@ -554,7 +571,6 @@ export default function Settings() {
                                 </p>
 
                                 <button type="button" className="settings-danger-button" onClick={() => setShowDeleteModal(true)}>
-                                    {/* <button type="button" className="settings-danger-button" onClick={handleDeleteAccount}></button> */}
                                     Delete account
                                 </button>
                             </div>
@@ -608,8 +624,13 @@ export default function Settings() {
                     >
                         <div className="settings-modal-header">
                             <div>
-                                <h2>Change password</h2>
-                                <p>Update your account password.</p>
+                                <h2>{hasPasswordAuth ? "Change password" : "Set password"}</h2>
+                                <p>
+                                    {hasPasswordAuth
+                                        ? "Update your account password."
+                                        : "Add a password to your account so you can sign in without Google."
+                                    }
+                                </p>
                             </div>
 
                             <button
@@ -624,27 +645,31 @@ export default function Settings() {
 
                         <form
                             className="settings-security-form"
+                            autoComplete="off"
                             onSubmit={handlePasswordChange}
                         >
-                            <div className="settings-field">
-                                <label
-                                    className="settings-field-label"
-                                    htmlFor="current-password"
-                                >
-                                    Current password
-                                </label>
+                            {hasPasswordAuth && (
+                                <div className="settings-field">
+                                    <label
+                                        className="settings-field-label"
+                                        htmlFor="current-password"
+                                    >
+                                        Current password
+                                    </label>
 
-                                <input
-                                    id="current-password"
-                                    type="password"
-                                    placeholder="Enter your current password"
-                                    value={currentPassword}
-                                    onChange={(e) =>
-                                        setCurrentPassword(e.target.value)
-                                    }
-                                    required
-                                />
-                            </div>
+                                    <input
+                                        id="current-password"
+                                        type="password"
+                                        autoComplete="off"
+                                        placeholder="Enter your current password"
+                                        value={currentPassword}
+                                        onChange={(e) =>
+                                            setCurrentPassword(e.target.value)
+                                        }
+                                        required
+                                    />
+                                </div>
+                            )}
 
                             <div className="settings-field">
                                 <label
@@ -657,6 +682,7 @@ export default function Settings() {
                                 <input
                                     id="new-password"
                                     type="password"
+                                    autoComplete="off"
                                     placeholder="Enter your new password"
                                     value={newPassword}
                                     onChange={(e) =>
@@ -682,6 +708,7 @@ export default function Settings() {
                                 <input
                                     id="confirm-password"
                                     type="password"
+                                    autoComplete="off"
                                     placeholder="Confirm your new password"
                                     value={confirmPassword}
                                     onChange={(e) =>
@@ -711,7 +738,10 @@ export default function Settings() {
                                     className="settings-primary-button"
                                     disabled={passwordLoading || matchError || sameError}
                                 >
-                                    {passwordLoading ? "Changing..." : "Change password"}
+                                    {passwordLoading
+                                        ? hasPasswordAuth ? "Changing..." : "Setting..."
+                                        : hasPasswordAuth ? "Change password" : "Set password"
+                                    }
                                 </button>
                             </div>
                         </form>

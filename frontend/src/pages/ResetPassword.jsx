@@ -4,7 +4,7 @@ import {
     verifyPasswordResetToken,
     resetPassword
 } from "../api/authApi";
-//import "../styles/ResetPassword.css";
+import "../styles/ResetPassword.css";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
