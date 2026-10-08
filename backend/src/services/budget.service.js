@@ -165,25 +165,48 @@ export const getBudgetProgress = async (userid, budgetid) => {
 
 // UPDATE
 export const update = async ({ userid, budgetid, target_amount, name, description, budget_type, start_date, end_date }) => {
-    if (!(budgetid &&
-        (target_amount !== undefined || name || description !== undefined || budget_type || start_date || end_date !== undefined)))
-        throw new Error('No data to update.');
+    const existing = await getOwnedBudget(userid, budgetid);
 
-    const status = calculateStatus(start_date, end_date);
+    const finalBudget = {
+        name: name !== undefined
+            ? name
+            : existing.name,
 
-    const updated = await repo.updateRow(
+        target_amount: target_amount !== undefined
+            ? target_amount
+            : existing.target_amount,
+
+        budget_type: budget_type !== undefined
+            ? budget_type
+            : existing.budget_type,
+
+        start_date: start_date !== undefined
+            ? start_date
+            : existing.start_date,
+
+        end_date: end_date !== undefined
+            ? end_date
+            : existing.end_date
+    };
+
+    validateBudget(finalBudget);
+
+    const status = calculateStatus(finalBudget.start_date, finalBudget.end_date);
+
+    return await repo.updateRow(
         userid,
         budgetid,
         status,
-        target_amount ?? null,
-        name,
-        description ?? null,
-        budget_type,
-        start_date,
-        end_date ?? null
+        Number(finalBudget.target_amount),
+        finalBudget.name.trim(),
+        description !== undefined
+            ? description?.trim() || null
+            : existing.description,
+        finalBudget.budget_type,
+        finalBudget.start_date,
+        finalBudget.end_date || null
     );
-    return updated;
-}
+};
 
 // DELETE
 export const deleteBudget = async (userid, budgetid) => {
