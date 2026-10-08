@@ -49,6 +49,7 @@ export default function Navbar() {
                 <nav>
                     <ul id="primary-navigation" className={isOpen ? "nav-links open" : "nav-links"}>
                         {token && <li><NavLink to="/dashboard">Dashboard</NavLink></li>}
+                        {token && <li><NavLink to="/categories">Categories</NavLink></li>}
                         {!token && <li><NavLink to="/login">Login</NavLink></li>}
                         {!token && <li><NavLink to="/signup">Sign Up</NavLink></li>}
                         {token && <li><NavLink to="/budgets">Budgets</NavLink></li>}

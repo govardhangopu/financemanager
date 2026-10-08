@@ -18,11 +18,8 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        //console.log("Selected category:", category);
-        if (category === "new_category") setShowNewCategoryForm(true);
-        else setShowNewCategoryForm(false);
-        //console.log("Show new category form:", showNewCategoryForm);
-    }, [newCategoryName, category]);
+        setShowNewCategoryForm(category === "new_category");
+    }, [category]);
 
     useEffect(() => {
         if (initialValues) {
@@ -40,8 +37,8 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
         let newErrors = {};
         if (!amount || parseFloat(amount) <= 0)
             newErrors.amount = "Amount must be a positive number.";
-        if (!category)
-            newErrors.category = "Please select a category for the transaction.";
+        if (category === "new_category")
+            newErrors.category = "Please finish creating the new category.";
         if (!date)
             newErrors.date = "Please select a date for the transaction.";
 
@@ -52,7 +49,7 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
         const transaction = {
             amount: parseFloat(amount),
             date: date,
-            categoryid: parseInt(category),
+            categoryid: category ? parseInt(category) : null,
             is_partial: mode === "partial" ? 1 : 0
         };
         await onSubmit(transaction);
@@ -64,19 +61,22 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
     };
 
     // Group categories into a parent-child tree structure
-    const parents = categories.filter(cat => cat.parent_categoryid === null);
     const sortedCategories = [];
 
-    parents.forEach(parent => {
-        // Add the parent category
-        sortedCategories.push({ ...parent, isChild: false });
+    const addCategoryAndChildren = (parentId, depth = 0) => {
+        const children = categories.filter(cat => cat.parent_categoryid === parentId);
 
-        // Find and add all children of this parent category
-        const children = categories.filter(cat => cat.parent_categoryid === parent.categoryid);
-        children.forEach(child => {
-            sortedCategories.push({ ...child, isChild: true });
+        children.forEach(category => {
+            sortedCategories.push({
+                ...category,
+                depth
+            });
+
+            addCategoryAndChildren(category.categoryid, depth + 1);
         });
-    });
+    };
+
+    addCategoryAndChildren(null);
 
     return (
         <div className="form-container">
@@ -97,13 +97,13 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                         <label htmlFor="categories">Category:</label>
                         <select className={showNewCategoryForm ? "show-cat-form" : ""} id="categories" value={category || ""}
                             onChange={e => setCategory(e.target.value)}>
-                            <option value="">Select a category</option>
+                            <option value="">No category</option>
                             {categoriesLoading ? (
                                 <option value="">Loading categories...</option>
                             ) : (
                                 sortedCategories.map(cat => (
                                     <option key={Number(cat.categoryid)} value={cat.categoryid}>
-                                        {cat.isChild ? `\u00A0\u00A0↳ ${cat.name}` : cat.name}
+                                        {`${"\u00A0\u00A0".repeat(cat.depth)}${cat.depth > 0 ? "↳ " : ""}${cat.name}`}
                                     </option>
                                 ))
                             )}
@@ -126,7 +126,7 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                         setNewType(parentType);
                                     } else {
                                         setParentCategory("");
-                                        setNewType(null);
+                                        setNewType("");
                                     }
                                 }} >
                                 <option value="">None</option>
@@ -174,6 +174,14 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                         setNewType("");
                                     }).catch(err => {
                                         console.error("Error creating category:", err);
+
+                                        setErrors(prev => ({
+                                            ...prev,
+                                            newCategoryName:
+                                                err.response?.data?.message ||
+                                                err.message ||
+                                                "Failed to create category."
+                                        }));
                                     });
                                 } else {
                                     setErrors(prev => ({ ...prev, newCategoryName: "Category name cannot be empty." }));

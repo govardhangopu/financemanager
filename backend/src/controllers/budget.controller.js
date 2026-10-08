@@ -15,34 +15,37 @@ export const addBudget = async (req, res, next) => {
 
 export const addCategoryToBudget = async (req, res, next) => {
     try {
+        const userid = req.user.id;
         const { budgetid, categoryid } = req.params;
-        const response = await budgetService.addCategoryToBudget(budgetid, categoryid);
+        const response = await budgetService.addCategoryToBudget(userid, budgetid, categoryid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const addTransactionToBudget = async (req, res, next) => {
     try {
+        const userid = req.user.id;
         const { budgetid, transactionid } = req.params;
-        const response = await budgetService.addTransactionToBudget(budgetid, transactionid);
+        const response = await budgetService.addTransactionToBudget(userid, budgetid, transactionid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 // FETCH
 export const getBudgetById = async (req, res, next) => {
     try {
-        const budgetid = req.params.budgetid;
-        const response = await budgetService.getBudgetById(budgetid);
+        const userid = req.user.id;
+        const { budgetid } = req.params;
+        const response = await budgetService.getBudgetById(userid, budgetid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const getAllBudgets = async (req, res, next) => {
     try {
@@ -55,33 +58,36 @@ export const getAllBudgets = async (req, res, next) => {
 
 export const getBudgetTransactions = async (req, res, next) => {
     try {
-        const budgetid = req.params.budgetid;
-        const response = await budgetService.getBudgetTransactions(budgetid);
+        const userid = req.user.id;
+        const { budgetid } = req.params;
+        const response = await budgetService.getBudgetTransactions(userid, budgetid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const getBudgetCategories = async (req, res, next) => {
     try {
-        const budgetid = req.params.budgetid;
-        const response = await budgetService.getBudgetCategories(budgetid);
+        const userid = req.user.id;
+        const { budgetid } = req.params;
+        const response = await budgetService.getBudgetCategories(userid, budgetid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const getBudgetProgress = async (req, res, next) => {
     try {
-        const budgetid = req.params.budgetid;
-        const response = await budgetService.getBudgetProgress(budgetid);
+        const userid = req.user.id;
+        const { budgetid } = req.params;
+        const response = await budgetService.getBudgetProgress(userid, budgetid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 // UPDATE
 export const updateBudget = async (req, res, next) => {
@@ -110,20 +116,22 @@ export const deleteBudget = async (req, res, next) => {
 
 export const deleteCategoryFromBudget = async (req, res, next) => {
     try {
+        const userid = req.user.id;
         const { budgetid, categoryid } = req.params;
-        const response = await budgetService.removeCategoryFromBudget(budgetid, categoryid);
+        const response = await budgetService.removeCategoryFromBudget(userid, budgetid, categoryid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const deleteTransactionFromBudget = async (req, res, next) => {
     try {
+        const userid = req.user.id;
         const { budgetid, transactionid } = req.params;
-        const response = await budgetService.removeTransactionFromBudget(budgetid, transactionid);
+        const response = await budgetService.removeTransactionFromBudget(userid, budgetid, transactionid);
         res.json(response);
     } catch (err) {
         next(err);
     }
-}
+};

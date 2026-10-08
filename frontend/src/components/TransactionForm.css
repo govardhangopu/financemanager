@@ -8,6 +8,7 @@
     color: var(--text-color);
     border-radius: 16px;
     padding: 2rem;
+    text-align: center;
 }
 
 .form-container h2 {

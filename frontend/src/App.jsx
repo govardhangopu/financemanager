@@ -8,6 +8,7 @@ import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard"
 import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
+import Categories from "./pages/Categories";
 import Budgets from "./pages/Budgets"
 import BudgetDetail from "./pages/BudgetDetail"
 import Scenarios from "./pages/Scenarios"
@@ -39,6 +40,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
             <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
             <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />
             <Route path="/budgets" element={<ProtectedRoute><Budgets /></ProtectedRoute>} />

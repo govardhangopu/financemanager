@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useFinance } from '../../context/FinanceContext';
+import { useFinance } from '../../context/FinanceContext.jsx';
 import { prepareTransactionsForRange } from '../../utils/prepareTransactionsForRange.js';
 import { buildCumulativeSeries } from '../../utils/buildCumulativeSeries.js';
 import { GenericChart } from "../GenericChart.jsx";
 import Loader from '../Loader.jsx';
-import './NetWorthCard.css';
+import './NetFlowCard.css';
 
-export default function NetWorthCard()  {
+export default function NetFlowCard()  {
     const [range, setRange] = useState("all");
     let { netWorth, transactions, transactionsLoading } = useFinance();
 
@@ -26,13 +26,13 @@ export default function NetWorthCard()  {
         else if (transaction.type === "expense")
             return sum - parseFloat(transaction.amount);
     })
-    const dataset = [{ label: "Net Worth", data: values, borderColor: "#008080", backgroundColor: "#008080" }];
+    const dataset = [{ label: "Net Flow", data: values, borderColor: "#008080", backgroundColor: "#008080" }];
 
     return (
         <div>
-            <p className="heading">Net Worth</p>
+            <p className="heading">Net Flow</p>
             { transactionsLoading ? <Loader text="Loading..." /> : <>
-            <p className="networth">$ {netWorth} {netWorth >= 0 ? `↗`: '↘'}</p>
+            <p className="netflow">₹ {netWorth} {netWorth >= 0 ? `↗`: '↘'}</p>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>

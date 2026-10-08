@@ -20,6 +20,15 @@ export default function BudgetDetail() {
     const [edits, setEdits] = useState({ name: "", description: "", targetAmount: "", startDate: "", endDate: "" });
     const { id } = useParams();
 
+    const totalSpent = linkedTransactions.reduce(
+        (sum, transaction) => sum + Number(transaction.amount),
+        0
+    );
+
+    const targetAmount = Number(budget?.target_amount || 0);
+
+    const remainingAmount = targetAmount - totalSpent;
+
     useEffect(() => {
         loadBudgetData();
     }, [id])
@@ -49,24 +58,56 @@ export default function BudgetDetail() {
     }
 
     async function handleUpdate() {
-        if (!confirm("Are you sure you want to save changes to this budget?")) return;
-        try {
-            const payload = {
-                budgetid: id,
-                name: edits.name.trim(),
-                description: edits.description.trim() || null,
-                target_amount: edits.targetAmount === "" ? null : Number(edits.targetAmount),
-                start_date: edits.startDate || null,
-                end_date: edits.endDate || null
-            };
+        const name = edits.name.trim();
+        const targetAmount = Number(edits.targetAmount);
 
-            await updateBudget(payload);
+        if (!name) {
+            alert("Budget name is required.");
+            return;
+        }
+
+        if (!edits.targetAmount || targetAmount <= 0) {
+            alert("Target amount must be greater than zero.");
+            return;
+        }
+
+        if (!edits.startDate) {
+            alert("Start date is required.");
+            return;
+        }
+
+        if (
+            edits.endDate &&
+            new Date(edits.endDate) < new Date(edits.startDate)
+        ) {
+            alert("End date cannot be before start date.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to save changes to this budget?")) {
+            return;
+        }
+
+        try {
+            await updateBudget({
+                budgetid: id,
+                name,
+                description: edits.description.trim() || null,
+                target_amount: targetAmount,
+                start_date: edits.startDate,
+                end_date: edits.endDate || null
+            });
+
             setIsEditing(false);
-            loadBudgetData();
+            await loadBudgetData();
             refreshBudgets();
         } catch (err) {
             console.error("Failed to update budget:", err);
-            alert("Failed to update budget.");
+
+            alert(
+                err.response?.data?.message ||
+                "Failed to update budget."
+            );
         }
     }
 
@@ -84,7 +125,11 @@ export default function BudgetDetail() {
     }
 
     const linkableCategories = categories.filter(
-        (cat) => !linkedCategories.some((lc) => lc.categoryid === cat.categoryid)
+        (cat) =>
+            cat.type === "expense" &&
+            !linkedCategories.some(
+                (lc) => lc.categoryid === cat.categoryid
+            )
     );
     //console.log("Linkable Categories:", linkableCategories);
 
@@ -238,7 +283,7 @@ export default function BudgetDetail() {
                             <div className="skeleton-box" style={{ width: '100px', height: '33.6px' }} />
                         ) : (
                             <span className="stat-value spent-amount">
-                                ₹{linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0).toLocaleString()}
+                                ₹{totalSpent.toLocaleString()}
                             </span>
                         )}
                     </div>
@@ -249,8 +294,8 @@ export default function BudgetDetail() {
                         {loading ? (
                             <div className="skeleton-box" style={{ width: '120px', height: '33.6px' }} />
                         ) : (
-                            <span className={`stat-value remaining-amount ${(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)) < 0 ? 'deficit' : 'surplus'}`}>
-                                ₹{(budget?.target_amount - linkedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0)).toLocaleString()}
+                            <span className={`stat-value remaining-amount ${(budget?.target_amount - remainingAmount) < 0 ? 'deficit' : 'surplus'}`}>
+                                ₹{(budget?.target_amount - remainingAmount).toLocaleString()}
                             </span>
                         )}
                     </div>
@@ -308,7 +353,7 @@ export default function BudgetDetail() {
                                     <span>Start Date:</span>
                                     <input
                                         className="inline-stat-input"
-                                        style={{gridColumn: "span 2 / span 2", fontSize: '14px'}}
+                                        style={{ gridColumn: "span 2 / span 2", fontSize: '14px' }}
                                         type="date"
                                         value={edits.startDate}
                                         onChange={(e) => setEdits({ ...edits, startDate: e.target.value })}
@@ -319,7 +364,7 @@ export default function BudgetDetail() {
                                     <span>End Date:</span>
                                     <input
                                         className="inline-stat-input"
-                                        style={{gridColumn: "span 2 / span 2", fontSize: '14px'}}
+                                        style={{ gridColumn: "span 2 / span 2", fontSize: '14px' }}
                                         type="date"
                                         value={edits.endDate || ""}
                                         onChange={(e) => setEdits({ ...edits, endDate: e.target.value })}

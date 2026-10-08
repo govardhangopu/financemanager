@@ -71,11 +71,17 @@ export const fetchDescendants = async (userid, categoryid) => {
 export const updateCategory = async (userid, categoryid, name, parent_categoryid, is_partial) => {
     const pool = connectDB();
 
-    const fields = [], values = [];
+    const fields = [];
+    const values = [];
 
-    if (name) fields.push("name = ?") && values.push(name);
-    if (parent_categoryid) fields.push("parent_categoryid = ?") && values.push(parent_categoryid);
-    if (is_partial) fields.push("is_partial = ?") && values.push(is_partial);
+    if (name !== undefined)
+        fields.push("name = ?") && values.push(name);
+    if (parent_categoryid !== undefined)
+        fields.push("parent_categoryid = ?") && values.push(parent_categoryid);
+    if (is_partial !== undefined)
+        fields.push("is_partial = ?") && values.push(is_partial);
+    if (fields.length === 0)
+        return [];
 
     const sql = `
     UPDATE categories SET 
@@ -88,7 +94,7 @@ export const updateCategory = async (userid, categoryid, name, parent_categoryid
 
     const [rows] = await pool.query(sql, values);
     return rows;
-}
+};
 
 // DELETE
 export const deleteCategory = async (userid, categoryid) => {

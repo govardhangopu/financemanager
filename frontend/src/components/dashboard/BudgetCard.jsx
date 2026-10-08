@@ -21,7 +21,7 @@ export default function BudgetCard() {
                         <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
                             <h3>{budget.name}</h3>
                             {budget.description && <p>{budget.description}</p> }
-                            <p>Target: ${budget.target_amount}</p>
+                            <p>Target: ₹{budget.target_amount}</p>
                             <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
                             <p>Start: {new Date(budget.start_date).toLocaleDateString()}</p>
                             <p>End: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>

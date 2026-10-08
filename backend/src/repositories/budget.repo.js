@@ -21,47 +21,101 @@ export const attachCategoryToBudget = async (budgetid, categoryid) => {
 }
 
 // FETCH
-export const fetchBudgetById = async (budgetid) => {
+export const fetchBudgetById = async (userid, budgetid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`SELECT * FROM budgets WHERE budgetid = ?`, [budgetid]);
+    const [rows] = await pool.query(`SELECT * FROM budgets WHERE budgetid = ? AND userid = ?`, [budgetid, userid]);
     return rows;
-}
+};
 
 export const fetchAllBudgets = async (userid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`
-        SELECT b.*, 
+    const [rows] = await pool.query(
+        `
+        SELECT
+            b.*,
+
             COALESCE((
                 SELECT SUM(t.amount)
                 FROM transactions t
-                JOIN categories c ON t.categoryid = c.categoryid                  -- 👈 Add categories join
-                LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
-                LEFT JOIN budget_categories bc ON (t.categoryid = bc.categoryid OR c.parent_categoryid = bc.categoryid) AND bc.budgetid = b.budgetid -- 👈 OR subcategories
-                WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
-                  AND t.date >= b.start_date                              -- 👈 Must start after budget start
-                  AND (b.end_date IS NULL OR t.date <= b.end_date)         -- 👈 Must end before budget end (if set)
-            ), 0) as spent_amount
+                INNER JOIN categories c
+                    ON t.categoryid = c.categoryid
+
+                WHERE t.categoryid IN (
+                    WITH RECURSIVE budget_category_tree AS (
+                        SELECT bc.categoryid
+                        FROM budget_categories bc
+                        WHERE bc.budgetid = b.budgetid
+
+                        UNION ALL
+
+                        SELECT child.categoryid
+                        FROM categories child
+                        INNER JOIN budget_category_tree parent
+                            ON child.parent_categoryid = parent.categoryid
+                    )
+
+                    SELECT categoryid
+                    FROM budget_category_tree
+                )
+
+                AND c.type = 'expense'
+                AND t.date >= b.start_date
+                AND (
+                    b.end_date IS NULL
+                    OR t.date <= b.end_date
+                )
+            ), 0) AS spent_amount
+
         FROM budgets b
         WHERE b.userid = ?
-    `, [userid]);
+        `,
+        [userid]
+    );
     return rows;
-}
+};
 
 export const fetchBudgetTransactions = async (budgetid) => {
     const pool = connectDB();
-    const [rows] = await pool.query(`
-        SELECT DISTINCT t.*, c.name as category_name, c.type, c.parent_categoryid 
+    const [rows] = await pool.query(
+        `
+        WITH RECURSIVE budget_category_tree AS (
+            SELECT bc.categoryid
+            FROM budget_categories bc
+            WHERE bc.budgetid = ?
+
+            UNION ALL
+
+            SELECT c.categoryid
+            FROM categories c
+            INNER JOIN budget_category_tree bct
+                ON c.parent_categoryid = bct.categoryid
+        )
+
+        SELECT DISTINCT
+            t.*,
+            c.name AS category_name,
+            c.type,
+            c.parent_categoryid
         FROM transactions t
-        JOIN categories c ON t.categoryid = c.categoryid
-        JOIN budgets b ON b.budgetid = ?                                  -- 👈 JOIN the budget to get its dates
-        LEFT JOIN budget_transactions bt ON t.transactionid = bt.transactionid AND bt.budgetid = b.budgetid
-        LEFT JOIN budget_categories bc ON (t.categoryid = bc.categoryid OR c.parent_categoryid = bc.categoryid) AND bc.budgetid = b.budgetid -- 👈 OR subcategories
-        WHERE (bt.budgetid IS NOT NULL OR bc.budgetid IS NOT NULL)
-          AND t.date >= b.start_date                                      -- 👈 Date check
-          AND (b.end_date IS NULL OR t.date <= b.end_date)                -- 👈 Date check
-    `, [budgetid]);                                                       // 👈 Only need to pass budgetid once now!
+        INNER JOIN categories c
+            ON t.categoryid = c.categoryid
+        INNER JOIN budgets b
+            ON b.budgetid = ?
+        WHERE t.categoryid IN (
+            SELECT categoryid
+            FROM budget_category_tree
+        )
+        AND c.type = 'expense'
+        AND t.date >= b.start_date
+        AND (
+            b.end_date IS NULL
+            OR t.date <= b.end_date
+        )
+        `,
+        [budgetid, budgetid]
+    );
     return rows;
-}
+};
 
 export const fetchBudgetCategories = async (budgetid) => {
     const pool = connectDB();
@@ -78,10 +132,10 @@ export const updateRow = async (userid, budgetid, status, target_amount, name, d
 
     if (status) fields.push("status = ?") && values.push(status);
     if (target_amount !== undefined) fields.push("target_amount = ?") && values.push(target_amount);
-    if (name) fields.push("name = ?") && values.push(name);
+    if (name !== undefined) fields.push("name = ?") && values.push(name);
     if (description !== undefined) fields.push("description = ?") && values.push(description);
     if (budget_type) fields.push("budget_type = ?") && values.push(budget_type);
-    if (start_date) fields.push("start_date = ?") && values.push(start_date);
+    if (start_date!== undefined) fields.push("start_date = ?") && values.push(start_date);
     if (end_date !== undefined) fields.push("end_date = ?") && values.push(end_date);
 
     const sql = `

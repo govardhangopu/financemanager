@@ -1,4 +1,58 @@
 import * as repo from "../repositories/budget.repo.js";
+import * as categoryRepo from "../repositories/category.repo.js";
+
+const VALID_BUDGET_TYPES = [
+    "monthly",
+    "yearly",
+    "one_time",
+    "other"
+];
+
+const validateBudget = ({
+    name,
+    target_amount,
+    budget_type,
+    start_date,
+    end_date
+}) => {
+    if (!name?.trim()) {
+        throw new Error("Budget name is required.");
+    }
+
+    if (
+        target_amount === undefined ||
+        target_amount === null ||
+        Number(target_amount) <= 0
+    ) {
+        throw new Error("Target amount must be greater than zero.");
+    }
+
+    if (!VALID_BUDGET_TYPES.includes(budget_type)) {
+        throw new Error("Invalid budget type.");
+    }
+
+    if (!start_date) {
+        throw new Error("Start date is required.");
+    }
+
+    const start = new Date(start_date);
+
+    if (Number.isNaN(start.getTime())) {
+        throw new Error("Invalid start date.");
+    }
+
+    if (end_date) {
+        const end = new Date(end_date);
+
+        if (Number.isNaN(end.getTime())) {
+            throw new Error("Invalid end date.");
+        }
+
+        if (end < start) {
+            throw new Error("End date cannot be before start date.");
+        }
+    }
+};
 
 // Dynamic Status Calculator
 const calculateStatus = (start_date, end_date) => {
@@ -24,17 +78,40 @@ const calculateStatus = (start_date, end_date) => {
     return "active";
 };
 
+const getOwnedBudget = async (userid, budgetid) => {
+    const budgets = await repo.fetchBudgetById(userid, budgetid);
+
+    if (budgets.length === 0) {
+        throw new Error("Budget not found.");
+    }
+
+    return budgets[0];
+};
+
 // ADD
 export const addBudget = async ({ userid, target_amount, name, description, budget_type, start_date, end_date }) => {
-    const status = calculateStatus(start_date, end_date);
-    const newBudget = await repo.create(userid, status, target_amount || null, name, description || null, budget_type, start_date, end_date || null);
-    return newBudget;
-}
+    validateBudget({ name, target_amount, budget_type, start_date, end_date });
 
-export const addCategoryToBudget = async (budgetid, categoryid) => {
-    const attached = await repo.attachCategoryToBudget(budgetid, categoryid);
-    return attached;
-}
+    const status = calculateStatus(start_date, end_date);
+
+    return await repo.create(userid, status, Number(target_amount), name.trim(), description?.trim() || null, budget_type, start_date, end_date || null);
+};
+
+export const addCategoryToBudget = async (userid, budgetid, categoryid) => {
+    await getOwnedBudget(userid, budgetid);
+
+    const category = await categoryRepo.fetchById(userid, categoryid);
+
+    if (category.length === 0) {
+        throw new Error("Category not found or not accessible.");
+    }
+
+    if (category[0].type !== "expense") {
+        throw new Error("Only expense categories can be added to a budget.");
+    }
+
+    return await repo.attachCategoryToBudget(budgetid, categoryid);
+};
 
 export const addTransactionToBudget = async (budgetid, transactionid) => {
     const attached = await repo.attachTransactionToBudget(budgetid, transactionid);
@@ -42,17 +119,15 @@ export const addTransactionToBudget = async (budgetid, transactionid) => {
 }
 
 // FETCH
-export const getBudgetById = async (budgetid) => {
-    const budget = await repo.fetchBudgetById(budgetid);
+export const getBudgetById = async (userid, budgetid) => {
+    const budget = await getOwnedBudget(userid, budgetid);
 
-    if (budget.length) {
-        budget[0].status = calculateStatus(
-            budget[0].start_date,
-            budget[0].end_date
-        );
-    }
+    const status = calculateStatus(
+        budget.start_date,
+        budget.end_date
+    );
 
-    return budget;
+    return [{ ...budget, status }];
 };
 
 export const getAllBudgets = async (userid) => {
@@ -67,25 +142,26 @@ export const getAllBudgets = async (userid) => {
     }));
 };
 
-export const getBudgetTransactions = async (budgetid) => {
-    const transactions = await repo.fetchBudgetTransactions(budgetid);
-    return transactions;
-}
+export const getBudgetTransactions = async (userid, budgetid) => {
+    await getOwnedBudget(userid, budgetid);
+    return await repo.fetchBudgetTransactions(budgetid);
+};
 
-export const getBudgetCategories = async (budgetid) => {
-    const categories = await repo.fetchBudgetCategories(budgetid);
-    return categories;
-}
+export const getBudgetCategories = async (userid, budgetid) => {
+    await getOwnedBudget(userid, budgetid);
+    return await repo.fetchBudgetCategories(budgetid);
+};
 
-export const getBudgetProgress = async (budgetid) => {
-    const budget = await repo.fetchBudgetById(budgetid);
-    if (!budget.length) throw new Error('Budget not found');
-    const { target_amount } = budget[0];
+export const getBudgetProgress = async (userid, budgetid) => {
+    const budget = await getOwnedBudget(userid, budgetid);
     const transactions = await repo.fetchBudgetTransactions(budgetid);
-    const totalSpent = transactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    const progress = target_amount ? Math.min((totalSpent / target_amount) * 100, 100) : 0;
+    const totalSpent = transactions.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
+
+    const targetAmount = Number(budget.target_amount);
+
+    const progress = targetAmount > 0 ? Math.min((totalSpent / targetAmount) * 100, 100) : 0;
     return { progress };
-}
+};
 
 // UPDATE
 export const update = async ({ userid, budgetid, target_amount, name, description, budget_type, start_date, end_date }) => {
@@ -115,10 +191,10 @@ export const deleteBudget = async (userid, budgetid) => {
     return deleted;
 }
 
-export const removeCategoryFromBudget = async (budgetid, categoryid) => {
-    const detached = await repo.detachCategoryFromBudget(budgetid, categoryid);
-    return detached;
-}
+export const removeCategoryFromBudget = async (userid, budgetid, categoryid) => {
+    await getOwnedBudget(userid, budgetid);
+    return await repo.detachCategoryFromBudget(budgetid, categoryid);
+};
 
 export const removeTransactionFromBudget = async (budgetid, transactionid) => {
     const detached = await repo.detachTransactionFromBudget(budgetid, transactionid);

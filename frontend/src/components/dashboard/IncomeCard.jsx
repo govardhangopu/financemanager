@@ -30,7 +30,7 @@ export default function IncomeCard() {
         <div>
             <p className="heading">Incomes</p>
             { transactionsLoading ? <Loader text="Loading..." /> : <>
-            <p className="totalIncome">$ {totalIncome}</p>
+            <p className="totalIncome">₹ {totalIncome}</p>
             <select name="timerange" id="timerange" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>

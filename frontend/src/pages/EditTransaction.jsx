@@ -8,7 +8,7 @@ import "../styles/EditTransaction.css";
 
 export default function EditTransaction() {
     const { id } = useParams();
-    const { transactions, transactionLoading, categories, categoriesLoading, refreshTransactions, scenarios } = useFinance();
+    const { transactions, transactionLoading, refreshTransactions, scenarios } = useFinance();
     const navigate = useNavigate();
     const transaction = transactions.find(t => t.transactionid === parseInt(id));
     const [amount, setAmount] = useState("");
