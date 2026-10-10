@@ -9,7 +9,7 @@ const Dashboard = () => {
     const { user } = useAuth();
 
     return (
-        <main>
+        <div className="dashboard-page">
             <div id="container">
                 <div id="header">Welcome, <span id="name">{user.name}</span></div>
                 <div id="dashboard">
@@ -26,7 +26,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     )
 }
 

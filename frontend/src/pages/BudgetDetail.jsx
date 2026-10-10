@@ -165,11 +165,6 @@ export default function BudgetDetail() {
 
     return (
         <main className="budget-detail-page">
-            {/* Back Button */}
-            <button className="material-symbols-outlined back-btn" onClick={() => navigate("/budgets", { replace: true })}>
-                ←
-            </button>
-
             {/* Modern Inline Edit Card */}
             <div className={`budget-detail-card ${isEditing ? "editing-mode" : ""}`}>
 
@@ -294,8 +289,8 @@ export default function BudgetDetail() {
                         {loading ? (
                             <div className="skeleton-box" style={{ width: '120px', height: '33.6px' }} />
                         ) : (
-                            <span className={`stat-value remaining-amount ${(budget?.target_amount - remainingAmount) < 0 ? 'deficit' : 'surplus'}`}>
-                                ₹{(budget?.target_amount - remainingAmount).toLocaleString()}
+                            <span className={`stat-value remaining-amount ${remainingAmount < 0 ? "deficit" : "surplus"}`}>
+                                ₹{remainingAmount.toLocaleString("en-IN")}
                             </span>
                         )}
                     </div>

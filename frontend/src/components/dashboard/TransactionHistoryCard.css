@@ -45,7 +45,7 @@
     border-collapse: collapse;
 }
 
-tbody td {
+#transactiontable tbody td {
     border-bottom: 1px solid var(--border-color);
     padding-block: 15px;
     overflow: hidden;
@@ -73,16 +73,40 @@ tbody td {
     border-color: #000000;
 }
 
-.income {
+#transactiontable .income {
     color: green;
 }
 
-.expense {
+#transactiontable .expense {
     color: red;
 }
 
 @media (max-width: 1024px) {
     #transactiontable {
         font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 1025px) {
+    #transactionHistoryCard {
+        max-height: none;
+        min-height: 0;
+    }
+
+    #newlayout {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        height: auto !important;
+    }
+
+    #newlayout #cardHeader {
+        flex: 0 0 auto;
+    }
+
+    #transactions {
+        flex: 1;
+        min-height: 0;
     }
 }

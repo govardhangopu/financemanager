@@ -35,8 +35,11 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
     const handleSubmit = async (e) => {
         e.preventDefault();
         let newErrors = {};
-        if (!amount || parseFloat(amount) <= 0)
+        const numericAmount = Number(amount);
+
+        if (!amount.trim() || !Number.isFinite(numericAmount) || numericAmount <= 0) {
             newErrors.amount = "Amount must be a positive number.";
+        }
         if (category === "new_category")
             newErrors.category = "Please finish creating the new category.";
         if (!date)
@@ -46,18 +49,19 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
         if (Object.keys(newErrors).length > 0) return;
 
         setSaving(true);
-        const transaction = {
-            amount: parseFloat(amount),
-            date: date,
-            categoryid: category ? parseInt(category) : null,
-            is_partial: mode === "partial" ? 1 : 0
-        };
-        await onSubmit(transaction);
-        setAmount("");
-        setDate("");
-        setCategory("");
-        //setIsPartial(0);
-        setSaving(false);
+
+        try {
+            const transaction = {
+                amount: Number(amount),
+                date,
+                categoryid: category ? Number(category) : null,
+                is_partial: mode === "partial" ? 1 : 0,
+            };
+
+            await onSubmit(transaction);
+        } finally {
+            setSaving(false);
+        }
     };
 
     // Group categories into a parent-child tree structure

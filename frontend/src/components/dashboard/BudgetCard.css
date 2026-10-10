@@ -1,10 +1,15 @@
 .budget_card_container {
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 240px; /* Adjusted to let the starting bits of the next card peek through */
+    max-height: 190px; /* Adjusted to let the starting bits of the next card peek through */
     display: grid;
     margin-top: 10px;
     gap: 20px;
+}
+
+.budget_card_container .budget_card:hover,
+.budget_card_container .budget_card:focus-visible {
+    text-decoration: none;
 }
 
 @media (min-width: 1025px) {
@@ -16,6 +21,8 @@
 }
 
 .budget_card_container .budget_card {
+    display: block;
+    text-decoration: none;
     background-color: var(--card-inner-bg);
     color: var(--text-color);
     border-radius: 24px;

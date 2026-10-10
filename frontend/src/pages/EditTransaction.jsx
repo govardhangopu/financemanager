@@ -8,7 +8,7 @@ import "../styles/EditTransaction.css";
 
 export default function EditTransaction() {
     const { id } = useParams();
-    const { transactions, transactionLoading, refreshTransactions, scenarios } = useFinance();
+    const { transactions, transactionsLoading, refreshTransactions, scenarios } = useFinance();
     const navigate = useNavigate();
     const transaction = transactions.find(t => t.transactionid === parseInt(id));
     const [amount, setAmount] = useState("");
@@ -18,7 +18,7 @@ export default function EditTransaction() {
     const [showScenarioPicker, setShowScenarioPicker] = useState(false);
 
     useEffect(() => {
-        if (transactionLoading) return;
+        if (transactionsLoading) return;
         if (!transaction) {
             alert("Transaction not found");
             navigate("/dashboard");
@@ -28,12 +28,17 @@ export default function EditTransaction() {
         setDate(new Date(transaction.date).toISOString().split("T")[0]);
         setCategory(transaction.categoryid);
         setIsPartial(transaction.is_partial);
-    }, [transactionLoading, transaction, navigate]);
+    }, [transactionsLoading, transaction, navigate]);
 
-    const handleSubmit = async (transaction) => {
-        console.log(`Updating transaction: ${JSON.stringify(transaction)}`);
+    const handleSubmit = async (transactionData) => {
+        const transactionUpdate = {
+            ...transactionData,
+            transactionid: transaction.transactionid
+        };
+
+        console.log(`Updating transaction: ${JSON.stringify(transactionUpdate)}`);
         try {
-            const res = await updateTransaction(transaction);
+            await updateTransaction(transactionUpdate);
             console.log("Transaction updated successfully");
             refreshTransactions();
             navigate("/dashboard");
@@ -47,7 +52,7 @@ export default function EditTransaction() {
     }
     return (
         <main>
-            {transactionLoading ? (
+            {transactionsLoading ? (
                 <div>Loading...</div>
             ) : (
                 <>

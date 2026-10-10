@@ -337,14 +337,6 @@ export default function ScenarioDetail() {
 
     return (
         <div className="scenario-detail-page">
-
-            <button
-                className="back-btn"
-                onClick={() => navigate("/scenarios", { replace: true })}
-            >
-                ←
-            </button>
-
             <div
                 className={`scenario-detail-card ${isEditing ? "editing-mode" : ""
                     }`}

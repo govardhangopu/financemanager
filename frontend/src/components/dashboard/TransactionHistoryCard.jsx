@@ -60,7 +60,7 @@ export default function TransactionHistoryCard() {
 
     const deleteTrans = (e, t) => {
         e.preventDefault();
-        if(!confirm(`Do you want to delete Transaction ID: ${t.transactionid} Amount: ${t.amount}?`)) return;
+        if(!confirm(`Do you want to delete Transaction ID: ₹{t.transactionid} Amount: ₹{t.amount}?`)) return;
         deleteTransaction(t.transactionid)
             .then(res => {
                 console.log("Transaction deleted successfully.");
@@ -75,7 +75,7 @@ export default function TransactionHistoryCard() {
         <div id="transactionHistoryCard">
             Transaction History
             { transactionsLoading ? <Loader text="Loading transactions..." /> : <>
-            <select name="timerange" id="timerange" 
+            <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
                     <option value="month">This month</option>
@@ -86,7 +86,7 @@ export default function TransactionHistoryCard() {
             
             <div id="newlayout">
                 {
-                    selectedTransactions.length < 0 ? "No transactions available." : <>
+                    selectedTransactions.length === 0 ? "No transactions available for this time range." : <>
                     <div id="cardHeader">
                         <tr>
                             <td id="category">Category</td>
@@ -109,8 +109,8 @@ export default function TransactionHistoryCard() {
                                         <td className={t.type}>
                                         {
                                             t.type === "income" 
-                                            ? "+$" + t.amount
-                                            : "-$" + t.amount
+                                            ? "+₹" + t.amount
+                                            : "-₹" + t.amount
                                         }</td>
                                         <td className="date">{new Date(t.date).toLocaleString()}</td>
                                         <td>

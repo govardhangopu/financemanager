@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useFinance } from "../context/FinanceContext";
 import { addBudget } from "../api/budgetsApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/Budgets.css"
 
 export default function Budgets() {
@@ -15,6 +15,8 @@ export default function Budgets() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
+    const [isCreating, setIsCreating] = useState(false);
+    const [createError, setCreateError] = useState("");
     const [errors, setErrors] = useState({ name: "", target: "", type: "", start: "", end: "" });
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -41,7 +43,7 @@ export default function Budgets() {
         return sum;
     }, 0);
 
-    function handleCreate() {
+    const handleCreate = async (e) => {
         let newErrors = {};
         if (!name) newErrors.name = "Budget name is required.";
         if (!targetAmount || parseFloat(targetAmount) <= 0) newErrors.target = "Target amount must be a positive number.";
@@ -64,29 +66,44 @@ export default function Budgets() {
         };
 
         //console.log("New budget data:", newBudget);
-        addBudget(newBudget)
-            .then((res) => {
-                //console.log("Budget created successfully:", res);
-                refreshBudgets();
-                setName("");
-                setDescription("");
-                setTargetAmount("");
-                setBudgetType("");
-                setStartDate("");
-                setEndDate("");
-                if (res && res.insertId) {
-                    navigate(`/budgets/${res.insertId}`);
-                }
-            })
-            .catch((err) => {
-                console.error("Error creating budget:", err);
-            });
+        setIsCreating(true);
+        setCreateError("");
+
+        try {
+            await addBudget(newBudget);
+            refreshBudgets();
+            setName("");
+            setDescription("");
+            setTargetAmount("");
+            setBudgetType("");
+            setStartDate("");
+            setEndDate("");
+            if (res && res.insertId) {
+                navigate(`/budgets/${res.insertId}`);
+            }
+        } catch (error) {
+            console.error("Error creating budget:", error);
+            setCreateError(error.response?.data?.message || "Failed to create budget. Please try again.");
+        } finally {
+            setIsCreating(false);
+        }
     }
 
     return (
         <div className="budgets_page">
-            <h1 className="page-title">Budgets</h1>
-            <button className={!showAddBudget ? "open" : "close"} onClick={() => setShowAddBudget(true)}>Add Budget</button>
+            <div className="budgets-header">
+                <div className="budgets-heading">
+                    <h1 className="page-title">Budgets</h1>
+                    <p>Plan your spending and keep track of your financial limits.</p>
+                </div>
+
+                <button
+                    className={`add-budget-button ${showAddBudget ? "close" : ""}`}
+                    onClick={() => setShowAddBudget(true)}
+                >
+                    + Add Budget
+                </button>
+            </div>
 
             <div className={showAddBudget ? "open" : "close"} id="addBudget">
                 <h2>Create New Budget</h2>
@@ -147,8 +164,18 @@ export default function Budgets() {
                         <div className="errmsg">{errors.end}</div>
                     </div>
                 </div>
-                <button onClick={() => setShowAddBudget(false)}>Cancel</button>
-                <button onClick={() => handleCreate()}>Create</button>
+                {createError && (
+                    <p className="budget-form-error" role="alert">
+                        {createError}
+                    </p>
+                )}
+                <button onClick={() => {
+                    setShowAddBudget(false);
+                    setErrors({ name: "", target: "", type: "", start: "", end: "" });
+                }}>Cancel</button>
+                <button disabled={isCreating} onClick={() => handleCreate()}>
+                    {isCreating ? "Creating..." : "Create Budget"}
+                </button>
             </div>
 
             <div className="budget_summary">
@@ -178,12 +205,40 @@ export default function Budgets() {
                 <h2 className="section-title">Upcoming Budgets</h2>
                 <div className="budgets_grid">
                     {upcomingBudgets.map(budget => <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)}>
-                        <h3>{budget.name}</h3>
-                        {budget.description && <p>{budget.description}</p>}
-                        <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
-                        <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
-                        <p>Starts: {new Date(budget.start_date).toLocaleDateString()}</p>
-                        <p>Ends: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
+                        <h3 className="budget-card-title">{budget.name}</h3>
+
+                        {budget.description && (
+                            <p className="budget-card-description">{budget.description}</p>
+                        )}
+
+                        <div className="budget-card-target">
+                            <span>Target amount</span>
+                            <strong>
+                                ₹{Number(budget.target_amount).toLocaleString("en-IN")}
+                            </strong>
+                        </div>
+
+                        <div className="budget-card-details">
+                            <p>
+                                <span>Type</span>
+                                <strong>
+                                    {budget.budget_type.charAt(0).toUpperCase() +
+                                        budget.budget_type.slice(1)}
+                                </strong>
+                            </p>
+                            <p>
+                                <span>Start date</span>
+                                <strong>{new Date(budget.start_date).toLocaleDateString()}</strong>
+                            </p>
+                            <p>
+                                <span>End date</span>
+                                <strong>
+                                    {budget.end_date
+                                        ? new Date(budget.end_date).toLocaleDateString()
+                                        : "No end date"}
+                                </strong>
+                            </p>
+                        </div>
                     </div>)}
                 </div>
             </>}
@@ -195,12 +250,40 @@ export default function Budgets() {
                 ) : (
                     activeBudgets.map(budget => (
                         <div key={budget.budgetid} className="budget_card" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
-                            <h3>{budget.name}</h3>
-                            {budget.description && <p>{budget.description}</p>}
-                            <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
-                            <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
-                            <p>Started: {new Date(budget.start_date).toLocaleDateString()}</p>
-                            <p>Ends: {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : "N/A"}</p>
+                            <h3 className="budget-card-title">{budget.name}</h3>
+
+                            {budget.description && (
+                                <p className="budget-card-description">{budget.description}</p>
+                            )}
+
+                            <div className="budget-card-target">
+                                <span>Target amount</span>
+                                <strong>
+                                    ₹{Number(budget.target_amount).toLocaleString("en-IN")}
+                                </strong>
+                            </div>
+
+                            <div className="budget-card-details">
+                                <p>
+                                    <span>Type</span>
+                                    <strong>
+                                        {budget.budget_type.charAt(0).toUpperCase() +
+                                            budget.budget_type.slice(1)}
+                                    </strong>
+                                </p>
+                                <p>
+                                    <span>Start date</span>
+                                    <strong>{new Date(budget.start_date).toLocaleDateString()}</strong>
+                                </p>
+                                <p>
+                                    <span>End date</span>
+                                    <strong>
+                                        {budget.end_date
+                                            ? new Date(budget.end_date).toLocaleDateString()
+                                            : "No end date"}
+                                    </strong>
+                                </p>
+                            </div>
                         </div>
                     ))
                 )}
@@ -212,12 +295,40 @@ export default function Budgets() {
                     <div className="budgets_grid">
                         {completedBudgets.map(budget => (
                             <div key={budget.budgetid} className="budget_card expired" onClick={() => navigate(`/budgets/${budget.budgetid}`)} >
-                                <h3>{budget.name}</h3>
-                                {budget.description && <p>{budget.description}</p>}
-                                <p>Target: ₹{parseFloat(budget.target_amount).toLocaleString()}</p>
-                                <p>Type: {budget.budget_type.charAt(0).toUpperCase() + budget.budget_type.slice(1)}</p>
-                                <p>Started: {new Date(budget.start_date).toLocaleDateString()}</p>
-                                <p>Ended: {new Date(budget.end_date).toLocaleDateString()}</p>
+                                <h3 className="budget-card-title">{budget.name}</h3>
+
+                                {budget.description && (
+                                    <p className="budget-card-description">{budget.description}</p>
+                                )}
+
+                                <div className="budget-card-target">
+                                    <span>Target amount</span>
+                                    <strong>
+                                        ₹{Number(budget.target_amount).toLocaleString("en-IN")}
+                                    </strong>
+                                </div>
+
+                                <div className="budget-card-details">
+                                    <p>
+                                        <span>Type</span>
+                                        <strong>
+                                            {budget.budget_type.charAt(0).toUpperCase() +
+                                                budget.budget_type.slice(1)}
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        <span>Start date</span>
+                                        <strong>{new Date(budget.start_date).toLocaleDateString()}</strong>
+                                    </p>
+                                    <p>
+                                        <span>End date</span>
+                                        <strong>
+                                            {budget.end_date
+                                                ? new Date(budget.end_date).toLocaleDateString()
+                                                : "No end date"}
+                                        </strong>
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>

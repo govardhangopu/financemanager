@@ -35,7 +35,7 @@ export default function IncomeVsExpenseCard() {
         <div>
             Income vs Expense
             { transactionsLoading ? <Loader text="Loading..." /> : <>
-            <select name="timerange" id="timerange" 
+            <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
                     <option value="month">This month</option>

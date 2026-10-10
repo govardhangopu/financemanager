@@ -33,7 +33,7 @@ export default function NetFlowCard()  {
             <p className="heading">Net Flow</p>
             { transactionsLoading ? <Loader text="Loading..." /> : <>
             <p className="netflow">₹ {netWorth} {netWorth >= 0 ? `↗`: '↘'}</p>
-            <select name="timerange" id="timerange" 
+            <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
                     <option value="month">This month</option>

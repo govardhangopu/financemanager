@@ -1,25 +1,3 @@
-.back-btn {
-    display: block;
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--button-bg);
-    color: var(--button-color);
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
-    font-size: x-large;
-}
-
-.back-btn:hover {
-    background-color: var(--button-hover-bg);
-}
-
-/* ──── MAIN CONTAINER CARD ──── */
 .budget-detail-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -582,10 +560,6 @@
         grid-template-columns: 1fr;
         /* Stack panels vertically on mobile */
         gap: 20px;
-    }
-
-    .back-btn {
-        display: none;
     }
 }
 
