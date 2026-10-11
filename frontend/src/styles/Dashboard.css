@@ -343,7 +343,7 @@ main,
 
 @media (min-width: 1025px) and (max-height: 700px) {
     #header {
-        padding: 6px 16px 15px;
+        padding: 6px 20px 15px;
     }
 
     #dashboard {

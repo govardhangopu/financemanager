@@ -42,32 +42,22 @@
 }
 
 :root[data-theme='light'] {
-  --bg-color: #F3F6FC;
-  --header-bg: #E5ECFA;
+  --bg-color: #E8EDF6;
+  --header-bg: #D2DDF0;
   --card-bg: #FFFFFF;
-  --card-inner-bg: #EDF2FC;
-  --text-color: #0B1738;
+  --card-inner-bg: #DCE5F3;
+  --text-color: #142444;
   --text-muted: #52617A;
-  --border-color: #D9E2F0;
-  --input-bg: #FFFFFF;
-  --input-color: #0B1738;
-  --input-border: #C5D1E3;
-  --button-bg: #E5ECFA;
-  --button-color: #0B1738;
-  --button-hover-bg: #D5E0F4;
-  --navbar-bg: #E5ECFA;
-  --navbar-color: #0B1738;
+  --border-color: #C5D0E2;
+  --input-bg: #F8FAFE;
+  --input-color: #142444;
+  --input-border: #B6C4D9;
+  --button-bg: #D2DDF0;
+  --button-color: #142444;
+  --button-hover-bg: #BECDE5;
+  --navbar-bg: #D2DDF0;
+  --navbar-color: #142444;
   --link-color: #4F46E5;
-  --auth-page-bg-start: #F3F6FC;
-  --auth-page-bg-middle: #EDF2FC;
-  --auth-page-bg-end: #E5ECFA;
-  --auth-card-bg: rgba(255, 255, 255, 0.94);
-  --auth-card-border: var(--border-color);
-  --auth-panel-bg: linear-gradient(180deg, #FFFFFF, #F6F8FD);
-  --auth-disabled-bg: #6b7280;
-  --auth-focus-color: #6d28d9;
-  --auth-link-color: var(--link-color);
-  --auth-link-hover-color: #3730a3;
 }
 
 *,
