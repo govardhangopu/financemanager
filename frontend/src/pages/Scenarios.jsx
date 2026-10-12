@@ -77,8 +77,9 @@ export default function Scenarios() {
                 Page Header
                 ========================= */}
 
-            <div className="scenarios-header">
-                <div>
+
+            <div className="finance-page-header scenarios-header">
+                <div className="finance-page-heading scenarios-heading">
                     <h1>Scenarios</h1>
                     <p>
                         Explore "what if?" possibilities without changing
@@ -95,6 +96,7 @@ export default function Scenarios() {
                     </button>
                 )}
             </div>
+
 
             <div className="scenario-discovery">
                 <h2>What can you do with a scenario?</h2>

@@ -43,6 +43,12 @@ export default function Forecast() {
     if (loading) {
         return (
             <div className="forecast-page">
+                <header className="finance-page-header forecast-page-header">
+                    <div className="finance-page-heading">
+                        <h1>Forecast</h1>
+                        <p>See where your financial position could go if nothing changes.</p>
+                    </div>
+                </header>
                 <div className="forecast-card">
                     <div className="forecast-message">
                         Loading your forecast...
@@ -55,6 +61,12 @@ export default function Forecast() {
     if (error) {
         return (
             <div className="forecast-page">
+                <header className="finance-page-header forecast-page-header">
+                    <div className="finance-page-heading">
+                        <h1>Forecast</h1>
+                        <p>See where your financial position could go if nothing changes.</p>
+                    </div>
+                </header>
                 <div className="forecast-card">
                     <div className="forecast-message">
                         {error}
@@ -67,17 +79,16 @@ export default function Forecast() {
     if (!forecast?.hasData) {
         return (
             <div className="forecast-page">
-                <div className="forecast-card">
-                    <div className="forecast-header">
-                        <div className="forecast-title-area">
-                            <h1>Forecast</h1>
-                            <p className="forecast-description">
-                                See where your financial position could go if
-                                nothing changes.
-                            </p>
-                        </div>
+                <header className="finance-page-header forecast-page-header">
+                    <div className="finance-page-heading">
+                        <h1>Forecast</h1>
+                        <p>
+                            See where your financial position could go if
+                            nothing changes.
+                        </p>
                     </div>
-
+                </header>
+                <div className="forecast-card">
                     <div className="forecast-empty-state">
                         <h2>Not enough history yet</h2>
                         <p>
@@ -114,16 +125,15 @@ export default function Forecast() {
 
     return (
         <div className="forecast-page">
-            <div className="forecast-card">
-                <div className="forecast-header">
-                    <div className="forecast-title-area">
-                        <h1>Forecast</h1>
-                        <p className="forecast-description">
-                            See where your cumulative net flow could go if your current
-                            financial habits continue.
-                        </p>
-                    </div>
-
+            <header className="finance-page-header forecast-page-header">
+                <div className="finance-page-heading">
+                    <h1>Forecast</h1>
+                    <p>
+                        See where your cumulative net flow could go if your
+                        current financial habits continue.
+                    </p>
+                </div>
+                <div className="forecast-controls-row">
                     <div className="forecast-horizon-controls">
                         {horizons.map((item) => (
                             <button
@@ -143,7 +153,8 @@ export default function Forecast() {
                         ))}
                     </div>
                 </div>
-
+            </header>
+            <div className="forecast-card">
                 <div className="forecast-summary">
                     <div>
                         <span>Average monthly net flow</span>

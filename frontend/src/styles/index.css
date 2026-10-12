@@ -424,7 +424,7 @@
 }
 
 .floating-note-top {
-    top: -5px;
+    top: -8px;
     left: -28px;
 }
 
@@ -642,11 +642,7 @@
         font-size: clamp(3rem, 6vw, 4.4rem);
     }
 
-    .floating-note-top {
-        right: -10px;
-    }
-
-    .floating-note-bottom {
+    .floating-note-top, .floating-note-bottom {
         left: -10px;
     }
 
@@ -826,11 +822,7 @@
         font-size: 0.56rem;
     }
 
-    .floating-note-top {
-        right: -5px;
-    }
-
-    .floating-note-bottom {
+    .floating-note-top, .floating-note-bottom {
         left: -5px;
     }
 

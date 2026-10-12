@@ -1,6 +1,6 @@
 .scenarios-page {
     width: 100%;
-    padding: 30px 40px;
+    padding: 0 clamp(18px, 5%, 64px) 30px;
     box-sizing: border-box;
 
     background-color: var(--bg-color);
@@ -24,35 +24,59 @@
    Page Header
    ========================= */
 
-.scenarios-header {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 24px;
-    min-height: 120px;
-    padding: 24px;
-    box-sizing: border-box;
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 30px;
+.scenarios-header {
+    margin-bottom: 24px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
 }
 
-.scenarios-header h1 {
+.scenarios-heading {
+    min-width: 0;
+}
+
+.scenarios-heading h1 {
     margin: 0;
+    padding: 0;
+    text-align: left;
     font-size: 2.2rem;
     font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1.2;
 }
 
-.scenarios-header p {
-    margin: 8px 0 0;
+.scenarios-heading p {
+    margin: 0.5rem 0 0;
     color: var(--text-muted);
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 
 .scenario-create-btn {
+    flex-shrink: 0;
+    padding: 0.8rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--button-bg);
+    color: var(--button-color);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
     white-space: nowrap;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
+
+.scenario-create-btn:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+}
+
+.scenario-create-btn:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+}
+
 
 /* =========================
    Scenario Discovery
@@ -61,7 +85,7 @@
 .scenarios-page .scenario-discovery {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto 8px;
+    margin: 0 auto 24px;
     height: auto;
     min-height: 0;
     flex: none;
@@ -360,31 +384,13 @@
    Responsive
    ========================= */
 
-@media (max-width: 900px) {
-    .scenario-discovery-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 700px) {
-
-    .scenarios-page {
-        padding: 20px;
-    }
-
-    .scenarios-header {
-        flex-direction: column;
-        align-items: flex-start;
-        min-height: 0;
-        padding: 15px;
+    .scenarios-page .scenario-discovery-grid {
+        grid-template-columns: 1fr;
     }
 
     .scenario-create-btn {
         width: 100%;
-    }
-
-    .scenario-discovery-grid {
-        grid-template-columns: 1fr;
     }
 
     .scenario-create-panel {

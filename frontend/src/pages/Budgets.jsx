@@ -91,8 +91,8 @@ export default function Budgets() {
 
     return (
         <div className="budgets_page">
-            <div className="budgets-header">
-                <div className="budgets-heading">
+            <div className="finance-page-header budgets-header">
+                <div className="finance-page-heading budgets-heading">
                     <h1 className="page-title">Budgets</h1>
                     <p>Plan your spending and keep track of your financial limits.</p>
                 </div>

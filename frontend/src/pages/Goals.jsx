@@ -44,6 +44,30 @@ function GoalDescription({ description }) {
     );
 }
 
+function GoalsPageHeader({ onAddGoal, showAction = true }) {
+    return (
+        <header className="finance-page-header goals-page-header">
+            <div className="finance-page-heading">
+                <h1>Goals</h1>
+                <p>
+                    Set financial targets and see how your current
+                    financial path compares.
+                </p>
+            </div>
+
+            {showAction && (
+                <button
+                    type="button"
+                    className="goals-add-button"
+                    onClick={onAddGoal}
+                >
+                    + Add Goal
+                </button>
+            )}
+        </header>
+    );
+}
+
 const Goals = () => {
     const [goals, setGoals] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -315,6 +339,7 @@ const Goals = () => {
     if (loading) {
         return (
             <div className="goals-page">
+                <GoalsPageHeader showAction={false} />
                 <div className="goals-card">
                     <p className="goals-message">Loading goals...</p>
                 </div>
@@ -325,6 +350,7 @@ const Goals = () => {
     if (error) {
         return (
             <div className="goals-page">
+                <GoalsPageHeader showAction={false} />
                 <div className="goals-card">
                     <p className="goals-message">{error}</p>
                 </div>
@@ -334,25 +360,8 @@ const Goals = () => {
 
     return (
         <div className="goals-page">
+            <GoalsPageHeader onAddGoal={() => setShowForm(true)} />
             <div className="goals-card">
-                <div className="goals-header">
-                    <div>
-                        <h1>Goals</h1>
-                        <p>
-                            Set financial targets and see how your current
-                            financial path compares.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        className="goals-add-button"
-                        onClick={() => setShowForm(true)}
-                    >
-                        + Add Goal
-                    </button>
-                </div>
-
                 {goals.length === 0 ? (
                     <div className="goals-empty-state">
                         <h2>No goals yet</h2>

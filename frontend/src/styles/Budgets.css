@@ -5,6 +5,7 @@
     color: var(--text-color);
     align-items: center;
     width: 100%;
+    padding-inline: clamp(18px, 5%, 64px);
     height: 91vh;
     gap: 20px;
     overflow-y: auto;
@@ -20,9 +21,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
-    margin: 2rem auto 0;
+    margin-bottom: 24px;
 }
 
 .budgets-heading {
@@ -65,10 +66,10 @@
 #addBudget {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    width: 75%;
+    width: 90%;
     gap: 30px;
     padding: 30px;
-    margin: 20px;
+    margin-bottom: 20px;
     border-radius: 24px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
     background-color: var(--card-inner-bg);
@@ -195,9 +196,6 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
-    width: 90%;
-    max-width: 1200px;
-    margin: 10px auto;
     padding: 0;
     background: transparent;
     box-sizing: border-box;
@@ -245,7 +243,7 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: 18px;
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
     padding: 8px 0 12px;
     box-sizing: border-box;
@@ -328,7 +326,7 @@ button:hover {
 }
 
 .section-title {
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
     margin: 24px auto 0;
     padding-bottom: 12px;
@@ -394,11 +392,6 @@ button:hover {
 
     .budgets-heading .page-title {
         font-size: 1.6rem;
-    }
-
-    .add-budget-button {
-        padding: 0.65rem 0.8rem;
-        font-size: 0.9rem;
     }
 
     #addBudget .field1,

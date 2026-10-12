@@ -217,26 +217,54 @@ export default function Settings() {
     }, [searchParams, setSearchParams]);
 
     useEffect(() => {
-        const firstSection = document.getElementById(sections[0].id);
-        const usesPageScroll = window.matchMedia("(max-width: 1024px)").matches;
-        let scrollContainer = usesPageScroll ? null : firstSection?.parentElement;
+        let animationFrame = 0;
 
-        while (scrollContainer && scrollContainer !== document.body) {
-            const { overflowY } = window.getComputedStyle(scrollContainer);
-            const canScroll =
-                /(auto|scroll|overlay)/.test(overflowY) &&
-                scrollContainer.scrollHeight > scrollContainer.clientHeight;
+        const getScrollContainer = () => {
+            let element = document.getElementById(sections[0].id)?.parentElement;
 
-            if (canScroll) break;
-            scrollContainer = scrollContainer.parentElement;
-        }
+            while (
+                element &&
+                element !== document.body &&
+                element !== document.documentElement
+            ) {
+                const { overflowY } = window.getComputedStyle(element);
+                const canScroll =
+                    /(auto|scroll|overlay)/.test(overflowY) &&
+                    element.scrollHeight > element.clientHeight;
 
-        const handleScroll = () => {
+                if (canScroll) return element;
+                element = element.parentElement;
+            }
+
+            return null;
+        };
+
+        const updateActiveSection = () => {
+            animationFrame = 0;
+            const scrollContainer = getScrollContainer();
             const viewport = scrollContainer
                 ? scrollContainer.getBoundingClientRect()
                 : { top: 0, height: window.innerHeight };
-
-            const activationLine = viewport.top + Math.min(120, viewport.height * 0.25);
+            const navbarBottom =
+                document.querySelector(".navbar")?.getBoundingClientRect().bottom ?? 0;
+            const sidebar = document.querySelector(".settings-sidebar");
+            const sidebarStyle = sidebar && window.getComputedStyle(sidebar);
+            const sidebarRect = sidebar?.getBoundingClientRect();
+            const stickyTop = sidebarStyle
+                ? Number.parseFloat(sidebarStyle.top) || 0
+                : 0;
+            const stickySidebarBottom =
+                sidebarStyle?.position === "sticky" &&
+                sidebarRect &&
+                sidebarRect.top <= stickyTop + 1
+                    ? sidebarRect.bottom
+                    : 0;
+            const activationLine =
+                Math.max(
+                    viewport.top + Math.min(120, viewport.height * 0.25),
+                    navbarBottom + 8,
+                    stickySidebarBottom + 8
+                );
             let currentSection = sections[0].id;
 
             sections.forEach((section) => {
@@ -251,7 +279,10 @@ export default function Settings() {
                 ? scrollContainer.scrollTop + scrollContainer.clientHeight >=
                 scrollContainer.scrollHeight - 1
                 : window.scrollY + window.innerHeight >=
-                document.documentElement.scrollHeight - 1;
+                Math.max(
+                    document.documentElement.scrollHeight,
+                    document.body.scrollHeight
+                ) - 1;
 
             if (hasReachedBottom) {
                 currentSection = sections[sections.length - 1].id;
@@ -260,15 +291,22 @@ export default function Settings() {
             setActiveSection(currentSection);
         };
 
-        window.addEventListener("scroll", handleScroll);
-        scrollContainer?.addEventListener("scroll", handleScroll);
-        window.addEventListener("resize", handleScroll);
-        handleScroll();
+        const scheduleUpdate = () => {
+            if (!animationFrame) {
+                animationFrame = window.requestAnimationFrame(updateActiveSection);
+            }
+        };
+
+        document.addEventListener("scroll", scheduleUpdate, true);
+        window.addEventListener("scroll", scheduleUpdate);
+        window.addEventListener("resize", scheduleUpdate);
+        scheduleUpdate();
 
         return () => {
-            window.removeEventListener("scroll", handleScroll);
-            scrollContainer?.removeEventListener("scroll", handleScroll);
-            window.removeEventListener("resize", handleScroll);
+            document.removeEventListener("scroll", scheduleUpdate, true);
+            window.removeEventListener("scroll", scheduleUpdate);
+            window.removeEventListener("resize", scheduleUpdate);
+            window.cancelAnimationFrame(animationFrame);
         };
     }, []);
 

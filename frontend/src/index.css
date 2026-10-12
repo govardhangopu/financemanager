@@ -29,6 +29,7 @@
   --auth-panel-bg: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.98));
   --auth-disabled-bg: #6b7280;
   --auth-focus-color: #8b5cf6;
+  --auth-focus-shadow: rgba(139, 92, 246, 0.18);
   --auth-link-color: #c4b5fd;
   --auth-link-hover-color: #ede9fe;
 
@@ -58,6 +59,17 @@
   --navbar-bg: #D2DDF0;
   --navbar-color: #142444;
   --link-color: #4F46E5;
+  --auth-page-bg-start: #F8FAFE;
+  --auth-page-bg-middle: #E8EDF6;
+  --auth-page-bg-end: #DCE5F3;
+  --auth-card-bg: rgba(255, 255, 255, 0.92);
+  --auth-card-border: #C5D0E2;
+  --auth-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 254, 0.98));
+  --auth-disabled-bg: #8A94A6;
+  --auth-focus-color: #4F46E5;
+  --auth-focus-shadow: rgba(79, 70, 229, 0.18);
+  --auth-link-color: #4F46E5;
+  --auth-link-hover-color: #3730A3;
 }
 
 *,

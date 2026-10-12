@@ -1,16 +1,20 @@
 .forecast-page {
     width: 100%;
-    /* min-height: 91vh; */
-    padding: 20px;
+    padding: 0 clamp(18px, 5%, 64px) 20px;
     box-sizing: border-box;
     color: var(--text-color);
     text-align: left;
 }
 
+.forecast-page-header {
+    margin-bottom: 24px;
+}
+
 .forecast-card {
     width: 100%;
-    margin: 20px auto;
-    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 20px;
     box-sizing: border-box;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -22,23 +26,10 @@
    Forecast Header
    ========================= */
 
-.forecast-header {
+.forecast-controls-row {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-}
-
-.forecast-title-area h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 700;
-}
-
-.forecast-description {
-    margin: 8px 0 0;
-    color: var(--text-muted);
-    line-height: 1.5;
+    justify-content: flex-end;
+    min-width: 0;
 }
 
 /* =========================
@@ -147,16 +138,20 @@
 
 @media (max-width: 700px) {
     .forecast-page {
-        padding: 16px;
+        padding-bottom: 16px;
     }
 
     .forecast-card {
         padding: 20px;
     }
 
-    .forecast-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .forecast-page-header {
+        margin-bottom: 20px;
+    }
+
+    .forecast-controls-row {
+        justify-content: center;
+        width: 100%;
     }
 
     .forecast-horizon-controls {

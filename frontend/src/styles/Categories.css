@@ -1,25 +1,11 @@
 .categories-page {
-    width: min(1200px, 100%);
+    width: 100%;
     margin: 0 auto;
-    padding: 32px;
+    padding: 0 clamp(18px, 5%, 64px) 32px;
 }
 
 .categories-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 28px;
-}
-
-.categories-header h1 {
-    margin: 0 0 6px;
-    font-size: 2rem;
-}
-
-.categories-header p {
-    margin: 0;
-    color: var(--text-muted);
+    margin-bottom: 24px;
 }
 
 .categories-add-button,
@@ -43,7 +29,11 @@
 }
 
 .categories-error {
+    width: 100%;
+    max-width: 1200px;
     margin-bottom: 20px;
+    margin-right: auto;
+    margin-left: auto;
     padding: 12px 16px;
     border-radius: 10px;
     background: rgba(196, 28, 28, 0.12);
@@ -52,6 +42,10 @@
 
 .categories-state,
 .categories-empty {
+    width: 100%;
+    max-width: 1200px;
+    margin-right: auto;
+    margin-left: auto;
     padding: 50px 24px;
     text-align: center;
     border-radius: 14px;
@@ -71,6 +65,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .category-section {
@@ -388,17 +386,12 @@
 }
 
 @media (max-width: 800px) {
-    .categories-page {
-        padding: 24px 18px;
-    }
-
     .categories-header {
-        align-items: flex-start;
-        flex-direction: column;
+        margin-bottom: 24px;
     }
 
     .categories-add-button {
-        width: 100%;
+        width: auto;
     }
 
     .category-sections {

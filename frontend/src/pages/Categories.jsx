@@ -102,8 +102,8 @@ export default function Categories() {
 
     return (
         <main className="categories-page">
-            <div className="categories-header">
-                <div>
+            <div className="finance-page-header categories-header">
+                <div className="finance-page-heading">
                     <h1>Categories</h1>
                     <p>
                         Organize your income and expenses into a structure that
