@@ -18,7 +18,22 @@ export default function ScenarioPicker({ scenarios = [], onSelect, onCreate, onC
                 </div>
 
                 <div className="scenario-picker-body">
-                    {scenarios.length > 0 && (
+                    {scenarios.length === 0 ? (
+                        <div className="scenario-picker-empty">
+                            <h4>No scenarios yet</h4>
+                            <p>
+                                Create a scenario to explore how changing this
+                                transaction could affect your finances.
+                            </p>
+                            <button
+                                type="button"
+                                className="scenario-picker-create"
+                                onClick={onCreate}
+                            >
+                                + Create Your First Scenario
+                            </button>
+                        </div>
+                    ) : (
                         <>
                             <p className="scenario-picker-label">
                                 Your Scenarios

@@ -1,9 +1,10 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useCallback } from "react";
+import { resetSessionExpiry } from "../api/authenticatedClient";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(() =>
+    const [token, setTokenState] = useState(() =>
         localStorage.getItem("token")
     );
 
@@ -20,12 +21,17 @@ export const AuthProvider = ({ children }) => {
         }
     });
 
-    const logout = () => {
+    const setToken = useCallback((nextToken) => {
+        if (nextToken) resetSessionExpiry();
+        setTokenState(nextToken);
+    }, []);
+
+    const logout = useCallback(() => {
         setUser(null);
         setToken(null);
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-    }
+    }, [setToken]);
 
     return (
         <AuthContext.Provider value={{ user, setUser, token, setToken, logout }}>

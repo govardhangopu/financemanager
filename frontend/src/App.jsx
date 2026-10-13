@@ -1,5 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useEffect, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import Navbar from "./components/Navbar"
+import { useAuth } from "./context/AuthContext";
+import { SESSION_EXPIRY_EVENT } from "./api/authenticatedClient";
 import Index from "./pages/Index"
 import Login from "./pages/Login"
 import SignUp from "./pages/SignUp"
@@ -20,12 +23,51 @@ import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./routes/ProtectedRoute"
 import './App.css'
 
+function ScrollToTop({ scrollContainerRef }) {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [pathname, search, scrollContainerRef]);
+
+  return null;
+}
+
+function SessionExpiryHandler() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleSessionExpiry = () => {
+      logout();
+      navigate("/login", {
+        replace: true,
+        state: { sessionExpired: true },
+      });
+    };
+
+    window.addEventListener(SESSION_EXPIRY_EVENT, handleSessionExpiry);
+    return () => {
+      window.removeEventListener(SESSION_EXPIRY_EVENT, handleSessionExpiry);
+    };
+  }, [logout, navigate]);
+
+  return null;
+}
+
 function App() {
+  const mainScrollRef = useRef(null);
+
   return (
     <>
       <Router>
+        <SessionExpiryHandler />
+        <ScrollToTop scrollContainerRef={mainScrollRef} />
         <Navbar />
-        <main>
+        <main ref={mainScrollRef}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<SignUp />} />

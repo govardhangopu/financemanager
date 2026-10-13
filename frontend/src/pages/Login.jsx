@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Loader from '../components/Loader.jsx';
 import { login } from "../api/authApi";
@@ -15,6 +15,8 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [sessionExpired, setSessionExpired] = useState(false);
 
     const handleLogin = async () => {
         setLoading(true);
@@ -39,6 +41,16 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (location.state?.sessionExpired) {
+            setSessionExpired(true);
+            navigate(`${location.pathname}${location.search}`, {
+                replace: true,
+                state: null,
+            });
+        }
+    }, [location, navigate]);
 
     useEffect(() => {
         const googleError = searchParams.get("googleError");
@@ -93,6 +105,13 @@ const Login = () => {
                         <h2>Log in to continue</h2>
                         <p>Use your account to access your dashboard and budget insights.</p>
                     </div>
+
+                    {sessionExpired && (
+                        <div className="auth-session-notice" role="alert">
+                            Your session has expired or is no longer valid.
+                            Please sign in again.
+                        </div>
+                    )}
 
                     <form className="auth-form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
                         <div className="auth-field">

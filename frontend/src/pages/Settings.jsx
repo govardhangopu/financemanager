@@ -72,9 +72,9 @@ export default function Settings() {
 
         try {
             if (hasPasswordAuth) {
-                await changePassword(token, currentPassword, newPassword);
+                await changePassword(currentPassword, newPassword);
             } else {
-                await setPassword(token, newPassword);
+                await setPassword(newPassword);
             }
 
             alert(
@@ -82,7 +82,7 @@ export default function Settings() {
                     ? "Password changed successfully."
                     : "Password set successfully."
             );
-            const status = await getAuthStatus(token);
+            const status = await getAuthStatus();
             setAuthStatus(status);
 
             setIsPasswordModalOpen(false);
@@ -90,8 +90,10 @@ export default function Settings() {
             setNewPassword("");
             setConfirmPassword("");
         } catch (err) {
-            console.error(err);
-            alert(err.response?.data?.message || "Unable to update password.");
+            if (err.response?.status !== 401) {
+                console.error(err);
+                alert(err.response?.data?.message || "Unable to update password.");
+            }
         } finally {
             setPasswordLoading(false);
         }
@@ -103,10 +105,7 @@ export default function Settings() {
         setSavingProfile(true);
 
         try {
-            const response = await updateProfile(
-                { name, username, email },
-                token
-            );
+            const response = await updateProfile({ name, username, email });
 
             setUser(response.user);
 
@@ -117,11 +116,13 @@ export default function Settings() {
 
             setEditingProfile(false);
         } catch (err) {
-            console.error(err);
-            alert(
-                err.response?.data?.message ||
-                "Failed to update profile."
-            );
+            if (err.response?.status !== 401) {
+                console.error(err);
+                alert(
+                    err.response?.data?.message ||
+                    "Failed to update profile."
+                );
+            }
         } finally {
             setSavingProfile(false);
         }
@@ -132,7 +133,7 @@ export default function Settings() {
         setDeleteError("");
 
         try {
-            await deleteAccount(token);
+            await deleteAccount();
 
             localStorage.removeItem("token");
             localStorage.removeItem("user");
@@ -142,12 +143,13 @@ export default function Settings() {
 
             navigate("/login", { replace: true });
         } catch (err) {
-            console.error(err);
-
-            setDeleteError(
-                err.response?.data?.message ||
-                "Failed to delete account."
-            );
+            if (err.response?.status !== 401) {
+                console.error(err);
+                setDeleteError(
+                    err.response?.data?.message ||
+                    "Failed to delete account."
+                );
+            }
         } finally {
             setDeletingAccount(false);
         }
@@ -155,28 +157,31 @@ export default function Settings() {
 
     const handleConnectGoogle = async () => {
         try {
-            const { url } = await startGoogleLink(token);
+            const { url } = await startGoogleLink();
 
             window.location.href = url;
         } catch (err) {
-            console.error(err);
-
-            alert(
-                err.response?.data?.message ||
-                "Unable to connect Google account."
-            );
+            if (err.response?.status !== 401) {
+                console.error(err);
+                alert(
+                    err.response?.data?.message ||
+                    "Unable to connect Google account."
+                );
+            }
         }
     };
 
     const handleUnlinkGoogle = async () => {
         try {
-            await unlinkGoogle(token);
+            await unlinkGoogle();
 
-            const status = await getAuthStatus(token);
+            const status = await getAuthStatus();
             setAuthStatus(status);
         } catch (err) {
-            console.error(err);
-            alert(err.response?.data?.message || "Unable to disconnect Google account.");
+            if (err.response?.status !== 401) {
+                console.error(err);
+                alert(err.response?.data?.message || "Unable to disconnect Google account.");
+            }
         }
     };
 
@@ -185,10 +190,12 @@ export default function Settings() {
             if (!token) return;
 
             try {
-                const status = await getAuthStatus(token);
+                const status = await getAuthStatus();
                 setAuthStatus(status);
             } catch (err) {
-                console.error("Failed to load authentication status:", err);
+                if (err.response?.status !== 401) {
+                    console.error("Failed to load authentication status:", err);
+                }
             } finally {
                 setAuthStatusLoading(false);
             }

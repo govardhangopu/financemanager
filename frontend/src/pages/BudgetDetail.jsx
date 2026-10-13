@@ -171,14 +171,49 @@ export default function BudgetDetail() {
                 {/* Header Area */}
                 <div className="budget-card-header">
                     <div className="budget-title-area">
-                        <span className="budget-type-badge">
-                            {loading ? (
-                                <div className="skeleton-box" style={{ width: '60px', height: '18px', borderRadius: '99px' }} />
-                            ) : (
-                                budget?.budget_type
-                            )}
-                        </span>
-                        <br />
+                        <div className="budget-card-meta-row">
+                            <span className="budget-type-badge">
+                                {loading ? (
+                                    <div className="skeleton-box" style={{ width: '60px', height: '18px', borderRadius: '99px' }} />
+                                ) : (
+                                    budget?.budget_type
+                                )}
+                            </span>
+
+                            {/* Header Action Buttons */}
+                            <div className="budget-actions">
+                                {loading ? (
+                                    <div className="skeleton-box" style={{ width: '190px', height: '37.15px', borderRadius: '8px' }} />
+                                ) : !isEditing ? (
+                                    <>
+                                        <button className="btn-edit" onClick={() => {
+                                            setEdits({
+                                                name: budget.name,
+                                                description: budget.description || "",
+                                                targetAmount: budget.target_amount ?? "",
+                                                startDate: formatDateValue(budget?.start_date),
+                                                endDate: formatDateValue(budget?.end_date)
+                                            });
+                                            setIsEditing(true);
+                                        }}>
+                                            ✏️ Edit
+                                        </button>
+                                        <button className="btn-delete" onClick={handleDelete}>
+                                            🗑️ Delete
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button className="btn-save-inline" onClick={handleUpdate}>
+                                            💾 Save
+                                        </button>
+                                        <button className="btn-cancel-inline" onClick={() => setIsEditing(false)}>
+                                            ❌ Cancel
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
                         {isEditing ? (
                             <input
                                 type="text"
@@ -208,40 +243,6 @@ export default function BudgetDetail() {
                             <div className="skeleton-box" style={{ width: '80%', maxWidth: '400px', height: '24px', marginTop: '3px' }} />
                         ) : (
                             budget?.description && <p className="budget-description">{budget.description}</p>
-                        )}
-                    </div>
-
-                    {/* Header Action Buttons */}
-                    <div className="budget-actions">
-                        {loading ? (
-                            <div className="skeleton-box" style={{ width: '190px', height: '37.15px', borderRadius: '8px' }} />
-                        ) : !isEditing ? (
-                            <>
-                                <button className="btn-edit" onClick={() => {
-                                    setEdits({
-                                        name: budget.name,
-                                        description: budget.description || "",
-                                        targetAmount: budget.target_amount ?? "",
-                                        startDate: formatDateValue(budget?.start_date),
-                                        endDate: formatDateValue(budget?.end_date)
-                                    });
-                                    setIsEditing(true);
-                                }}>
-                                    ✏️ Edit
-                                </button>
-                                <button className="btn-delete" onClick={handleDelete}>
-                                    🗑️ Delete
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button className="btn-save-inline" onClick={handleUpdate}>
-                                    💾 Save
-                                </button>
-                                <button className="btn-cancel-inline" onClick={() => setIsEditing(false)}>
-                                    ❌ Cancel
-                                </button>
-                            </>
                         )}
                     </div>
                 </div>

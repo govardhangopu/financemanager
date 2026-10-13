@@ -18,6 +18,7 @@ export const fetchMonthlyNetFlow = async (userid) => {
         LEFT JOIN categories c
             ON t.categoryid = c.categoryid
         WHERE t.userid = ?
+          AND t.date < DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)
         GROUP BY DATE_FORMAT(t.date, '%Y-%m')
         ORDER BY month ASC
         `,

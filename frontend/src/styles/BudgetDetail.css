@@ -13,11 +13,19 @@
 
 /* ──── CARD HEADER ──── */
 .budget-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     margin-bottom: 25px;
-    gap: 20px;
+}
+
+.budget-title-area {
+    min-width: 0;
+}
+
+.budget-card-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
 }
 
 .budget-type-badge {
@@ -30,7 +38,7 @@
     border-radius: 99px;
     letter-spacing: 0.05em;
     display: inline-block;
-    margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .budget-card-header h1 {
@@ -51,7 +59,10 @@
 
 .budget-actions {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
 }
 
 .btn-edit,
@@ -565,14 +576,20 @@
 
 /* ──── RESPONSIVE BREAKPOINTS ──── */
 @media (max-width: 600px) {
-    .budget-card-header {
-        flex-direction: column;
-        align-items: stretch;
+    .budget-type-badge {
+        font-size: 0.65rem;
+    }
+    
+    .budget-actions {
+        gap: 6px;
     }
 
-    .budget-actions {
-        margin-top: 15px;
-        justify-content: flex-end;
+    .btn-edit,
+    .btn-delete,
+    .btn-save-inline,
+    .btn-cancel-inline {
+        padding: 7px 9px;
+        font-size: 0.78rem;
     }
 
     .form-row {

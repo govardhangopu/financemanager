@@ -96,6 +96,22 @@
     letter-spacing: 0.05em;
 }
 
+.scenario-picker-empty {
+    text-align: center;
+}
+
+.scenario-picker-empty h4 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.scenario-picker-empty p {
+    margin: 8px 0 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
 .scenario-picker-list {
     display: flex;
     flex-direction: column;

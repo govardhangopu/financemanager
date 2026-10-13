@@ -124,6 +124,18 @@
   gap: 14px;
 }
 
+.auth-session-notice {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--auth-card-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--auth-focus-color) 9%, var(--card-bg));
+  color: var(--text-color);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
 .auth-field {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

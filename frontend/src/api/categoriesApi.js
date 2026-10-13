@@ -1,32 +1,6 @@
-const baseURL = import.meta.env.VITE_API_URL;
-import axios from "axios";
+import { createAuthenticatedApi } from "./authenticatedClient";
 
-const api = axios.create({
-    baseURL: `${baseURL}/categories`,
-});
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-});
-
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Token invalid or expired
-            console.log("Token has expired.");
-            localStorage.removeItem("token");
-            window.location.href = "/login";
-        }
-        return Promise.reject(error);
-    }
-);
+const api = createAuthenticatedApi(`${import.meta.env.VITE_API_URL}/categories`);
 
 export async function getCategories(is_partial = null) {
     const res = await api.get("/", {
