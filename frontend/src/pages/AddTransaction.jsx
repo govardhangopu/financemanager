@@ -8,10 +8,10 @@ export default function AddTransaction() {
     const navigate = useNavigate();
 
     const handleAdd = async (transaction) => {
-        console.log(`Adding transaction: ${JSON.stringify(transaction)}`);
+        // console.log(`Adding transaction: ${JSON.stringify(transaction)}`);
         try {
             const res = await addTransaction(transaction);
-            console.log("Transaction added successfully:", res);
+            // console.log("Transaction added successfully:", res);
             refreshTransactions();
             navigate("/dashboard");
         }

@@ -36,10 +36,10 @@ export default function EditTransaction() {
             transactionid: transaction.transactionid
         };
 
-        console.log(`Updating transaction: ${JSON.stringify(transactionUpdate)}`);
+        // console.log(`Updating transaction: ${JSON.stringify(transactionUpdate)}`);
         try {
             await updateTransaction(transactionUpdate);
-            console.log("Transaction updated successfully");
+            // console.log("Transaction updated successfully");
             refreshTransactions();
             navigate("/dashboard");
         }

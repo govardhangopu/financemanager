@@ -30,12 +30,6 @@
     min-width: 0;
 }
 
-.budgets-heading .page-title {
-    margin: 0;
-    padding: 0;
-    text-align: left;
-}
-
 .budgets-heading p {
     margin: 0.5rem 0 0;
     color: var(--text-muted);
@@ -251,6 +245,7 @@ button:hover {
 
 .budgets_grid .budget_card {
     min-width: 0;
+    cursor: pointer;
     padding: 22px;
     border: 1px solid var(--border-color);
     border-radius: 18px;
@@ -325,6 +320,33 @@ button:hover {
     overflow-wrap: anywhere;
 }
 
+.budget-card-action-hint {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.budget-card-action-hint span {
+    color: var(--link-color);
+    transition: transform 0.2s ease;
+}
+
+.budgets_grid .budget_card:hover .budget-card-action-hint {
+    color: var(--text-color);
+}
+
+.budgets_grid .budget_card:hover .budget-card-action-hint span {
+    transform: translateX(3px);
+}
+
 .section-title {
     width: 100%;
     max-width: 1200px;
@@ -358,7 +380,6 @@ button:hover {
 @media (max-width: 480px) {
     .budget_summary {
         gap: 10px;
-        width: 90%;
     }
 
     .summary_item {
@@ -388,10 +409,6 @@ button:hover {
     .budgets-header {
         align-items: flex-start;
         gap: 1rem;
-    }
-
-    .budgets-heading .page-title {
-        font-size: 1.6rem;
     }
 
     #addBudget .field1,

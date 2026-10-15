@@ -46,7 +46,7 @@ export default function BudgetDetail() {
             setProgress(progressRes);
             setLinkedCategories(categoriesRes);
             setLinkedTransactions(transactionsRes);
-            console.log(budgetRes[0], progressRes, categoriesRes, transactionsRes);
+            // console.log(budgetRes[0], progressRes, categoriesRes, transactionsRes);
         } catch (err) {
             console.error("Failed to load budget data:", err);
             alert("Failed to load budget data.");

@@ -42,7 +42,7 @@ export default function TransactionHistoryCard() {
         if(!confirm(`Do you want to delete Transaction ID: ₹{t.transactionid} Amount: ₹{t.amount}?`)) return;
         deleteTransaction(t.transactionid)
             .then(res => {
-                console.log("Transaction deleted successfully.");
+                // console.log("Transaction deleted successfully.");
                 refreshTransactions();
             })
             .catch(err => {

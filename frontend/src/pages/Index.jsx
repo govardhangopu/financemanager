@@ -231,7 +231,18 @@ export default function Index() {
                     <span>Finance Manager</span>
                 </Link>
                 <span>Make every financial decision more intentional.</span>
-                <Link to="/login">Log in →</Link>
+                <div className="landing-footer-links">
+                    <Link to="/privacy">Privacy</Link>
+                    <Link to="/terms">Terms</Link>
+                    <a
+                        href="https://github.com/govardhangopu/financemanager/issues"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Feedback
+                    </a>
+                    <Link to="/login">Log in →</Link>
+                </div>
             </footer>
         </div>
     );

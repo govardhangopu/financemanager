@@ -70,9 +70,7 @@
 
     cursor: pointer;
 
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
+    transition: none;
 }
 
 .settings-sidebar button:hover {
@@ -632,7 +630,7 @@
     }
 
     .settings-section {
-        scroll-margin-top: 140px;
+        scroll-margin-top: 120px;
     }
 
     .settings-content {

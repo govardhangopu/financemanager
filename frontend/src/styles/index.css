@@ -621,11 +621,17 @@
     font-size: 1.15rem;
 }
 
-.landing-footer>a:last-child {
+.landing-footer-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.landing-footer-links a:last-child {
     font-weight: 700;
 }
 
-.landing-footer>a:last-child:hover {
+.landing-footer-links a:hover {
     color: var(--link-color);
 }
 

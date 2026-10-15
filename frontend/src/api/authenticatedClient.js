@@ -8,6 +8,8 @@ export const resetSessionExpiry = () => {
     sessionExpiryPending = false;
 };
 
+export const isSessionExpiryPending = () => sessionExpiryPending;
+
 export const createAuthenticatedApi = (baseURL) => {
     const api = axios.create({ baseURL });
 

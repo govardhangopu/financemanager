@@ -14,7 +14,7 @@ const SignUp = () => {
     const handleSignUp = async () => {
         try {
             const data = await signUp(name, email, username, password);
-            console.log(data);
+            // console.log(data);
             navigate("/login");
         } catch (err) {
             console.error(err);
@@ -22,8 +22,8 @@ const SignUp = () => {
     };
 
     return (
-        <div className="auth-page">
-            <section className="auth-card">
+        <main className="auth-page">
+            <section className="auth-card auth-signup-card">
                 <article className="auth-visual">
                     <div>
                         <span className="auth-badge">Start fresh</span>
@@ -52,7 +52,7 @@ const SignUp = () => {
                 <article className="auth-panel">
                     <div className="auth-panel-header">
                         <p className="auth-badge">Create account</p>
-                        <h2>Sign up for your account</h2>
+                        <h3>Sign up for your account</h3>
                         <p>Join and manage budgets, expenses, and savings in one place.</p>
                     </div>
 
@@ -98,13 +98,20 @@ const SignUp = () => {
                             <span>Continue with Google</span>
                         </button>
 
-                        <p className="auth-switch">
-                            Already have an account? <Link to="/login">Sign in</Link>
-                        </p>
+                        <div className="auth-footer">
+                            <p className="auth-switch">
+                                Already have an account? <Link to="/login">Sign in</Link>
+                            </p>
+                            <nav className="auth-legal" aria-label="Legal information">
+                                <Link to="/privacy">Privacy</Link>
+                                <span aria-hidden="true">·</span>
+                                <Link to="/terms">Terms</Link>
+                            </nav>
+                        </div>
                     </form>
                 </article>
             </section>
-        </div>
+        </main>
     );
 }
 

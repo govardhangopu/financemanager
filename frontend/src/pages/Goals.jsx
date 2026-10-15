@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { createGoal, deleteGoal, getGoalProjection, getGoals, updateGoal } from "../api/goalApi";
+import { GoalsOverviewChart } from "../components/GoalsOverviewChart";
 import { GenericChart } from "../components/GenericChart";
 import { AnimatePresence, motion } from "motion/react";
+import { prepareGoalProjectionChartData } from "../utils/goalProjectionChartData";
 import "../styles/Goals.css";
 
 function GoalDescription({ description }) {
@@ -48,10 +50,10 @@ function GoalsPageHeader({ onAddGoal, showAction = true }) {
     return (
         <header className="finance-page-header goals-page-header">
             <div className="finance-page-heading">
-                <h1>Goals</h1>
+                <h1>Financial Goals</h1>
                 <p>
-                    Set financial targets and see how your current
-                    financial path compares.
+                    Track your targets and compare them with projected
+                    cumulative net flow over time.
                 </p>
             </div>
 
@@ -61,7 +63,7 @@ function GoalsPageHeader({ onAddGoal, showAction = true }) {
                     className="goals-add-button"
                     onClick={onAddGoal}
                 >
-                    + Add Goal
+                    Add Goal
                 </button>
             )}
         </header>
@@ -78,7 +80,64 @@ const Goals = () => {
     const [projectionLoading, setProjectionLoading] = useState(false);
     const [projectionError, setProjectionError] = useState("");
     const [editingGoal, setEditingGoal] = useState(null);
+    const [overviewProjections, setOverviewProjections] = useState({});
+    const [overviewLoading, setOverviewLoading] = useState(false);
+    const [overviewError, setOverviewError] = useState("");
     const goalRefs = useRef({});
+    const projectionCacheRef = useRef(new Map());
+    const projectionRequestsRef = useRef(new Map());
+    const goalsRef = useRef(goals);
+    goalsRef.current = goals;
+
+    const loadGoalProjection = useCallback((goalId, refresh = false) => {
+        const key = String(goalId);
+        const pendingRequest = projectionRequestsRef.current.get(key);
+
+        if (pendingRequest && (!refresh || pendingRequest.refresh)) {
+            return pendingRequest.promise;
+        }
+
+        if (!refresh && projectionCacheRef.current.has(key)) {
+            return Promise.resolve(projectionCacheRef.current.get(key));
+        }
+
+        if (refresh) {
+            projectionCacheRef.current.delete(key);
+            setOverviewProjections((previous) => {
+                if (!(key in previous)) return previous;
+
+                const next = { ...previous };
+                delete next[key];
+                return next;
+            });
+        }
+
+        const requestEntry = { refresh, promise: null };
+        const request = getGoalProjection(goalId)
+            .then((data) => {
+                if (
+                    projectionRequestsRef.current.get(key) === requestEntry
+                    && goalsRef.current.some((goal) => String(goal.goalid) === key)
+                ) {
+                    projectionCacheRef.current.set(key, data);
+                    setOverviewProjections((previous) => ({
+                        ...previous,
+                        [key]: data,
+                    }));
+                }
+
+                return data;
+            })
+            .finally(() => {
+                if (projectionRequestsRef.current.get(key) === requestEntry) {
+                    projectionRequestsRef.current.delete(key);
+                }
+            });
+
+        requestEntry.promise = request;
+        projectionRequestsRef.current.set(key, requestEntry);
+        return request;
+    }, []);
 
     const scrollToGoal = (goalId) => {
         const element = goalRefs.current[goalId];
@@ -115,29 +174,110 @@ const Goals = () => {
     }, []);
 
     useEffect(() => {
+        const currentGoalIds = new Set(goals.map((goal) => String(goal.goalid)));
+
+        projectionCacheRef.current.forEach((_, key) => {
+            if (!currentGoalIds.has(key)) {
+                projectionCacheRef.current.delete(key);
+            }
+        });
+
+        setOverviewProjections((previous) =>
+            Object.fromEntries(
+                Object.entries(previous).filter(([key]) => currentGoalIds.has(key))
+            )
+        );
+
+        if (goals.length === 0) {
+            setOverviewLoading(false);
+            setOverviewError("");
+            return undefined;
+        }
+
+        let active = true;
+        setOverviewLoading(true);
+        setOverviewError("");
+
+        Promise.allSettled(
+            goals.map((goal) => loadGoalProjection(goal.goalid))
+        ).then((results) => {
+            if (!active) return;
+
+            const failedCount = results.filter((result, index) => {
+                if (result.status !== "rejected") return false;
+
+                const key = String(goals[index].goalid);
+                return !projectionCacheRef.current.has(key)
+                    && !projectionRequestsRef.current.has(key);
+            }).length;
+
+            if (failedCount > 0) {
+                setOverviewError(
+                    failedCount === goals.length
+                        ? "Unable to load goal projections."
+                        : "Some goal projections could not be loaded. Showing available projections."
+                );
+            }
+        }).finally(() => {
+            if (active) {
+                setOverviewLoading(false);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
+    }, [goals, loadGoalProjection]);
+
+    useEffect(() => {
         if (!selectedGoal) {
             setProjection(null);
             return;
         }
 
+        let active = true;
         const loadProjection = async () => {
             setProjectionLoading(true);
             setProjectionError("");
 
             try {
-                const data = await getGoalProjection(selectedGoal);
-                setProjection(data);
-                console.log(data)
+                const data = await loadGoalProjection(selectedGoal);
+                if (
+                    active
+                    && projectionCacheRef.current.get(String(selectedGoal)) === data
+                ) {
+                    setProjection(data);
+                }
             } catch (err) {
                 console.error(err);
-                setProjectionError("Unable to load goal projection.");
+                const key = String(selectedGoal);
+                if (
+                    active
+                    && !projectionCacheRef.current.has(key)
+                    && !projectionRequestsRef.current.has(key)
+                ) {
+                    setProjectionError("Unable to load goal projection.");
+                }
             } finally {
-                setProjectionLoading(false);
+                if (active) {
+                    setProjectionLoading(false);
+                }
             }
         };
 
         loadProjection();
-    }, [selectedGoal]);
+
+        return () => {
+            active = false;
+        };
+    }, [selectedGoal, loadGoalProjection]);
+
+    const overviewChartData = prepareGoalProjectionChartData(
+        goals.map((goal) => ({
+            goal,
+            projection: overviewProjections[String(goal.goalid)] ?? null,
+        }))
+    );
 
     const goalChartLabels = projection
         ? [
@@ -265,6 +405,12 @@ const Goals = () => {
                 setSelectedGoal(null);
                 setProjection(null);
             }
+            projectionCacheRef.current.delete(String(goalid));
+            setOverviewProjections((previous) => {
+                const next = { ...previous };
+                delete next[String(goalid)];
+                return next;
+            });
         } catch (err) {
             console.error(err);
             setError("Unable to delete goal.");
@@ -305,12 +451,20 @@ const Goals = () => {
                     )
                 );
 
-                if (selectedGoal === editingGoal.goalid) {
-                    const updatedProjection = await getGoalProjection(
-                        editingGoal.goalid
-                    );
+                const updatedProjectionRequest = loadGoalProjection(
+                    editingGoal.goalid,
+                    true
+                );
 
-                    setProjection(updatedProjection);
+                if (selectedGoal === editingGoal.goalid) {
+                    setProjection(await updatedProjectionRequest);
+                } else {
+                    try {
+                        await updatedProjectionRequest;
+                    } catch (projectionLoadError) {
+                        console.error(projectionLoadError);
+                        setOverviewError("Unable to refresh goal projections.");
+                    }
                 }
             } else {
                 const newGoal = await createGoal(goalData);
@@ -362,16 +516,44 @@ const Goals = () => {
         <div className="goals-page">
             <GoalsPageHeader onAddGoal={() => setShowForm(true)} />
             <div className="goals-card">
-                {goals.length === 0 ? (
-                    <div className="goals-empty-state">
-                        <h2>No goals yet</h2>
-                        <p>
-                            Create a financial goal to start tracking where
-                            you want to go.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="goals-list">
+                {goals.length > 0 && (
+                    <section className="goals-overview-section" aria-label="Goals projection overview">
+                        {overviewLoading && (
+                            <p className="goals-overview-message" role="status">
+                                Loading goal projections...
+                            </p>
+                        )}
+
+                        {overviewError && (
+                            <p className="goals-overview-message" role="status">
+                                {overviewError}
+                            </p>
+                        )}
+
+                        {!overviewLoading
+                            && (!overviewError || Object.keys(overviewProjections).length > 0)
+                            && <GoalsOverviewChart chartData={overviewChartData} />}
+                    </section>
+                )}
+
+                <section className="goals-individual-section" aria-labelledby="individual-goals-heading">
+                    <header className="goals-section-header">
+                            <h2 id="individual-goals-heading">Individual goals</h2>
+                            <p>
+                                {goals.length} {goals.length === 1 ? "goal" : "goals"}
+                            </p>
+                    </header>
+
+                    {goals.length === 0 ? (
+                        <div className="goals-empty-state">
+                            <h2>No goals yet</h2>
+                            <p>
+                                Create a financial goal to start tracking where
+                                you want to go.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="goals-list">
                         {goals.map((goal) => {
                             const isSelected = selectedGoal === goal.goalid;
 
@@ -415,6 +597,13 @@ const Goals = () => {
                                             <motion.h2 layout="position">
                                                 {goal.name}
                                             </motion.h2>
+
+                                            <span className="goal-expand-hint" aria-hidden="true">
+                                                <span>{isSelected ? "Collapse projection" : "Expand for projection"}</span>
+                                                <span
+                                                    className={`goal-expand-hint-chevron ${isSelected ? "expanded" : ""}`}
+                                                />
+                                            </span>
 
                                             {goal.description && (
                                                 <motion.div layout="position">
@@ -711,10 +900,10 @@ const Goals = () => {
                                 </motion.div>
                             );
                         })}
-                    </div>
-                )
-                }
-            </div >
+                            </div>
+                        )}
+                    </section>
+            </div>
 
             {showForm && (
                 <div className="goal-modal">
@@ -794,9 +983,9 @@ const Goals = () => {
                             </div>
                         </form>
                     </div>
-                </div>
-            )}
-        </div >
+                    </div>
+                )}
+        </div>
     );
 };
 

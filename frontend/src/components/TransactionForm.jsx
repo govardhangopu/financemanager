@@ -126,7 +126,7 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                         const selectedParent = categories.find(cat => cat.categoryid === parseInt(e.target.value));
                                         setParentCategory(selectedParent.categoryid);
                                         const parentType = selectedParent.type;
-                                        console.log("Selected parent category type:", parentType);
+                                        // console.log("Selected parent category type:", parentType);
                                         setNewType(parentType);
                                     } else {
                                         setParentCategory("");
@@ -161,7 +161,7 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                         const selectedParent = categories.find(cat => cat.categoryid === parseInt(parentCategory));
                                         parentName = selectedParent ? selectedParent.name : "";
                                     }
-                                    console.log("Creating new category:", newCategoryName, parentName, newType);
+                                    // console.log("Creating new category:", newCategoryName, parentName, newType);
                                     const categoryData = {
                                         name: newCategoryName,
                                         type: newType,
@@ -169,7 +169,7 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                         is_partial: mode === "partial" ? 1 : 0
                                     };
                                     addCategory(categoryData).then(res => {
-                                        console.log("Category created:", res);
+                                        // console.log("Category created:", res);
                                         refreshCategories();
                                         setCategory(res.insertId);
                                         setShowNewCategoryForm(false);

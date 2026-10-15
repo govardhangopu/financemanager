@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation, useSearchParams } from "react-router-do
 import { useAuth } from "../context/AuthContext";
 import Loader from '../components/Loader.jsx';
 import { login } from "../api/authApi";
+import { isSessionExpiryPending } from "../api/authenticatedClient";
 import "../styles/Auth.css";
 import googleLogo from "../assets/google.svg";
 
@@ -43,12 +44,15 @@ const Login = () => {
     };
 
     useEffect(() => {
-        if (location.state?.sessionExpired) {
+        if (location.state?.sessionExpired || isSessionExpiryPending()) {
             setSessionExpired(true);
-            navigate(`${location.pathname}${location.search}`, {
-                replace: true,
-                state: null,
-            });
+
+            if (location.state?.sessionExpired) {
+                navigate(`${location.pathname}${location.search}`, {
+                    replace: true,
+                    state: null,
+                });
+            }
         }
     }, [location, navigate]);
 
@@ -73,7 +77,7 @@ const Login = () => {
 
     return (
         <main className="auth-page">
-            <section className="auth-card">
+            <section className={`auth-card${sessionExpired ? " session-expired" : ""}`}>
                 <article className="auth-visual">
                     <div>
                         <span className="auth-badge">Finance Manager</span>
@@ -102,7 +106,7 @@ const Login = () => {
                 <article className="auth-panel">
                     <div className="auth-panel-header">
                         <p className="auth-badge">Sign in</p>
-                        <h2>Log in to continue</h2>
+                        <h3>Log in to continue</h3>
                         <p>Use your account to access your dashboard and budget insights.</p>
                     </div>
 
@@ -126,7 +130,7 @@ const Login = () => {
                             />
                         </div>
 
-                        <div className="auth-field">
+                        <div className="auth-field auth-password-field">
                             <label htmlFor="password">Password</label>
                             <input
                                 type="password"
@@ -169,9 +173,16 @@ const Login = () => {
                             Forgot password?
                         </Link>
 
-                        <p className="auth-switch">
-                            New here? <Link to="/signup">Create an account</Link>
-                        </p>
+                        <div className="auth-footer">
+                            <p className="auth-switch">
+                                New here? <Link to="/signup">Create an account</Link>
+                            </p>
+                            <nav className="auth-legal" aria-label="Legal information">
+                                <Link to="/privacy">Privacy</Link>
+                                <span aria-hidden="true">·</span>
+                                <Link to="/terms">Terms</Link>
+                            </nav>
+                        </div>
                     </form>
                 </article>
             </section>

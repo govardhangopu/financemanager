@@ -43,7 +43,7 @@ export default function Budgets() {
         return sum;
     }, 0);
 
-    const handleCreate = async (e) => {
+    const handleCreate = async () => {
         let newErrors = {};
         if (!name) newErrors.name = "Budget name is required.";
         if (!targetAmount || parseFloat(targetAmount) <= 0) newErrors.target = "Target amount must be a positive number.";
@@ -70,7 +70,7 @@ export default function Budgets() {
         setCreateError("");
 
         try {
-            await addBudget(newBudget);
+            const res = await addBudget(newBudget);
             refreshBudgets();
             setName("");
             setDescription("");
@@ -239,6 +239,9 @@ export default function Budgets() {
                                 </strong>
                             </p>
                         </div>
+                        <span className="budget-card-action-hint" aria-hidden="true">
+                            View budget details <span>→</span>
+                        </span>
                     </div>)}
                 </div>
             </>}
@@ -284,6 +287,9 @@ export default function Budgets() {
                                     </strong>
                                 </p>
                             </div>
+                            <span className="budget-card-action-hint" aria-hidden="true">
+                                View budget details <span>→</span>
+                            </span>
                         </div>
                     ))
                 )}
@@ -329,6 +335,9 @@ export default function Budgets() {
                                         </strong>
                                     </p>
                                 </div>
+                                <span className="budget-card-action-hint" aria-hidden="true">
+                                    View budget details <span>→</span>
+                                </span>
                             </div>
                         ))}
                     </div>

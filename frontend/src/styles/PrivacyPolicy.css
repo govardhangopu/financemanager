@@ -1,0 +1,92 @@
+.privacy-policy-page {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 40px 20px 64px;
+    color: var(--text-color);
+}
+
+.privacy-policy {
+    width: min(800px, 100%);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: clamp(24px, 5vw, 52px);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    background: var(--card-bg);
+}
+
+.privacy-policy-header {
+    margin-bottom: 36px;
+}
+
+.privacy-policy-eyebrow {
+    margin: 0 0 8px;
+    color: var(--link-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.privacy-policy h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 2.7rem);
+}
+
+.privacy-policy-header > p:last-child,
+.privacy-policy section p {
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+.privacy-policy-header > p:last-child {
+    max-width: 68ch;
+    margin: 20px 0 0;
+}
+
+.privacy-policy-header > p:nth-last-child(2) {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.privacy-policy section {
+    padding: 24px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.privacy-policy section h2 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+}
+
+.privacy-policy section p {
+    margin: 0;
+}
+
+.privacy-policy section p + p {
+    margin-top: 12px;
+}
+
+.privacy-policy a {
+    color: var(--link-color);
+}
+
+.privacy-policy-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 550px) {
+    .privacy-policy-page {
+        padding: 20px 12px 36px;
+    }
+
+    .privacy-policy {
+        border-radius: 14px;
+    }
+}

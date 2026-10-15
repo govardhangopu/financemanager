@@ -1,0 +1,157 @@
+.goals-overview-chart {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.goals-overview-chart-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.goals-overview-chart-header p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.goals-overview-selection {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.goals-overview-selection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.goals-overview-selection-actions button {
+    padding: 7px 11px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-inner-bg);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.goals-overview-selection-actions button:hover:not(:disabled) {
+    border-color: var(--link-color);
+}
+
+.goals-overview-selection-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.goals-overview-selection-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.goals-overview-selection-list legend {
+    padding: 0 5px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.goals-overview-selection-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    padding: 6px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    color: var(--text-color);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.goals-overview-selection-item:focus-within {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}
+
+.goals-overview-selection-item input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.goals-overview-selection-item .goals-overview-target-color {
+    flex: 0 0 auto;
+}
+
+.goals-overview-selection-name {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.goals-overview-selection-name small {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+.goals-overview-chart-plot {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    margin-top: 20px;
+}
+
+.goals-overview-chart-no-selection {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    margin: 0;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.goals-overview-target-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.goals-overview-chart-empty {
+    padding: 32px 16px;
+    text-align: center;
+}
+
+.goals-overview-chart-empty h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.goals-overview-chart-empty p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .goals-overview-chart {
+        padding: 16px;
+    }
+
+    .goals-overview-chart-plot {
+        height: 320px;
+    }
+}
