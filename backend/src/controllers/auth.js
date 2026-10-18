@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import {
-    getAllUsers,
     signUpService,
     loginService,
     changePasswordService,
@@ -17,15 +16,6 @@ import {
     verifyPasswordResetTokenService,
     resetPasswordService
 } from "../services/passwordReset.service.js";
-
-export const getUsers = async (req, res, next) => {
-    try {
-        const users = await getAllUsers();
-        res.json(users);
-    } catch (err) {
-        next(err);
-    }
-};
 
 export const signUp = async (req, res, next) => {
     try {

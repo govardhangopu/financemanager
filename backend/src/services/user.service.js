@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import {
-    fetchUsers,
     findUser,
     createUser,
     findUserById,
@@ -41,10 +40,6 @@ const createAuthResponse = async (user) => {
             }
         }
     };
-};
-
-export const getAllUsers = async () => {
-    return await fetchUsers();
 };
 
 export const signUpService = async ({ name, email, username, password }) => {

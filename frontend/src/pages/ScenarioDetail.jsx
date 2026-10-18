@@ -336,7 +336,7 @@ export default function ScenarioDetail() {
     }
 
     return (
-        <div className="scenario-detail-page">
+        <div className="scenario-detail-page forecast-page">
             <div
                 className={`scenario-detail-card ${isEditing ? "editing-mode" : ""
                     }`}
@@ -344,7 +344,7 @@ export default function ScenarioDetail() {
 
                 <div className="scenario-card-header">
 
-                    <div className="scenario-title-area">
+                    <div className="scenario-title-area finance-page-heading">
 
                         {isEditing ? (
                             <>

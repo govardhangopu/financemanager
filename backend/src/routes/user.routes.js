@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import {
-    getUsers,
     signUp,
     login,
     changePassword,
@@ -62,7 +61,6 @@ router.get(
 
 router.delete("/google/link", authorizer, unlinkGoogle);
 
-router.get('/', getUsers);
 router.post('/signup', signUp);
 router.post('/login', login);
 router.put('/password', authorizer, changePassword);

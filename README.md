@@ -1,87 +1,78 @@
 # Finance Manager
 
-A web application for managing personal and organizational finances. Track expenses, income, budgets, and view financial reports through a React frontend and Express API.
-
-## Repository structure
-
-- `backend/` — Express API server using MySQL
-- `frontend/` — React app built with Vite
-- `docs/` — Documentation
+A personal finance web application for tracking transactions, organizing categories and budgets, setting goals, and exploring forecasts and what-if scenarios.
 
 ## Features
 
-- Add, edit, and delete transactions
-- Create and Track your own Budgets
-- Simulate Budgets using Partial Budgeting Feature
-- Categorize expenses and income
-- Visualize financial data with charts
-- User authentication with JWT
+- Create, update, and delete transactions and categories
+- Organize budgets and review spending progress
+- Set financial goals and view projections
+- Explore forecasts and what-if scenarios
+- View financial summaries and charts on the dashboard
+- Sign in with a password or Google
 
-## Installation
+## Technology
 
-### Backend
+- Frontend: React, Vite, React Router, Axios, Chart.js
+- Backend: Node.js, Express, MySQL
+- Authentication: JWT and Google OAuth
 
-```bash
-cd backend
-npm install
-```
+## Local development
 
-Create a `.env` file in `backend/` with the following values:
+### Prerequisites
 
-```env
-PORT=5000
-DB_HOST=
-DB_USER=
-DB_PASS=
-DB_NAME=
-JWT_SECRET=
-```
+- Node.js and npm
+- MySQL
+- Google OAuth credentials and a Resend API key (required by the current backend configuration)
 
-Start the backend:
+### Create a fresh database
+
+From the repository root, import the baseline schema:
 
 ```bash
-npm start
+mysql --host=localhost --user=root --password < backend/config/schema.sql
 ```
 
-### Frontend
+This creates the `financemanager` database and all tables used by the current backend. Set `MYSQLDATABASE=financemanager` in `backend/.env`.
+
+`schema.sql` is for creating a fresh database, not upgrading an existing one. The backend does not create or alter tables at startup. Back up an existing database and apply a reviewed migration before deploying schema changes; `CREATE TABLE IF NOT EXISTS` does not alter existing table definitions.
+
+### Configure environment
+
+Copy the examples:
 
 ```bash
-cd frontend
-npm install
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-Create a `.env` file in `frontend/` with the backend URL:
+Configure the MySQL connection and a strong `JWT_SECRET` in `backend/.env`. Configure the Google OAuth client credentials, callback URLs, frontend/backend URLs, and Resend API key for the current backend to initialize and for those integrations to work. Do not commit `.env` files.
 
-```env
-VITE_API_URL=http://localhost:5000
-```
+The backend defaults to port `4000`; `frontend/.env.example` points to that port. If you change the backend port, update `VITE_API_URL` and the OAuth callback URLs accordingly.
 
-Start the frontend for development:
+### Install dependencies and start
+
+From the repository root:
 
 ```bash
-npm run dev
+npm ci --prefix backend
+npm ci --prefix frontend
 ```
 
-## Running locally
+Start the backend and frontend in separate terminals:
 
-1. Start the backend in `backend/`.
-2. Start the frontend in `frontend/`.
-3. Open the local URL shown by Vite.
+```bash
+npm run dev --prefix backend
+```
 
-## Database setup
+```bash
+npm run dev --prefix frontend
+```
 
-The backend uses MySQL. Run the schema file at `backend/config/schema.sql` against your MySQL server to create the required database and tables.
+The backend verifies its database connection before accepting requests. Open the URL printed by Vite.
 
-## Usage
+## Repository structure
 
-- Log in or create an account.
-- Add your financial transactions.
-- View summaries and reports.
-
-## Contributing
-
-Contributions are welcome! Please open issues or submit pull requests.
-
-## License
-
-This project is licensed under the MIT License.
+- `backend/` — Express API, SQL schema, and MySQL repositories
+- `frontend/` — React application
+- `docs/` — project design notes and diagrams

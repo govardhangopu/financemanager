@@ -1,7 +1,8 @@
 .scenario-detail-page {
     width: 100%;
     min-height: 91vh;
-    padding: 20px;
+    flex-shrink: 0;
+    padding: 20px 20px 0;
     box-sizing: border-box;
     color: var(--text-color);    
     text-align: left;
@@ -17,6 +18,10 @@
     border: 1px solid var(--border-color);
     border-radius: 20px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.scenario-content-panel {
+    margin-bottom: 20px;
 }
 
 /* =========================
@@ -166,6 +171,7 @@
 .scenario-projection-chart {
     height: 320px;
     margin-top: 24px;
+      padding-bottom: 20px;
 }
 
 .scenario-projection-chart h3 {

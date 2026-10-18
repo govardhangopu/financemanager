@@ -156,7 +156,7 @@ export default function Navbar() {
                                     <path d="M5 20c.5-3.5 3.2-5.5 7-5.5s6.5 2 7 5.5" />
                                 </svg>
                             </span>
-                            <span className="account-label">Account</span>
+                            {/* <span className="account-label">Account</span> */}
                             <span className="account-chevron" aria-hidden="true">
                                 ▾
                             </span>

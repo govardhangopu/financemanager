@@ -5,9 +5,22 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`users` (
   `userid` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `username` VARCHAR(45) NOT NULL UNIQUE,
-  `password` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`userid`));
+  `password` VARCHAR(255) NULL DEFAULT NULL,
+  `email` VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY (`userid`)
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`oauth_accounts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `userid` INT NOT NULL UNIQUE,
+  `provider_user_id` VARCHAR(255) NOT NULL UNIQUE,
+  `provider_email` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `oauth_account_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS `financemanager`.`categories` (
   `categoryid` INT NOT NULL AUTO_INCREMENT,
@@ -19,8 +32,19 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`categories` (
   PRIMARY KEY (`categoryid`),
   UNIQUE KEY `categoryid_UNIQUE` (`categoryid`),
   KEY `parent_categoryid_fk_idx` (`parent_categoryid`),
-  CONSTRAINT `parent_categoryid_fk` FOREIGN KEY (`parent_categoryid`) REFERENCES `categories` (`categoryid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `categories_chk_1` CHECK ((`type` in (_utf8mb4'income',_utf8mb4'expense')))
+  KEY `categories_user_fk_idx` (`userid`),
+  CONSTRAINT `parent_categoryid_fk`
+    FOREIGN KEY (`parent_categoryid`)
+    REFERENCES `categories` (`categoryid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `categories_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `categories_chk_1`
+    CHECK ((`type` in (_utf8mb4'income',_utf8mb4'expense')))
 );
 
 CREATE TABLE IF NOT EXISTS `financemanager`.`transactions` (
@@ -92,3 +116,87 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`budget_transactions` (
     REFERENCES `financemanager`.`transactions` (`transactionid`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`scenarios` (
+  `scenarioid` INT NOT NULL AUTO_INCREMENT,
+  `userid` INT NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `description` VARCHAR(255) NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`scenarioid`),
+  UNIQUE INDEX `scenarioid_UNIQUE` (`scenarioid` ASC) VISIBLE,
+  INDEX `scenario_user_fk_idx` (`userid` ASC) VISIBLE,
+  CONSTRAINT `scenario_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`scenario_changes` (
+  `scenario_changeid` INT NOT NULL AUTO_INCREMENT,
+  `scenarioid` INT NOT NULL,
+  `change_type` ENUM('recurring', 'one_time') NOT NULL,
+  `target_type` ENUM('category', 'pattern', 'new') NOT NULL,
+  `categoryid` INT NULL,
+  `type` ENUM('income', 'expense') NULL,
+  `direction` ENUM('increase', 'decrease') NOT NULL DEFAULT 'increase',
+  `amount` DECIMAL(10,2) NOT NULL,
+  `frequency` ENUM('monthly') NULL,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE NULL,
+  `description` VARCHAR(255) NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`scenario_changeid`),
+  INDEX `scenario_change_scenario_idx` (`scenarioid`),
+  INDEX `scenario_change_category_idx` (`categoryid`),
+  CONSTRAINT `scenario_change_scenario_fk`
+    FOREIGN KEY (`scenarioid`)
+    REFERENCES `financemanager`.`scenarios` (`scenarioid`)
+    ON DELETE CASCADE,
+  CONSTRAINT `scenario_change_category_fk`
+    FOREIGN KEY (`categoryid`)
+    REFERENCES `financemanager`.`categories` (`categoryid`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`goals` (
+  `goalid` INT NOT NULL AUTO_INCREMENT,
+  `userid` INT NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `target_amount` DECIMAL(10,2) NOT NULL,
+  `target_date` DATE NOT NULL,
+  `description` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`goalid`),
+  UNIQUE INDEX `goalid_UNIQUE` (`goalid` ASC) VISIBLE,
+  INDEX `goal_user_fk_idx` (`userid` ASC) VISIBLE,
+  CONSTRAINT `goal_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `financemanager`.`password_reset_tokens` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `userid` INT NOT NULL,
+  `token_hash` CHAR(64) NOT NULL,
+  `expires_at` DATETIME NOT NULL,
+  `used_at` DATETIME NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `password_reset_token_hash_unique` (`token_hash`),
+  INDEX `password_reset_user_idx` (`userid`),
+  CONSTRAINT `password_reset_user_fk`
+    FOREIGN KEY (`userid`)
+    REFERENCES `financemanager`.`users` (`userid`)
+    ON DELETE CASCADE
+);
