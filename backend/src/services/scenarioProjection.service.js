@@ -59,6 +59,14 @@ export const calculateTotalScenarioImpact = async ({
     );
 
     for (const change of changes) {
+        // Preserve deleted-category changes for recovery in the UI, but omit them from projections.
+        if (
+            (change.target_type === "category" || change.target_type === "pattern")
+            && !change.categoryid
+        ) {
+            continue;
+        }
+
         let impact;
 
         // New recurring financial flow

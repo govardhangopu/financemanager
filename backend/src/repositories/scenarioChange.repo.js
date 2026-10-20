@@ -68,7 +68,8 @@ export const fetchAll = async (scenarioid) => {
             sc.description,
             sc.created_at,
             sc.updated_at,
-            c.name AS category_name
+            c.name AS category_name,
+            (sc.target_type IN ('category', 'pattern') AND sc.categoryid IS NULL) AS category_deleted
          FROM scenario_changes sc
          LEFT JOIN categories c ON sc.categoryid = c.categoryid
          WHERE sc.scenarioid = ?

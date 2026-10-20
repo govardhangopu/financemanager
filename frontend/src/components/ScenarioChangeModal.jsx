@@ -101,6 +101,12 @@ export default function ScenarioChangeModal({ onClose, onAdd, change = null }) {
 
                         <div className="form-section">
 
+                            {change?.category_deleted && (
+                                <p className="scenario-change-deleted-category" role="status">
+                                    The original category was deleted. Choose another category to restore this change.
+                                </p>
+                            )}
+
                             <label htmlFor="change-target">What do you want to change?</label>
                             <select
                                 id="change-target"

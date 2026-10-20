@@ -536,9 +536,11 @@ export default function ScenarioDetail() {
                                         <strong>
                                             {change.target_type === "new"
                                                 ? change.type === "income" ? "+ New income" : "− New expense"
-                                                : change.direction === "increase"
-                                                    ? `↑ Increase ${change.category_name}`
-                                                    : `↓ Reduce ${change.category_name}`}
+                                                : change.category_deleted
+                                                    ? "Category deleted"
+                                                    : change.direction === "increase"
+                                                        ? `↑ Increase ${change.category_name || "Category unavailable"}`
+                                                        : `↓ Reduce ${change.category_name || "Category unavailable"}`}
                                         </strong>
 
                                         <div className="scenario-change-actions">
@@ -546,6 +548,12 @@ export default function ScenarioDetail() {
                                             <button onClick={() => handleDeleteChange(change.scenario_changeid)}>Delete</button>
                                         </div>
                                     </div>
+
+                                    {Boolean(change.category_deleted) && (
+                                        <p className="scenario-change-deleted-category" role="status">
+                                            This change is excluded from projections. Edit it to choose another category, or remove it.
+                                        </p>
+                                    )}
 
                                     {change.change_type === "recurring" || change.change_type === "one_time" ? (
                                         <div className="scenario-change-slider">
@@ -592,6 +600,7 @@ export default function ScenarioDetail() {
                                                 min="0"
                                                 max={getSliderMax(change.amount)}
                                                 step="100"
+                                                disabled={Boolean(change.category_deleted)}
                                                 value={
                                                     simulatedChanges.find(
                                                         item => item.scenario_changeid === change.scenario_changeid
@@ -608,6 +617,7 @@ export default function ScenarioDetail() {
                                                 <div className="scenario-change-date">
                                                     <input
                                                         type="date"
+                                                        disabled={Boolean(change.category_deleted)}
                                                         value={
                                                             simulatedChanges.find(
                                                                 item => item.scenario_changeid === change.scenario_changeid
