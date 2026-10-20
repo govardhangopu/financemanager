@@ -29,7 +29,7 @@ export default function TransactionHistoryCard() {
         let compareValue = 0;
 
         if (sortBy === "date") {
-            compareValue = new Date(a.date) - new Date(b.date);
+            compareValue = String(a.date).slice(0, 10).localeCompare(String(b.date).slice(0, 10));
         } else if (sortBy === "amount") {
             compareValue = a.amount - b.amount;
         }
@@ -91,7 +91,7 @@ export default function TransactionHistoryCard() {
                                             ? "+₹" + t.amount
                                             : "-₹" + t.amount
                                         }</td>
-                                        <td className="date">{new Date(t.date).toLocaleString()}</td>
+                                        <td className="date">{new Date(`${String(t.date).slice(0, 10)}T00:00:00`).toLocaleDateString()}</td>
                                         <td>
                                             <button id="delbutton" type="button" onClick={e => deleteTrans(e, t)}>🗑️</button>
                                             <button id="editbutton" type="button" onClick={() => navigate(`/edittransaction/${t.transactionid}`)}>✏️</button>

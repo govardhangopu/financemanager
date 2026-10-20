@@ -2,7 +2,7 @@ import { addMonthsToDateOnly } from "../utils/date.utils.js";
 
 const toDateOnly = (value) => String(value).slice(0, 10);
 
-export const buildProjectionTimeline = ({ startDate, months, startingCumulativeNetFlow, averageMonthlyNetFlow, scheduledTransactions = [], endDate: requestedEndDate }) => {
+export const buildProjectionTimeline = ({ startDate, months, startingCumulativeNetFlow, averageMonthlyNetFlow, scheduledTransactions = [], endDate: requestedEndDate, includeBaseline = true }) => {
     const firstMonth = addMonthsToDateOnly(startDate, 0);
     const lastMonth = addMonthsToDateOnly(startDate, months - 1);
     const rangeStart = `${firstMonth.year}-${String(firstMonth.month + 1).padStart(2, "0")}-01`;
@@ -31,13 +31,16 @@ export const buildProjectionTimeline = ({ startDate, months, startingCumulativeN
         const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
         const scheduledToday = scheduledByDate.get(date) ?? [];
         const scheduledNetFlow = scheduledToday.reduce((sum, transaction) => sum + transaction.netFlow, 0);
-        if (date >= today) cumulativeNetFlow += averageMonthlyNetFlow / daysInMonth;
+        const baselineNetFlow = includeBaseline && date >= today
+            ? averageMonthlyNetFlow / daysInMonth
+            : 0;
+        cumulativeNetFlow += baselineNetFlow;
         cumulativeNetFlow += scheduledNetFlow;
 
         const isMonthEnd = Number(date.slice(8, 10)) === daysInMonth;
-        if (scheduledToday.length > 0 || isMonthEnd || date === rangeEnd) {
+        if (scheduledToday.length > 0 || (includeBaseline && (isMonthEnd || date === rangeEnd))) {
             const monthOffset = (year - firstMonth.year) * 12 + (month - 1 - firstMonth.month) + 1;
-            projection.push({ month: monthOffset, monthIndex: monthOffset - 1, date, monthlyNetFlow: averageMonthlyNetFlow, baselineNetFlow: date >= today ? averageMonthlyNetFlow / daysInMonth : 0, scheduledNetFlow, scheduledTransactions: scheduledToday, cumulativeNetFlow });
+            projection.push({ month: monthOffset, monthIndex: monthOffset - 1, date, monthlyNetFlow: includeBaseline ? averageMonthlyNetFlow : 0, baselineNetFlow, scheduledNetFlow, scheduledTransactions: scheduledToday, cumulativeNetFlow });
         }
         cursor.setUTCDate(cursor.getUTCDate() + 1);
     }

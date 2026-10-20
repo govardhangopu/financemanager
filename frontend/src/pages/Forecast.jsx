@@ -160,11 +160,9 @@ export default function Forecast() {
             <div className="forecast-card">
                 <div className="forecast-summary">
                     <div>
-                        <span>Average monthly net flow</span>
+                        <span>{forecast.isScheduledOnly ? "Historical average" : "Average monthly net flow"}</span>
                         <strong>
-                            {formatCurrency(
-                                forecast.averageMonthlyNetFlow
-                            )}
+                            {forecast.isScheduledOnly ? "Not available" : formatCurrency(forecast.averageMonthlyNetFlow)}
                         </strong>
                     </div>
 
@@ -179,12 +177,19 @@ export default function Forecast() {
                 </div>
 
                 <div className="forecast-projection-section">
+                    {forecast.isScheduledOnly && (
+                        <div className="forecast-history-notice" role="status">
+                            Scheduled transactions are shown on their dates. Add past transactions to enable trend forecasting.
+                        </div>
+                    )}
                     <p className="forecast-projection-context">
                         Projected over the next{" "}
                         {horizon / 12 === 1
                             ? "1 year"
                             : `${horizon / 12} years`}
-                        {" "}using your average historical monthly net flow.
+                        {" "}{forecast.isScheduledOnly
+                            ? "using scheduled transactions only."
+                            : "using your average historical monthly net flow and scheduled transactions."}
                     </p>
                     <div className="forecast-projection-chart">
                         <GenericChart

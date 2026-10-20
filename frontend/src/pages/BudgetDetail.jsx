@@ -456,7 +456,7 @@ export default function BudgetDetail() {
                                 <tbody>
                                     {linkedTransactions.map((t) => (
                                         <tr key={t.transactionid}>
-                                            <td>{new Date(t.date).toLocaleDateString()}</td>
+                                            <td>{new Date(`${String(t.date).slice(0, 10)}T00:00:00`).toLocaleDateString()}</td>
                                             <td>{t.category_name}</td>
                                             <td className="spent-amount">₹{parseFloat(t.amount).toLocaleString()}</td>
                                         </tr>

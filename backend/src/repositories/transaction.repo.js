@@ -11,7 +11,9 @@ export const fetchById = async (userid, transactionid) => {
     const pool = connectDB();
 
     const [rows] = await pool.query(
-        `SELECT t.*, c.name AS category_name, c.type, c.parent_categoryid
+        `SELECT t.transactionid, t.userid, t.amount, t.categoryid, t.is_partial,
+                DATE_FORMAT(t.date, '%Y-%m-%d') AS date,
+                c.name AS category_name, c.type, c.parent_categoryid
          FROM transactions t
          LEFT JOIN categories c ON t.categoryid = c.categoryid
          WHERE t.transactionid = ? AND t.userid = ?`,
@@ -30,7 +32,9 @@ export const fetchTransactions = async (userid, is_partial = null) => {
     }
 
     const [rows] = await pool.query(`
-        SELECT t.*, c.name AS category_name, c.type, c.parent_categoryid
+        SELECT t.transactionid, t.userid, t.amount, t.categoryid, t.is_partial,
+               DATE_FORMAT(t.date, '%Y-%m-%d') AS date,
+               c.name AS category_name, c.type, c.parent_categoryid
         FROM transactions t
         LEFT JOIN categories c
             ON t.categoryid = c.categoryid

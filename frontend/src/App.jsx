@@ -8,6 +8,7 @@ import Login from "./pages/Login"
 import SignUp from "./pages/SignUp"
 import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard"
+import Transactions from "./pages/Transactions"
 import AddTransaction from "./pages/AddTransaction"
 import EditTransaction from "./pages/EditTransaction"
 import Categories from "./pages/Categories";
@@ -81,6 +82,7 @@ function App() {
             <Route path="/terms" element={<TermsOfService />} />
 
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
             <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
             <Route path="/addtransaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
             <Route path="/edittransaction/:id" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />

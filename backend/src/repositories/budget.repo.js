@@ -92,7 +92,12 @@ export const fetchBudgetTransactions = async (budgetid) => {
         )
 
         SELECT DISTINCT
-            t.*,
+            t.transactionid,
+            t.userid,
+            t.amount,
+            t.categoryid,
+            t.is_partial,
+            DATE_FORMAT(t.date, '%Y-%m-%d') AS date,
             c.name AS category_name,
             c.type,
             c.parent_categoryid

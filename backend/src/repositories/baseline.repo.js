@@ -64,7 +64,7 @@ export const fetchScheduledTransactions = async (userid) => {
         SELECT
             t.transactionid,
             t.amount,
-            t.date,
+            DATE_FORMAT(t.date, '%Y-%m-%d') AS date,
             t.categoryid,
             c.name AS category_name,
             c.type AS category_type,
@@ -83,7 +83,6 @@ export const fetchScheduledTransactions = async (userid) => {
     return rows.map((row) => ({
         ...row,
         amount: Number(row.amount),
-        netFlow: Number(row.net_flow),
-        date: row.date instanceof Date ? row.date.toISOString() : row.date
+        netFlow: Number(row.net_flow)
     }));
 };

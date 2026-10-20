@@ -107,6 +107,18 @@
     font-size: 0.85rem;
 }
 
+.forecast-history-notice {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--link-color);
+    border-radius: 10px;
+    background: var(--card-inner-bg);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
 .forecast-projection-chart {
     height: 400px;
     margin-top: 24px;

@@ -4,7 +4,7 @@ import { useFinance } from "../context/FinanceContext";
 import TransactionForm from "../components/TransactionForm";
 
 export default function AddTransaction() {
-    const { refreshTransactions, refreshCategories } = useFinance();
+    const { refreshTransactions } = useFinance();
     const navigate = useNavigate();
 
     const handleAdd = async (transaction) => {
@@ -13,7 +13,7 @@ export default function AddTransaction() {
             const res = await addTransaction(transaction);
             // console.log("Transaction added successfully:", res);
             refreshTransactions();
-            navigate("/dashboard");
+            navigate(-1);
         }
         catch (err) {
             console.error("Error adding transaction:", err);

@@ -21,11 +21,11 @@ export default function EditTransaction() {
         if (transactionsLoading) return;
         if (!transaction) {
             alert("Transaction not found");
-            navigate("/dashboard");
+            navigate(-1);
             return;
         }
         setAmount(transaction.amount);
-        setDate(new Date(transaction.date).toISOString().split("T")[0]);
+        setDate(String(transaction.date).slice(0, 10));
         setCategory(transaction.categoryid);
         setIsPartial(transaction.is_partial);
     }, [transactionsLoading, transaction, navigate]);
@@ -41,7 +41,7 @@ export default function EditTransaction() {
             await updateTransaction(transactionUpdate);
             // console.log("Transaction updated successfully");
             refreshTransactions();
-            navigate("/dashboard");
+            navigate(-1);
         }
         catch (err) {
             console.error("Error updating transaction:", err);

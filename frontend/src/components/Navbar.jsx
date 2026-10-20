@@ -79,6 +79,9 @@ export default function Navbar() {
                                     <NavLink to="/dashboard">Dashboard</NavLink>
                                 </li>
                                 <li>
+                                    <NavLink to="/transactions">Transactions</NavLink>
+                                </li>
+                                <li>
                                     <NavLink to="/categories">Categories</NavLink>
                                 </li>
                                 <li>

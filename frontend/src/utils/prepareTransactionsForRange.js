@@ -1,3 +1,8 @@
+const parseTransactionDate = (value) => {
+    const [year, month, day] = String(value).slice(0, 10).split("-").map(Number);
+    return new Date(year, month - 1, day);
+};
+
 export function filterTransactionsForRange(range, transactions = []) {
     if (range === "all") return transactions;
 
@@ -21,7 +26,7 @@ export function filterTransactionsForRange(range, transactions = []) {
     }
 
     return transactions.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
+        const transactionDate = parseTransactionDate(transaction.date);
         return transactionDate >= startDate && transactionDate < endDate;
     });
 }
@@ -35,7 +40,7 @@ export function prepareTransactionsForRange(range, transactions = []) {
     //Step 2: Sorting
     
     const sorted = [...selectedTransactions].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => String(a.date).slice(0, 10).localeCompare(String(b.date).slice(0, 10))
     );
 
     // Step 3: Mapping Transactions for Each Date based on Granularity
@@ -52,13 +57,13 @@ export function prepareTransactionsForRange(range, transactions = []) {
     sorted.forEach(transaction=> {
         let date;
         if (range === "all")
-            date = new Date(transaction.date).getFullYear();
+            date = parseTransactionDate(transaction.date).getFullYear();
         else if (range === "year")
-            date = new Date(transaction.date).toDateString().split(" ")[1];
+            date = parseTransactionDate(transaction.date).toDateString().split(" ")[1];
         else if (range === "month")
-            date = new Date(transaction.date).toISOString().split('T')[0].slice(8);
+            date = String(transaction.date).slice(8, 10);
         else if (range === "today")
-            date = new Date(transaction.date).getHours();
+            date = parseTransactionDate(transaction.date).getHours();
 
         if (!dateMap[date])
             dateMap[date] = [];
