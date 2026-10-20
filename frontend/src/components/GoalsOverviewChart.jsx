@@ -117,7 +117,7 @@ const getUnavailableProjectionMessage = (goal) => {
 
 export function GoalsOverviewChart({ chartData }) {
     const { theme } = useTheme();
-    const labels = chartData?.labels ?? [];
+    const allLabels = chartData?.labels ?? [];
     const timeline = chartData?.timeline ?? [];
     const goals = chartData?.goals ?? [];
     const usableProjectionGoals = goals.filter((goal) =>
@@ -169,12 +169,25 @@ export function GoalsOverviewChart({ chartData }) {
         selectedGoalKeys.has(getGoalKey(goal))
     );
 
+    const activeHorizonEndIndex = visibleGoals.reduce((latestIndex, goal) => {
+        const lastProjectionIndex = goal.data.reduce(
+            (lastIndex, value, index) => Number.isFinite(value) ? index : lastIndex,
+            -1
+        );
+        const targetEnd = getTargetEndIndex(goal, timeline);
+
+        return Math.max(latestIndex, lastProjectionIndex, targetEnd?.index ?? -1);
+    }, 0);
+    const activeTimelineLength = visibleGoals.length > 0 ? activeHorizonEndIndex + 1 : 0;
+    const labels = allLabels.slice(0, activeTimelineLength);
+    const activeTimeline = timeline.slice(0, activeTimelineLength);
+
     const projectionDatasets = visibleGoals.map((goal) => {
         const color = goalColor(goal);
 
         return {
             label: `${goal.name || "Goal"} — projected cumulative net flow`,
-            data: goal.data,
+            data: goal.data.slice(0, activeTimelineLength),
             borderColor: color,
             backgroundColor: color,
             borderWidth: 2,
@@ -197,7 +210,7 @@ export function GoalsOverviewChart({ chartData }) {
         }
 
         const color = goalColor(goal);
-        const data = timeline.map((_, index) =>
+        const data = activeTimeline.map((_, index) =>
             index <= targetEnd.index ? targetAmount : null
         );
 

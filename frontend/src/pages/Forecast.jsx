@@ -102,8 +102,11 @@ export default function Forecast() {
         );
     }
 
-    const labels = forecast.projection.map((item) => item.month);
-    const cumulativeNetFlow = forecast.projection.map((item) => item.cumulativeNetFlow);
+    const labels = ["Today", ...forecast.projection.map((item) => item.date ?? item.month)];
+    const cumulativeNetFlow = [
+        forecast.startingCumulativeNetFlow,
+        ...forecast.projection.map((item) => item.cumulativeNetFlow),
+    ];
     const linkColor = getComputedStyle(document.documentElement).getPropertyValue("--link-color").trim();
 
     const datasets = [

@@ -1,8 +1,10 @@
 const getProjectionMonth = (projectionPoint) => {
-    const month = projectionPoint?.month;
+    const month = Number.isInteger(projectionPoint?.monthIndex)
+        ? projectionPoint.monthIndex
+        : projectionPoint?.month;
     const value = projectionPoint?.cumulativeNetFlow;
 
-    if (!Number.isInteger(month) || month < 1 || !Number.isFinite(value)) {
+    if (!Number.isInteger(month) || month < 0 || !Number.isFinite(value)) {
         return null;
     }
 

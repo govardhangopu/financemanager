@@ -39,7 +39,7 @@ export default function TransactionHistoryCard() {
 
     const deleteTrans = (e, t) => {
         e.preventDefault();
-        if(!confirm(`Do you want to delete Transaction ID: ₹{t.transactionid} Amount: ₹{t.amount}?`)) return;
+        if(!confirm(`Do you want to delete Transaction with Amount: ₹${t.amount}?`)) return;
         deleteTransaction(t.transactionid)
             .then(res => {
                 // console.log("Transaction deleted successfully.");

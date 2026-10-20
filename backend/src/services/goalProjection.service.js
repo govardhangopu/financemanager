@@ -1,6 +1,7 @@
 import * as repo from "../repositories/goalProjection.repo.js";
 import * as baselineService from "./baseline.service.js";
-import { parseDateOnly, addMonthsToDateOnly } from "../utils/date.utils.js";
+import { parseDateOnly } from "../utils/date.utils.js";
+import { buildProjectionTimeline } from "./projectionTimeline.service.js";
 
 export const getGoalProjection = async ({ userid, goalid }) => {
     const goals = await repo.fetchGoal(userid, goalid);
@@ -11,11 +12,14 @@ export const getGoalProjection = async ({ userid, goalid }) => {
 
     const goal = goals[0];
 
-    const currentCumulativeNetFlow = await repo.fetchCurrentCumulativeNetFlow(userid);
-
     const baseline = await baselineService.getBaseline(userid);
+    const currentCumulativeNetFlow = baseline.currentCumulativeNetFlow;
 
-    if (!baseline.hasData) {
+    if (
+        !baseline.hasData
+        && baseline.scheduledTransactions.length === 0
+        && baseline.currentCumulativeNetFlow === 0
+    ) {
         return {
             hasData: false,
             goal: {
@@ -40,9 +44,12 @@ export const getGoalProjection = async ({ userid, goalid }) => {
 
     const targetDate = parseDateOnly(goal.target_date);
 
-    const monthsRemaining =
+    const monthsToTarget =
         (targetDate.year - currentYear) * 12 +
         (targetDate.month - currentMonth);
+    const targetDateString = String(goal.target_date).slice(0, 10);
+    const todayString = today.toISOString().slice(0, 10);
+    const monthsRemaining = Math.max(1, monthsToTarget + 1);
 
     const targetAmount = Number(goal.target_amount);
     const averageMonthlyNetFlow = baseline.averageMonthlyNetFlow;
@@ -71,7 +78,7 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         };
     }
 
-    if (monthsRemaining <= 0) {
+    if (targetDateString <= todayString) {
         const shortfall = Math.max(0, targetAmount - currentCumulativeNetFlow);
 
         return {
@@ -93,9 +100,17 @@ export const getGoalProjection = async ({ userid, goalid }) => {
         };
     }
 
-    const projectedCumulativeNetFlow =
-        currentCumulativeNetFlow +
-        averageMonthlyNetFlow * monthsRemaining;
+    const projection = buildProjectionTimeline({
+        startDate: todayString,
+        months: monthsRemaining,
+        startingCumulativeNetFlow: currentCumulativeNetFlow,
+        averageMonthlyNetFlow,
+        scheduledTransactions: baseline.scheduledTransactions,
+        endDate: targetDateString
+    });
+
+    const projectedCumulativeNetFlow = projection.at(-1)?.cumulativeNetFlow
+        ?? currentCumulativeNetFlow;
 
     const requiredMonthlyNetFlow = (targetAmount - currentCumulativeNetFlow) / monthsRemaining;
 
@@ -103,32 +118,12 @@ export const getGoalProjection = async ({ userid, goalid }) => {
 
     const monthlyGap = Math.max(0, requiredMonthlyNetFlow - averageMonthlyNetFlow);
 
-    const projection = [];
-
-    for (let month = 1; month <= monthsRemaining; month++) {
-        projection.push({
-            month,
-            cumulativeNetFlow:
-                currentCumulativeNetFlow +
-                averageMonthlyNetFlow * month
-        });
-    }
-
     const goalReachedAt = projection.find(point => point.cumulativeNetFlow >= targetAmount);
 
-    const goalReachedDate = goalReachedAt
-        ? (() => {
-            const { year, month } = addMonthsToDateOnly(
-                new Date().toISOString().split("T")[0],
-                goalReachedAt.month
-            );
-
-            return `${year}-${String(month + 1).padStart(2, "0")}-01`;
-        })()
-        : null;
+    const goalReachedDate = goalReachedAt?.date ?? null;
 
     const monthsEarly = goalReachedAt
-        ? monthsRemaining - goalReachedAt.month
+        ? Math.max(0, monthsRemaining - goalReachedAt.month)
         : 0;
 
     return {

@@ -286,6 +286,14 @@ const Goals = () => {
                 const date = new Date();
                 date.setMonth(date.getMonth() + point.month);
 
+                if (point.date) {
+                    return new Date(`${point.date}T00:00:00`).toLocaleDateString("en-IN", {
+                        month: "short",
+                        year: "numeric",
+                        day: "numeric",
+                    });
+                }
+
                 return date.toLocaleDateString("en-IN", {
                     month: "short",
                     year: "numeric"
@@ -311,13 +319,11 @@ const Goals = () => {
                 pointRadius: [
                     6,
                     ...projection.projection.map((_, index) => {
-                        const projectionMonth = index + 1;
-
                         if (index === projection.projection.length - 1) {
                             return 7;
                         }
 
-                        if (projectionMonth === projection.goalReachedAt) {
+                        if (projection.projection[index]?.date === projection.goalReachedDate) {
                             return 5;
                         }
 
@@ -327,13 +333,11 @@ const Goals = () => {
                 pointHoverRadius: [
                     8,
                     ...projection.projection.map((_, index) => {
-                        const projectionMonth = index + 1;
-
                         if (index === projection.projection.length - 1) {
                             return 9;
                         }
 
-                        if (projectionMonth === projection.goalReachedAt) {
+                        if (projection.projection[index]?.date === projection.goalReachedDate) {
                             return 7;
                         }
 
@@ -519,15 +523,15 @@ const Goals = () => {
                 {goals.length > 0 && (
                     <section className="goals-overview-section" aria-label="Goals projection overview">
                         {overviewLoading && (
-                            <p className="goals-overview-message" role="status">
+                            <h2 className="goals-overview-message" role="status">
                                 Loading goal projections...
-                            </p>
+                            </h2>
                         )}
 
                         {overviewError && (
-                            <p className="goals-overview-message" role="status">
+                            <h2 className="goals-overview-message" role="status">
                                 {overviewError}
-                            </p>
+                            </h2>
                         )}
 
                         {!overviewLoading
