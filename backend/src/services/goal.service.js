@@ -1,4 +1,5 @@
 import * as repo from "../repositories/goal.repo.js";
+import * as baselineService from "./baseline.service.js";
 
 const validateGoal = ({ name, target_amount, target_date }) => {
     if (!name || !name.trim()) {
@@ -43,7 +44,33 @@ export const create = async ({ userid, name, target_amount, target_date, descrip
 };
 
 export const fetchAll = async ({ userid }) => {
-    return await repo.fetchAll(userid);
+    const [goals, baseline] = await Promise.all([
+        repo.fetchAll(userid),
+        baselineService.getBaseline(userid)
+    ]);
+    let availableCash = Math.max(0, baseline.currentCumulativeNetFlow);
+
+    return goals.map((goal) => {
+        const allocatedAmount = Math.min(Number(goal.target_amount), availableCash);
+        availableCash -= allocatedAmount;
+        return {
+            ...goal,
+            allocated_amount: allocatedAmount,
+            current_cumulative_net_flow: baseline.currentCumulativeNetFlow
+        };
+    });
+};
+
+export const reorder = async ({ userid, goalIds }) => {
+    if (!Array.isArray(goalIds) || goalIds.some((goalid) => !Number.isInteger(Number(goalid)) || Number(goalid) <= 0)) {
+        throw new Error("Goal IDs must be provided as an ordered array of positive integers.");
+    }
+    if (new Set(goalIds.map(Number)).size !== goalIds.length) {
+        throw new Error("Goal IDs must not contain duplicates.");
+    }
+
+    await repo.reorder(userid, goalIds);
+    return await fetchAll({ userid });
 };
 
 export const fetchById = async ({ userid, goalid }) => {

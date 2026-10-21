@@ -145,6 +145,39 @@
     min-width: 0;
 }
 
+.goal-drag-handle {
+    float: left;
+    margin: -2px 9px 0 0;
+    padding: 2px 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 1.15rem;
+    line-height: 1.1;
+    cursor: grab;
+    touch-action: none;
+}
+
+.goal-drag-handle:active {
+    cursor: grabbing;
+}
+
+.goal-drag-handle:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}
+
+.goal-item.goal-dragging {
+    opacity: 0.55;
+}
+
+.goal-item.goal-drop-target {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--link-color) 25%, transparent);
+}
+
 .goal-expand-hint {
     display: inline-flex;
     align-items: center;

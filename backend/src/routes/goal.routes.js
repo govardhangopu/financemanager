@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authorizer } from "../middlewares/authMiddleware.js";
-import { create, fetchAll, fetchById, update, remove } from "../controllers/goal.controller.js";
+import { create, fetchAll, fetchById, update, remove, reorder } from "../controllers/goal.controller.js";
 import { getGoalProjection } from "../controllers/goalProjection.controller.js";
 
 const router = Router();
@@ -11,6 +11,7 @@ router.post("/", create);
 
 // FETCH
 router.get("/", fetchAll);
+router.put("/reorder", reorder);
 router.get("/:goalid/projection", getGoalProjection);
 router.get("/:goalid", fetchById);
 

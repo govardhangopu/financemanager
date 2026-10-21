@@ -33,6 +33,18 @@ export const fetchAll = async (req, res, next) => {
     }
 };
 
+export const reorder = async (req, res, next) => {
+    try {
+        const goals = await goalService.reorder({
+            userid: req.user.id,
+            goalIds: req.body.goalIds
+        });
+        res.json(goals);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const fetchById = async (req, res, next) => {
     try {
         const goal = await goalService.fetchById({

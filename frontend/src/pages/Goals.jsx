@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { createGoal, deleteGoal, getGoalProjection, getGoals, updateGoal } from "../api/goalApi";
+import { createGoal, deleteGoal, getGoalProjection, getGoals, reorderGoals, updateGoal } from "../api/goalApi";
 import { GoalsOverviewChart } from "../components/GoalsOverviewChart";
 import { GenericChart } from "../components/GenericChart";
 import { AnimatePresence, motion } from "motion/react";
@@ -83,11 +83,23 @@ const Goals = () => {
     const [overviewProjections, setOverviewProjections] = useState({});
     const [overviewLoading, setOverviewLoading] = useState(false);
     const [overviewError, setOverviewError] = useState("");
+    const [reordering, setReordering] = useState(false);
+    const [draggedGoalId, setDraggedGoalId] = useState(null);
+    const [dropTargetGoalId, setDropTargetGoalId] = useState(null);
     const goalRefs = useRef({});
     const projectionCacheRef = useRef(new Map());
     const projectionRequestsRef = useRef(new Map());
     const goalsRef = useRef(goals);
     goalsRef.current = goals;
+
+    const allocateGoalBalances = (goalList, cashPool) => {
+        let availableCash = Math.max(0, Number(cashPool) || 0);
+        return goalList.map((goal) => {
+            const allocatedAmount = Math.min(Number(goal.target_amount) || 0, availableCash);
+            availableCash -= allocatedAmount;
+            return { ...goal, allocated_amount: allocatedAmount };
+        });
+    };
 
     const loadGoalProjection = useCallback((goalId, refresh = false) => {
         const key = String(goalId);
@@ -307,7 +319,7 @@ const Goals = () => {
             {
                 label: "Projected",
                 data: [
-                    projection.currentCumulativeNetFlow,
+                    projection.allocatedAmount ?? projection.currentCumulativeNetFlow,
                     ...projection.projection.map(
                         (point) => point.cumulativeNetFlow
                     )
@@ -418,6 +430,40 @@ const Goals = () => {
         } catch (err) {
             console.error(err);
             setError("Unable to delete goal.");
+        }
+    };
+
+    const handleGoalDrop = async (targetGoalId) => {
+        if (draggedGoalId === null || reordering || String(draggedGoalId) === String(targetGoalId)) return;
+        const previousGoals = goals;
+        const reordered = [...goals];
+        const fromIndex = reordered.findIndex((goal) => String(goal.goalid) === String(draggedGoalId));
+        const toIndex = reordered.findIndex((goal) => String(goal.goalid) === String(targetGoalId));
+        if (fromIndex < 0 || toIndex < 0) return;
+        const [moved] = reordered.splice(fromIndex, 1);
+        reordered.splice(toIndex, 0, moved);
+        const cashPool = goals[0]?.current_cumulative_net_flow ?? 0;
+        setGoals(allocateGoalBalances(reordered, cashPool));
+        setReordering(true);
+        setError("");
+
+        try {
+            const savedGoals = await reorderGoals(reordered.map((goal) => goal.goalid));
+            const savedCashPool = savedGoals[0]?.current_cumulative_net_flow ?? cashPool;
+            setGoals(allocateGoalBalances(savedGoals, savedCashPool));
+            projectionCacheRef.current.clear();
+            setOverviewProjections({});
+            const refreshed = await Promise.allSettled(savedGoals.map((goal) => loadGoalProjection(goal.goalid, true)));
+            const selectedIndex = savedGoals.findIndex((goal) => String(goal.goalid) === String(selectedGoal));
+            if (selectedIndex >= 0 && refreshed[selectedIndex]?.status === "fulfilled") setProjection(refreshed[selectedIndex].value);
+        } catch (err) {
+            console.error(err);
+            setGoals(previousGoals);
+            setError("Unable to save goal priority. Your previous order has been restored.");
+        } finally {
+            setReordering(false);
+            setDraggedGoalId(null);
+            setDropTargetGoalId(null);
         }
     };
 
@@ -570,7 +616,7 @@ const Goals = () => {
                                             }
                                         }}
                                         key={goal.goalid}
-                                        className={`goal-item ${isSelected ? "selected" : ""}`}
+                                        className={`goal-item ${isSelected ? "selected" : ""} ${dropTargetGoalId === goal.goalid ? "goal-drop-target" : ""} ${draggedGoalId === goal.goalid ? "goal-dragging" : ""}`}
                                         transition={{
                                             layout: {
                                                 duration: 0.4,
@@ -578,6 +624,7 @@ const Goals = () => {
                                             }
                                         }}
                                         onClick={() => {
+                                            if (draggedGoalId !== null) return;
                                             if (isSelected) {
                                                 setSelectedGoal(null);
                                                 return;
@@ -591,12 +638,42 @@ const Goals = () => {
                                                 });
                                             });
                                         }}
+                                        onDragOver={(event) => {
+                                            if (draggedGoalId !== null && !reordering) {
+                                                event.preventDefault();
+                                                setDropTargetGoalId(goal.goalid);
+                                            }
+                                        }}
+                                        onDrop={(event) => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            handleGoalDrop(goal.goalid);
+                                        }}
                                     >
                                         <div className="goal-header">
                                             <motion.div
                                                 className="goal-main"
                                                 layout="position"
                                             >
+                                                <button
+                                                    type="button"
+                                                    className="goal-drag-handle"
+                                                    draggable={!reordering}
+                                                    disabled={reordering}
+                                                    aria-label={`Drag to prioritize ${goal.name}`}
+                                                    title="Drag to change goal priority"
+                                                    onClick={(event) => event.stopPropagation()}
+                                                    onDragStart={(event) => {
+                                                        event.stopPropagation();
+                                                        setDraggedGoalId(goal.goalid);
+                                                        event.dataTransfer.effectAllowed = "move";
+                                                        event.dataTransfer.setData("text/plain", String(goal.goalid));
+                                                    }}
+                                                    onDragEnd={() => {
+                                                        setDraggedGoalId(null);
+                                                        setDropTargetGoalId(null);
+                                                    }}
+                                                >⠿</button>
                                                 <motion.h2 layout="position">
                                                     {goal.name}
                                                 </motion.h2>
@@ -719,10 +796,10 @@ const Goals = () => {
                                                                                 }}
                                                                             >
                                                                                 <div>
-                                                                                    <span>Current cumulative net flow</span>
+                                                                                    <span>Allocated to this goal</span>
                                                                                     <strong>
                                                                                         ₹{Number(
-                                                                                            projection.currentCumulativeNetFlow
+                                                                                            projection.allocatedAmount ?? projection.currentCumulativeNetFlow
                                                                                         ).toLocaleString("en-IN")}
                                                                                     </strong>
                                                                                 </div>
@@ -767,7 +844,7 @@ const Goals = () => {
 
                                                                                     <span>
                                                                                         ₹{Number(
-                                                                                            projection.currentCumulativeNetFlow
+                                                                                            projection.allocatedAmount ?? projection.currentCumulativeNetFlow
                                                                                         ).toLocaleString("en-IN", {
                                                                                             maximumFractionDigits: 0
                                                                                         })}
@@ -790,7 +867,7 @@ const Goals = () => {
                                                                                                 Math.max(
                                                                                                     0,
                                                                                                     (
-                                                                                                        projection.currentCumulativeNetFlow /
+                                                                                                        (projection.allocatedAmount ?? projection.currentCumulativeNetFlow) /
                                                                                                         projection.goal.targetAmount
                                                                                                     ) * 100
                                                                                                 )

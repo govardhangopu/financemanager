@@ -22,6 +22,11 @@ export async function updateGoal(goalid, goal) {
     return res.data;
 }
 
+export async function reorderGoals(goalIds) {
+    const res = await api.put("/reorder", { goalIds });
+    return res.data;
+}
+
 export async function deleteGoal(goalid) {
     const res = await api.delete(`/${goalid}`);
     return res.data;

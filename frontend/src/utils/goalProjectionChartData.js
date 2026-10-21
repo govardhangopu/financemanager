@@ -82,9 +82,9 @@ export function prepareGoalProjectionChartData(goalProjections = [], now = new D
 
         if (
             entry.projection?.hasData === true
-            && Number.isFinite(entry.projection.currentCumulativeNetFlow)
+            && Number.isFinite(entry.projection.allocatedAmount ?? entry.projection.currentCumulativeNetFlow)
         ) {
-            data[0] = entry.projection.currentCumulativeNetFlow;
+            data[0] = entry.projection.allocatedAmount ?? entry.projection.currentCumulativeNetFlow;
 
             entry.points.forEach(({ month, value }) => {
                 if (month < data.length) {

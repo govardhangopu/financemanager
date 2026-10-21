@@ -172,6 +172,7 @@ CREATE TABLE IF NOT EXISTS `financemanager`.`goals` (
   `target_amount` DECIMAL(10,2) NOT NULL,
   `target_date` DATE NOT NULL,
   `description` TEXT NULL,
+  `priority_order` INT NOT NULL DEFAULT 0,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
