@@ -124,6 +124,60 @@
     text-align: center;
 }
 
+.goals-overview-skeleton {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 4px 4px;
+    box-sizing: border-box;
+}
+
+.goals-overview-skeleton-line,
+.goals-overview-skeleton-chart {
+    display: block;
+    border-radius: 8px;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--border-color) 70%, transparent) 20%,
+        color-mix(in srgb, var(--card-inner-bg) 90%, white 10%) 45%,
+        color-mix(in srgb, var(--border-color) 70%, transparent) 70%);
+    background-size: 220% 100%;
+    animation: goals-chart-shimmer 1.35s ease-in-out infinite;
+}
+
+.goals-overview-skeleton-line {
+    height: 11px;
+}
+
+.goals-overview-skeleton-line.wide {
+    width: 34%;
+}
+
+.goals-overview-skeleton-line.medium {
+    width: 22%;
+    margin-bottom: 8px;
+}
+
+.goals-overview-skeleton-chart {
+    flex: 1;
+    min-height: 0;
+    border: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
+    background-size: 220% 100%;
+}
+
+@keyframes goals-chart-shimmer {
+    to {
+        background-position: -220% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .goals-overview-skeleton-line,
+    .goals-overview-skeleton-chart {
+        animation: none;
+    }
+}
+
 .goals-overview-target-color {
     width: 10px;
     height: 10px;

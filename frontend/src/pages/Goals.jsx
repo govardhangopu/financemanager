@@ -82,15 +82,35 @@ const Goals = () => {
     const [editingGoal, setEditingGoal] = useState(null);
     const [overviewProjections, setOverviewProjections] = useState({});
     const [overviewLoading, setOverviewLoading] = useState(false);
+    const [overviewChartData, setOverviewChartData] = useState(null);
+    const [overviewChartLoading, setOverviewChartLoading] = useState(true);
     const [overviewError, setOverviewError] = useState("");
     const [reordering, setReordering] = useState(false);
     const [draggedGoalId, setDraggedGoalId] = useState(null);
     const [dropTargetGoalId, setDropTargetGoalId] = useState(null);
+    const [showGoalInfo, setShowGoalInfo] = useState(false);
+    const [visibleGoalIds, setVisibleGoalIds] = useState(null);
     const goalRefs = useRef({});
+    const dragPointerRef = useRef(null);
     const projectionCacheRef = useRef(new Map());
     const projectionRequestsRef = useRef(new Map());
     const goalsRef = useRef(goals);
     goalsRef.current = goals;
+    const goalIdsSignature = JSON.stringify(
+        [...new Set(goals.map((goal) => String(goal.goalid)))].sort()
+    );
+
+    useEffect(() => {
+        const currentIds = new Set(JSON.parse(goalIdsSignature));
+        setVisibleGoalIds((previous) => {
+            if (previous === null) return currentIds;
+            const next = new Set([...previous].filter((goalId) => currentIds.has(goalId)));
+            currentIds.forEach((goalId) => {
+                if (!previous.has(goalId)) next.add(goalId);
+            });
+            return next;
+        });
+    }, [goalIdsSignature]);
 
     const allocateGoalBalances = (goalList, cashPool) => {
         let availableCash = Math.max(0, Number(cashPool) || 0);
@@ -284,12 +304,27 @@ const Goals = () => {
         };
     }, [selectedGoal, loadGoalProjection]);
 
-    const overviewChartData = prepareGoalProjectionChartData(
-        goals.map((goal) => ({
-            goal,
-            projection: overviewProjections[String(goal.goalid)] ?? null,
-        }))
-    );
+    useEffect(() => {
+        if (goals.length === 0) {
+            setOverviewChartData(null);
+            setOverviewChartLoading(false);
+            return undefined;
+        }
+
+        setOverviewChartLoading(true);
+        const timer = window.setTimeout(() => {
+            const chartData = prepareGoalProjectionChartData(
+                goals.map((goal) => ({
+                    goal,
+                    projection: overviewProjections[String(goal.goalid)] ?? null,
+                }))
+            );
+            setOverviewChartData(chartData);
+            setOverviewChartLoading(false);
+        }, 0);
+
+        return () => window.clearTimeout(timer);
+    }, [goals, overviewProjections]);
 
     const goalChartLabels = projection
         ? [
@@ -467,6 +502,20 @@ const Goals = () => {
         }
     };
 
+    const finishPointerReorder = (event) => {
+        const drag = dragPointerRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        dragPointerRef.current = null;
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-goal-id]");
+        const targetGoalId = target?.getAttribute("data-goal-id");
+        setDropTargetGoalId(null);
+        if (targetGoalId && String(targetGoalId) !== String(drag.goalId)) {
+            handleGoalDrop(targetGoalId);
+        } else {
+            setDraggedGoalId(null);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -566,6 +615,39 @@ const Goals = () => {
         <div className="goals-page">
             <GoalsPageHeader onAddGoal={() => setShowForm(true)} />
             <div className="goals-card">
+                <section className={`goals-info ${showGoalInfo ? "expanded" : ""}`} aria-label="How goal funding works">
+                    <button
+                        type="button"
+                        className="goals-info-toggle"
+                        aria-expanded={showGoalInfo}
+                        onClick={(event) => {
+                            setShowGoalInfo((visible) => !visible);
+                            // Keep pointer clicks from leaving a persistent focus ring; keyboard focus remains visible.
+                            if (event.detail > 0) event.currentTarget.blur();
+                        }}
+                    >
+                        <span className="goals-info-icon" aria-hidden="true">ⓘ</span>
+                        <span>How goal funding works</span>
+                        <span className={`goals-info-chevron ${showGoalInfo ? "expanded" : ""}`} aria-hidden="true" />
+                    </button>
+                    <motion.div
+                        className="goals-info-content-wrap"
+                        aria-hidden={!showGoalInfo}
+                        initial={false}
+                        animate={{ height: showGoalInfo ? "auto" : 0, opacity: showGoalInfo ? 1 : 0 }}
+                        transition={{
+                            height: { duration: 0.34, ease: [0.22, 1, 0.36, 1] },
+                            opacity: { duration: showGoalInfo ? 0.24 : 0.14, ease: "easeOut" },
+                        }}
+                        style={{ overflow: "hidden" }}
+                    >
+                        <div className="goals-info-content">
+                            <p>Your progress is drawn from one shared pool based on your available cumulative net cash, so the same money isn’t counted toward every goal.</p>
+                            <p>Funds flow down the list in priority order: goals higher up are funded first, and any remaining cash is allocated to the next goal, up to its target.</p>
+                            <p>Drag a goal by its handle to change its priority. Allocations update as soon as you reorder the list.</p>
+                        </div>
+                    </motion.div>
+                </section>
                 {goals.length > 0 && (
                     <section className="goals-overview-section" aria-label="Goals projection overview">
                         {overviewLoading && (
@@ -580,9 +662,12 @@ const Goals = () => {
                             </h2>
                         )}
 
-                        {!overviewLoading
-                            && (!overviewError || Object.keys(overviewProjections).length > 0)
-                            && <GoalsOverviewChart chartData={overviewChartData} />}
+                        <GoalsOverviewChart
+                            chartData={overviewChartData}
+                            isLoading={overviewLoading || overviewChartLoading}
+                            selectedGoalIds={visibleGoalIds ?? new Set(goals.map((goal) => String(goal.goalid)))}
+                            onSelectionChange={setVisibleGoalIds}
+                        />
                     </section>
                 )}
 
@@ -616,6 +701,7 @@ const Goals = () => {
                                             }
                                         }}
                                         key={goal.goalid}
+                                        data-goal-id={goal.goalid}
                                         className={`goal-item ${isSelected ? "selected" : ""} ${dropTargetGoalId === goal.goalid ? "goal-drop-target" : ""} ${draggedGoalId === goal.goalid ? "goal-dragging" : ""}`}
                                         transition={{
                                             layout: {
@@ -638,17 +724,6 @@ const Goals = () => {
                                                 });
                                             });
                                         }}
-                                        onDragOver={(event) => {
-                                            if (draggedGoalId !== null && !reordering) {
-                                                event.preventDefault();
-                                                setDropTargetGoalId(goal.goalid);
-                                            }
-                                        }}
-                                        onDrop={(event) => {
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                            handleGoalDrop(goal.goalid);
-                                        }}
                                     >
                                         <div className="goal-header">
                                             <motion.div
@@ -658,20 +733,30 @@ const Goals = () => {
                                                 <button
                                                     type="button"
                                                     className="goal-drag-handle"
-                                                    draggable={!reordering}
                                                     disabled={reordering}
                                                     aria-label={`Drag to prioritize ${goal.name}`}
-                                                    title="Drag to change goal priority"
+                                                    title="Touch and hold, then drag to change priority"
                                                     onClick={(event) => event.stopPropagation()}
-                                                    onDragStart={(event) => {
+                                                    onPointerDown={(event) => {
+                                                        if (reordering || event.button > 0) return;
                                                         event.stopPropagation();
+                                                        event.preventDefault();
+                                                        event.currentTarget.setPointerCapture(event.pointerId);
+                                                        dragPointerRef.current = { goalId: goal.goalid, pointerId: event.pointerId };
                                                         setDraggedGoalId(goal.goalid);
-                                                        event.dataTransfer.effectAllowed = "move";
-                                                        event.dataTransfer.setData("text/plain", String(goal.goalid));
                                                     }}
-                                                    onDragEnd={() => {
-                                                        setDraggedGoalId(null);
-                                                        setDropTargetGoalId(null);
+                                                    onPointerMove={(event) => {
+                                                        if (dragPointerRef.current?.pointerId !== event.pointerId) return;
+                                                        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-goal-id]");
+                                                        setDropTargetGoalId(target?.getAttribute("data-goal-id") ?? null);
+                                                    }}
+                                                    onPointerUp={finishPointerReorder}
+                                                    onPointerCancel={(event) => {
+                                                        if (dragPointerRef.current?.pointerId === event.pointerId) {
+                                                            dragPointerRef.current = null;
+                                                            setDraggedGoalId(null);
+                                                            setDropTargetGoalId(null);
+                                                        }
                                                     }}
                                                 >⠿</button>
                                                 <motion.h2 layout="position">

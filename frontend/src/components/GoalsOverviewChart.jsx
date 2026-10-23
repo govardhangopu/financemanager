@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { GenericChart } from "./GenericChart";
 import "../styles/GoalsOverviewChart.css";
@@ -115,41 +115,18 @@ const getUnavailableProjectionMessage = (goal) => {
     return "Projection unavailable";
 };
 
-export function GoalsOverviewChart({ chartData }) {
+export function GoalsOverviewChart({ chartData, selectedGoalIds, onSelectionChange, isLoading = false }) {
     const { theme } = useTheme();
     const allLabels = chartData?.labels ?? [];
     const timeline = chartData?.timeline ?? [];
     const goals = chartData?.goals ?? [];
-    const usableProjectionGoals = goals.filter((goal) =>
+    const usableProjectionGoals = useMemo(() => goals.filter((goal) =>
         goal.projectionStatus?.hasData === true
         && Array.isArray(goal.data)
         && goal.data.some(Number.isFinite)
-    );
-    const goalKeySignature = JSON.stringify(goals.map(getGoalKey));
-    const [selectedGoalKeys, setSelectedGoalKeys] = useState(
-        () => new Set(JSON.parse(goalKeySignature))
-    );
-
-    useEffect(() => {
-        const goalKeys = JSON.parse(goalKeySignature);
-
-        setSelectedGoalKeys((previousSelection) => {
-            const currentKeys = new Set(goalKeys);
-            const nextSelection = new Set(
-                [...previousSelection].filter((key) => currentKeys.has(key))
-            );
-
-            goalKeys.forEach((key) => {
-                if (!previousSelection.has(key)) {
-                    nextSelection.add(key);
-                }
-            });
-
-            return nextSelection;
-        });
-    }, [goalKeySignature]);
-
-    const goalKeys = JSON.parse(goalKeySignature);
+    ), [goals]);
+    const selectedGoalKeys = selectedGoalIds ?? new Set(goals.map(getGoalKey));
+    const goalKeys = goals.map(getGoalKey);
 
     const allGoalsSelected = goalKeys.every((key) => selectedGoalKeys.has(key));
     const noGoalsSelected = goalKeys.every((key) => !selectedGoalKeys.has(key));
@@ -165,24 +142,28 @@ export function GoalsOverviewChart({ chartData }) {
             grid: "rgba(148, 163, 184, 0.18)",
         };
 
-    const visibleGoals = usableProjectionGoals.filter((goal) =>
+    const visibleGoals = useMemo(() => usableProjectionGoals.filter((goal) =>
         selectedGoalKeys.has(getGoalKey(goal))
-    );
+    ), [usableProjectionGoals, selectedGoalKeys]);
 
-    const activeHorizonEndIndex = visibleGoals.reduce((latestIndex, goal) => {
-        const lastProjectionIndex = goal.data.reduce(
-            (lastIndex, value, index) => Number.isFinite(value) ? index : lastIndex,
-            -1
-        );
-        const targetEnd = getTargetEndIndex(goal, timeline);
+    const { labels, activeTimeline } = useMemo(() => {
+        const activeHorizonEndIndex = visibleGoals.reduce((latestIndex, goal) => {
+            const lastProjectionIndex = goal.data.reduce(
+                (lastIndex, value, index) => Number.isFinite(value) ? index : lastIndex,
+                -1
+            );
+            const targetEnd = getTargetEndIndex(goal, timeline);
+            return Math.max(latestIndex, lastProjectionIndex, targetEnd?.index ?? -1);
+        }, 0);
+        const activeTimelineLength = visibleGoals.length > 0 ? activeHorizonEndIndex + 1 : 0;
+        return {
+            labels: allLabels.slice(0, activeTimelineLength),
+            activeTimeline: timeline.slice(0, activeTimelineLength),
+        };
+    }, [allLabels, timeline, visibleGoals]);
+    const activeTimelineLength = labels.length;
 
-        return Math.max(latestIndex, lastProjectionIndex, targetEnd?.index ?? -1);
-    }, 0);
-    const activeTimelineLength = visibleGoals.length > 0 ? activeHorizonEndIndex + 1 : 0;
-    const labels = allLabels.slice(0, activeTimelineLength);
-    const activeTimeline = timeline.slice(0, activeTimelineLength);
-
-    const projectionDatasets = visibleGoals.map((goal) => {
+    const projectionDatasets = useMemo(() => visibleGoals.map((goal) => {
         const color = goalColor(goal);
 
         return {
@@ -199,9 +180,9 @@ export function GoalsOverviewChart({ chartData }) {
             targetAmount: goal.targetAmount,
             targetDate: goal.targetDate,
         };
-    });
+    }), [visibleGoals, labels.length]);
 
-    const targetDatasets = visibleGoals.flatMap((goal) => {
+    const targetDatasets = useMemo(() => visibleGoals.flatMap((goal) => {
         const targetAmount = getValidTargetAmount(goal);
         const targetEnd = getTargetEndIndex(goal, timeline);
 
@@ -237,7 +218,7 @@ export function GoalsOverviewChart({ chartData }) {
             targetDate: goal.targetDate,
             targetReference: true,
         }];
-    });
+    }), [visibleGoals, activeTimeline, timeline]);
 
     const datasets = [...projectionDatasets, ...targetDatasets];
 
@@ -313,14 +294,14 @@ export function GoalsOverviewChart({ chartData }) {
                 <div className="goals-overview-selection-actions">
                     <button
                         type="button"
-                        onClick={() => setSelectedGoalKeys(new Set(goalKeys))}
+                        onClick={() => onSelectionChange?.(new Set(goalKeys))}
                         disabled={allGoalsSelected}
                     >
                         Select all
                     </button>
                     <button
                         type="button"
-                        onClick={() => setSelectedGoalKeys(new Set())}
+                        onClick={() => onSelectionChange?.(new Set())}
                         disabled={noGoalsSelected}
                     >
                         Clear selection
@@ -338,18 +319,11 @@ export function GoalsOverviewChart({ chartData }) {
                                 <input
                                     type="checkbox"
                                     checked={selectedGoalKeys.has(key)}
-                                    onChange={() => {
-                                        setSelectedGoalKeys((previousSelection) => {
-                                            const nextSelection = new Set(previousSelection);
-
-                                            if (nextSelection.has(key)) {
-                                                nextSelection.delete(key);
-                                            } else {
-                                                nextSelection.add(key);
-                                            }
-
-                                            return nextSelection;
-                                        });
+                                        onChange={() => {
+                                            const nextSelection = new Set(selectedGoalKeys);
+                                            if (nextSelection.has(key)) nextSelection.delete(key);
+                                            else nextSelection.add(key);
+                                            onSelectionChange?.(nextSelection);
                                     }}
                                     style={{ accentColor: color }}
                                 />
@@ -360,7 +334,7 @@ export function GoalsOverviewChart({ chartData }) {
                                 />
                                 <span className="goals-overview-selection-name">
                                     {goal.name || "Goal"}
-                                    {!usableProjectionGoals.includes(goal) && (
+                                    {!isLoading && !usableProjectionGoals.includes(goal) && (
                                         <small>{getUnavailableProjectionMessage(goal)}</small>
                                     )}
                                 </span>
@@ -371,7 +345,13 @@ export function GoalsOverviewChart({ chartData }) {
             </div>
 
             <div className="goals-overview-chart-plot">
-                {visibleGoals.length > 0 && labels.length > 0 ? (
+                {isLoading ? (
+                    <div className="goals-overview-skeleton" role="status" aria-label="Loading goals chart">
+                        <span className="goals-overview-skeleton-line wide" />
+                        <span className="goals-overview-skeleton-line medium" />
+                        <span className="goals-overview-skeleton-chart" />
+                    </div>
+                ) : visibleGoals.length > 0 && labels.length > 0 ? (
                     <GenericChart
                         type="line"
                         labels={labels}

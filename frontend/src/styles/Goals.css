@@ -33,6 +33,84 @@
     margin-bottom: 28px;
 }
 
+.goals-info {
+    margin: 0 0 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-inner-bg);
+    overflow: hidden;
+    transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.goals-info:hover,
+.goals-info:focus-within {
+    border-color: color-mix(in srgb, var(--link-color) 55%, var(--border-color));
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.goals-info-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 14px;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: var(--text-color);
+    text-align: left;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    scale: 1;
+    transform: none;
+}
+
+.goals-info-toggle:hover {
+    scale: 1;
+    transform: none;
+}
+
+.goals-info-icon {
+    color: var(--link-color);
+    font-size: 1rem;
+}
+
+.goals-info-chevron {
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
+    margin-right: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+.goals-info-chevron.expanded {
+    transform: rotate(225deg) translate(-2px, -1px);
+}
+
+.goals-info-content-wrap {
+    display: block;
+}
+
+.goals-info-content {
+    display: grid;
+    gap: 7px;
+    padding: 0 14px 13px 39px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.goals-info-content p {
+    margin: 0;
+}
+
 .goal-item.selected .goal-header {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
@@ -158,6 +236,8 @@
     line-height: 1.1;
     cursor: grab;
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .goal-drag-handle:active {
