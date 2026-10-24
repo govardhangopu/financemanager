@@ -5,12 +5,14 @@ import {
     updateCategory,
     deleteCategory
 } from "../api/categoriesApi";
+import Loader from "../components/Loader";
 import "../styles/Categories.css";
 
 export default function Categories() {
     const {
         categories,
         categoriesLoading,
+        loadErrors,
         refreshCategories
     } = useFinance();
 
@@ -127,7 +129,11 @@ export default function Categories() {
 
             {categoriesLoading ? (
                 <div className="categories-state">
-                    Loading categories...
+                    <Loader text="Loading categories..." />
+                </div>
+            ) : loadErrors.categories ? (
+                <div className="categories-state categories-error" role="alert">
+                    {loadErrors.categories}
                 </div>
             ) : categories.length === 0 ? (
                 <div className="categories-empty">

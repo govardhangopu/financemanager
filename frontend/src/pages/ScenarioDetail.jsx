@@ -14,6 +14,7 @@ import {
 } from "../api/scenarioApi.js";
 import { GenericChart } from "../components/GenericChart.jsx";
 import ScenarioChangeModal from "../components/ScenarioChangeModal.jsx";
+import Loader from "../components/Loader.jsx";
 import "../styles/ScenarioDetail.css";
 
 export default function ScenarioDetail() {
@@ -326,7 +327,7 @@ export default function ScenarioDetail() {
     if (loading) {
         return (
             <div className="scenario-detail-page">
-                <p>Loading scenario...</p>
+                <Loader fullscreen text="Loading scenario..." />
             </div>
         );
     }

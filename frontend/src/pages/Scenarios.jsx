@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useFinance } from "../context/FinanceContext";
 import { addScenario } from "../api/scenarioApi.js";
+import Loader from "../components/Loader.jsx";
 import "../styles/Scenarios.css";
 
 export default function Scenarios() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { scenarios, refreshScenarios, scenariosLoading } = useFinance();
+    const { scenarios, refreshScenarios, scenariosLoading, loadErrors } = useFinance();
 
     const [showAddScenario, setShowAddScenario] = useState(false);
     const [name, setName] = useState("");
@@ -218,7 +219,11 @@ export default function Scenarios() {
 
                 {scenariosLoading ? (
                     <div className="scenario-list-state">
-                        Loading scenarios...
+                        <Loader text="Loading scenarios..." />
+                    </div>
+                ) : loadErrors.scenarios ? (
+                    <div className="scenario-list-state" role="alert">
+                        {loadErrors.scenarios}
                     </div>
                 ) : scenarios.length === 0 ? (
 

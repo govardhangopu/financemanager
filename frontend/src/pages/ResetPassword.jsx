@@ -4,6 +4,7 @@ import {
     verifyPasswordResetToken,
     resetPassword
 } from "../api/authApi";
+import Loader from "../components/Loader.jsx";
 import "../styles/ResetPassword.css";
 
 const ResetPassword = () => {
@@ -80,7 +81,7 @@ const ResetPassword = () => {
         return (
             <main className="reset-password-page">
                 <div className="reset-password-card">
-                    <p>Checking reset link...</p>
+                    <Loader text="Checking reset link..." />
                 </div>
             </main>
         );

@@ -11,6 +11,15 @@
     overflow-y: auto;
 }
 
+.budgets-loading-state {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 320px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+}
+
 .budgets_page h1 {
     text-align: center;
     padding: 20px;

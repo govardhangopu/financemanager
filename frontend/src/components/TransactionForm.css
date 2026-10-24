@@ -1,4 +1,5 @@
 .form-container {
+    position: relative;
     width: min(100%, 520px);
     overflow-y: auto;
     margin: 2rem auto;

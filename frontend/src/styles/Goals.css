@@ -16,6 +16,12 @@
     background-color: transparent;
 }
 
+.goals-loading-shell {
+    min-height: 280px;
+    display: grid;
+    place-items: center;
+}
+
 .goals-overview-section {
     width: 100%;
     min-width: 0;

@@ -8,7 +8,7 @@ import "./ExpenseCard.css";
 
 export default function ExpenseCard() {
     const [range, setRange] = useState("all");
-    let { totalExpense, transactions, transactionsLoading } = useFinance();
+    let { totalExpense, transactions, transactionsLoading, loadErrors } = useFinance();
 
     const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
@@ -29,7 +29,7 @@ export default function ExpenseCard() {
     return (
         <div>
             <p className="heading">Expenses</p>
-            { transactionsLoading ? <Loader text="Loading..." /> : <>
+            { transactionsLoading ? <Loader text="Loading..." /> : loadErrors.transactions ? <p role="alert">{loadErrors.transactions}</p> : <>
             <p className="totalExpense">₹ {totalExpense}</p>
             <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>

@@ -2,6 +2,7 @@ import "../styles/Forecast.css"
 import { useEffect, useState } from "react";
 import { getForecast } from "../api/forecastApi";
 import { GenericChart } from "../components/GenericChart";
+import Loader from "../components/Loader";
 
 const horizons = [
     { label: "1Y", months: 12 },
@@ -48,10 +49,24 @@ export default function Forecast() {
                         <h1>Forecast</h1>
                         <p>See where your financial position could go if nothing changes.</p>
                     </div>
+                    <div className="forecast-controls-row">
+                        <div className="forecast-horizon-controls">
+                            {horizons.map((item) => (
+                                <button
+                                    key={item.months}
+                                    type="button"
+                                    className={horizon === item.months ? "active" : ""}
+                                    onClick={() => setHorizon(item.months)}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </header>
                 <div className="forecast-card">
-                    <div className="forecast-message">
-                        Loading your forecast...
+                    <div className="forecast-loading-shell">
+                        <Loader text="Loading your forecast..." />
                     </div>
                 </div>
             </div>

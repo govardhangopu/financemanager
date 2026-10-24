@@ -30,7 +30,7 @@ const today = () => {
 
 export default function Transactions() {
     const navigate = useNavigate();
-    const { transactions, categories, transactionsLoading, refreshTransactions } = useFinance();
+    const { transactions, categories, transactionsLoading, refreshTransactions, loadErrors } = useFinance();
     const [search, setSearch] = useState("");
     const [type, setType] = useState("all");
     const [categoryId, setCategoryId] = useState("all");
@@ -179,7 +179,9 @@ export default function Transactions() {
                 </div>
 
                 {error && <p className="transactions-error" role="alert">{error}</p>}
-                {transactionsLoading ? <div className="transactions-loading"><Loader text="Loading transactions..." /></div> : (
+                {transactionsLoading ? <div className="transactions-loading"><Loader text="Loading transactions..." /></div> : loadErrors.transactions ? (
+                    <p className="transactions-error" role="alert">{loadErrors.transactions}</p>
+                ) : (
                     <>
                         <div className="transactions-table-scroll">
                             <table className="transactions-table">

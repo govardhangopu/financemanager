@@ -8,15 +8,13 @@ export default function Loader({
     text = ""
 }) {
     return (
-        <div id="loader"
-            className={`
-                ${fullscreen ? "fullscreen" : ""}
-                ${overlay ? "overlay" : ""}
-                ${opaque ? "opaque" : ""}
-                ${size}`}
+        <div
+            className={`app-loader ${fullscreen ? "app-loader--fullscreen" : ""} ${overlay ? "app-loader--overlay" : ""} ${opaque ? "app-loader--opaque" : ""} app-loader--${size}`}
+            role="status"
+            aria-live="polite"
         >
-            <div className="spinner"></div>
-            <p>{text}</p>
+            <span className="app-loader__spinner" aria-hidden="true" />
+            {text && <span className="app-loader__text">{text}</span>}
         </div>
     );
 }

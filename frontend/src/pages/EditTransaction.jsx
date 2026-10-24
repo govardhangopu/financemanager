@@ -3,12 +3,13 @@ import { useFinance } from "../context/FinanceContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateTransaction } from "../api/transactionApi.js";
 import TransactionForm from "../components/TransactionForm";
+import Loader from "../components/Loader.jsx";
 import ScenarioPicker from "../components/ScenarioPicker.jsx";
 import "../styles/EditTransaction.css";
 
 export default function EditTransaction() {
     const { id } = useParams();
-    const { transactions, transactionsLoading, refreshTransactions, scenarios } = useFinance();
+    const { transactions, transactionsLoading, refreshTransactions, scenarios, loadErrors } = useFinance();
     const navigate = useNavigate();
     const transaction = transactions.find(t => t.transactionid === parseInt(id));
     const [amount, setAmount] = useState("");
@@ -18,7 +19,7 @@ export default function EditTransaction() {
     const [showScenarioPicker, setShowScenarioPicker] = useState(false);
 
     useEffect(() => {
-        if (transactionsLoading) return;
+        if (transactionsLoading || loadErrors.transactions) return;
         if (!transaction) {
             alert("Transaction not found");
             navigate(-1);
@@ -28,7 +29,7 @@ export default function EditTransaction() {
         setDate(String(transaction.date).slice(0, 10));
         setCategory(transaction.categoryid);
         setIsPartial(transaction.is_partial);
-    }, [transactionsLoading, transaction, navigate]);
+    }, [transactionsLoading, loadErrors.transactions, transaction, navigate]);
 
     const handleSubmit = async (transactionData) => {
         const transactionUpdate = {
@@ -53,7 +54,9 @@ export default function EditTransaction() {
     return (
         <main>
             {transactionsLoading ? (
-                <div>Loading...</div>
+                <Loader fullscreen text="Loading transaction..." />
+            ) : loadErrors.transactions ? (
+                <p className="edit-transaction-error" role="alert">{loadErrors.transactions}</p>
             ) : (
                 <>
                     <TransactionForm

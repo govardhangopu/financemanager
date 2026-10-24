@@ -6,7 +6,7 @@ import Loader from '../Loader.jsx';
 
 export default function IncomeVsExpenseCard() {
     const [range, setRange] = useState("all");
-    const { transactions, transactionsLoading } = useFinance();
+    const { transactions, transactionsLoading, loadErrors } = useFinance();
 
     const { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
     const datasets =  [
@@ -34,7 +34,7 @@ export default function IncomeVsExpenseCard() {
     return (
         <div>
             Income vs Expense
-            { transactionsLoading ? <Loader text="Loading..." /> : <>
+            { transactionsLoading ? <Loader text="Loading..." /> : loadErrors.transactions ? <p role="alert">{loadErrors.transactions}</p> : <>
             <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>

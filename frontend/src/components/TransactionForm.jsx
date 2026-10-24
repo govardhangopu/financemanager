@@ -6,7 +6,7 @@ import "./TransactionForm.css";
 
 export default function TransactionForm({ initialValues, onSubmit, submitLabel, mode }) {
     //console.log({initialValues, onSubmit, submitLabel, mode});
-    const { categories, categoriesLoading, refreshCategories } = useFinance();
+    const { categories, categoriesLoading, refreshCategories, loadErrors } = useFinance();
     const [amount, setAmount] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [category, setCategory] = useState("");
@@ -104,6 +104,8 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                             <option value="">No category</option>
                             {categoriesLoading ? (
                                 <option value="">Loading categories...</option>
+                            ) : loadErrors.categories ? (
+                                <option value="">{loadErrors.categories}</option>
                             ) : (
                                 sortedCategories.map(cat => (
                                     <option key={Number(cat.categoryid)} value={cat.categoryid}>
@@ -136,6 +138,8 @@ export default function TransactionForm({ initialValues, onSubmit, submitLabel, 
                                 <option value="">None</option>
                                 {categoriesLoading ? (
                                     <option value="">Loading categories...</option>
+                                ) : loadErrors.categories ? (
+                                    <option value="">{loadErrors.categories}</option>
                                 ) : (
                                     categories
                                         .filter(cat => cat.parent_categoryid === null) // 👈 Only show top-level categories

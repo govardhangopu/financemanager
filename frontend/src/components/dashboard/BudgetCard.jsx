@@ -4,12 +4,12 @@ import Loader from '../Loader.jsx';
 import "./BudgetCard.css";
 
 export default function BudgetCard() {
-    const { budgets, budgetsLoading } = useFinance();
+    const { budgets, budgetsLoading, loadErrors } = useFinance();
 
     return (
         <div>
             Budgets
-            {budgetsLoading ? <Loader text="Loading budgets..." /> : <>
+            {budgetsLoading ? <Loader text="Loading budgets..." /> : loadErrors.budgets ? <p role="alert">{loadErrors.budgets}</p> : <>
             <br />
             {budgets.length === 0 ? (
                 <p>No budgets found. Create your first budget.</p>

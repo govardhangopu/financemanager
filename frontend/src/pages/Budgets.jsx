@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useFinance } from "../context/FinanceContext";
 import { addBudget } from "../api/budgetsApi";
 import { useNavigate, Link } from "react-router-dom";
+import Loader from "../components/Loader.jsx";
 import "../styles/Budgets.css"
 
 export default function Budgets() {
     const navigate = useNavigate();
-    const { budgets, refreshBudgets, budgetsLoading } = useFinance();
+    const { budgets, refreshBudgets, budgetsLoading, loadErrors } = useFinance();
     const [showAddBudget, setShowAddBudget] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -178,6 +179,16 @@ export default function Budgets() {
                 </button>
             </div>
 
+            {budgetsLoading ? (
+                <div className="budgets-loading-state" aria-busy="true">
+                    <Loader text="Loading budgets..." />
+                </div>
+            ) : loadErrors.budgets ? (
+                <div className="budgets-loading-state" role="alert">
+                    <p>{loadErrors.budgets}</p>
+                </div>
+            ) : (
+                <>
             <div className="budget_summary">
                 <div className="summary_item">
                     <span className="summary_label">Total Active Budgets: </span>
@@ -341,6 +352,8 @@ export default function Budgets() {
                             </div>
                         ))}
                     </div>
+                </>
+            )}
                 </>
             )}
         </div>

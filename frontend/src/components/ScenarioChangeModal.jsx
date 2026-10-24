@@ -3,7 +3,7 @@ import { useFinance } from "../context/FinanceContext.jsx";
 import "./ScenarioChangeModal.css";
 
 export default function ScenarioChangeModal({ onClose, onAdd, change = null }) {
-    const { categories, categoriesLoading } = useFinance();
+    const { categories, categoriesLoading, loadErrors } = useFinance();
 
     const [changeType, setChangeType] = useState("recurring");
     const [targetType, setTargetType] = useState("category");
@@ -129,6 +129,8 @@ export default function ScenarioChangeModal({ onClose, onAdd, change = null }) {
                                         <option value="">Select a category</option>
                                         {categoriesLoading ? (
                                             <option>Loading categories...</option>
+                                        ) : loadErrors.categories ? (
+                                            <option>{loadErrors.categories}</option>
                                         ) : (
                                             sortedCategories.map(c => (
                                                 <option key={c.categoryid} value={c.categoryid}>

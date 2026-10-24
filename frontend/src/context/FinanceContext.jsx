@@ -19,8 +19,22 @@ export const FinanceProvider = ({ children }) => {
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [budgetsLoading, setBudgetsLoading] = useState(true);
     const [scenariosLoading, setScenariosLoading] = useState(true);
+    const [loadErrors, setLoadErrors] = useState({});
 
     useEffect(() => {
+        if (!token) {
+            setTransactions([]);
+            setcategories([]);
+            setBudgets([]);
+            setScenarios([]);
+            setTransactionsLoading(false);
+            setCategoriesLoading(false);
+            setBudgetsLoading(false);
+            setScenariosLoading(false);
+            setLoadErrors({});
+            return;
+        }
+
         refreshTransactions();
         refreshCategories();
         refreshBudgets();
@@ -28,52 +42,76 @@ export const FinanceProvider = ({ children }) => {
     }, [token]);
 
     function refreshTransactions() {
-        if (!token) return;
-
-        getTransactions()
-            .then(data => {
+        if (!token) return Promise.resolve(null);
+        setTransactionsLoading(true);
+        setLoadErrors((previous) => ({ ...previous, transactions: null }));
+        return getTransactions()
+            .then((data) => {
                 setTransactions(data);
-                setTransactionsLoading(false);
+                return data;
             })
-            .catch(err => console.error(err));
+            .catch((err) => {
+                console.error(err);
+                setLoadErrors((previous) => ({ ...previous, transactions: "Unable to load transactions." }));
+                return null;
+            })
+            .finally(() => setTransactionsLoading(false));
     }
 
     function refreshCategories() {
-        if (!token) return;
+        if (!token) return Promise.resolve(null);
 
         setCategoriesLoading(true);
+        setLoadErrors((previous) => ({ ...previous, categories: null }));
 
-        getCategories()
-            .then(data => {
+        return getCategories()
+            .then((data) => {
                 setcategories(data);
+                return data;
             })
-            .catch(err => console.error(err))
+            .catch((err) => {
+                console.error(err);
+                setLoadErrors((previous) => ({ ...previous, categories: "Unable to load categories." }));
+                return null;
+            })
             .finally(() => setCategoriesLoading(false));
     }
 
     function refreshBudgets() {
-        if (!token) return;
+        if (!token) return Promise.resolve(null);
 
         setBudgetsLoading(true);
+        setLoadErrors((previous) => ({ ...previous, budgets: null }));
 
-        getAllBudgets()
-            .then(data => {
+        return getAllBudgets()
+            .then((data) => {
                 setBudgets(data);
+                return data;
             })
-            .catch(err => console.error(err))
+            .catch((err) => {
+                console.error(err);
+                setLoadErrors((previous) => ({ ...previous, budgets: "Unable to load budgets." }));
+                return null;
+            })
             .finally(() => setBudgetsLoading(false));
     }
 
     function refreshScenarios() {
-        if (!token) return;
+        if (!token) return Promise.resolve(null);
 
         setScenariosLoading(true);
+        setLoadErrors((previous) => ({ ...previous, scenarios: null }));
 
-        getAllScenarios()
-            .then(data => {
+        return getAllScenarios()
+            .then((data) => {
                 setScenarios(data);
+                return data;
             })
-            .catch(err => console.error(err))
+            .catch((err) => {
+                console.error(err);
+                setLoadErrors((previous) => ({ ...previous, scenarios: "Unable to load scenarios." }));
+                return null;
+            })
             .finally(() => setScenariosLoading(false));
     }
 
@@ -104,6 +142,7 @@ export const FinanceProvider = ({ children }) => {
                 categoriesLoading,
                 budgetsLoading,
                 scenariosLoading,
+                loadErrors,
 
                 transactions,
                 categories,

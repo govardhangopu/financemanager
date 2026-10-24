@@ -8,7 +8,7 @@ import './NetFlowCard.css';
 
 export default function NetFlowCard()  {
     const [range, setRange] = useState("all");
-    let { netWorth, transactions, transactionsLoading } = useFinance();
+    let { netWorth, transactions, transactionsLoading, loadErrors } = useFinance();
 
     let { dateMap, labels, granularity } = prepareTransactionsForRange(range, transactions);
 
@@ -31,7 +31,7 @@ export default function NetFlowCard()  {
     return (
         <div>
             <p className="heading">Net Flow</p>
-            { transactionsLoading ? <Loader text="Loading..." /> : <>
+            { transactionsLoading ? <Loader text="Loading..." /> : loadErrors.transactions ? <p role="alert">{loadErrors.transactions}</p> : <>
             <p className="netflow">₹ {netWorth} {netWorth >= 0 ? `↗`: '↘'}</p>
             <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>

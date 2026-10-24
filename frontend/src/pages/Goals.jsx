@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { createGoal, deleteGoal, getGoalProjection, getGoals, reorderGoals, updateGoal } from "../api/goalApi";
 import { GoalsOverviewChart } from "../components/GoalsOverviewChart";
 import { GenericChart } from "../components/GenericChart";
+import Loader from "../components/Loader";
 import { AnimatePresence, motion } from "motion/react";
 import { prepareGoalProjectionChartData } from "../utils/goalProjectionChartData";
 import "../styles/Goals.css";
@@ -594,7 +595,9 @@ const Goals = () => {
             <div className="goals-page">
                 <GoalsPageHeader showAction={false} />
                 <div className="goals-card">
-                    <p className="goals-message">Loading goals...</p>
+                    <div className="goals-loading-shell">
+                        <Loader text="Loading goals..." />
+                    </div>
                 </div>
             </div>
         );

@@ -11,7 +11,7 @@ export default function TransactionHistoryCard() {
     const [range, setRange] = useState("all");
     const [sortOrder, setSortOrder] = useState("desc");
     const [sortBy, setSortBy] = useState("date");
-    const { transactions, refreshTransactions, transactionsLoading } = useFinance();
+    const { transactions, refreshTransactions, transactionsLoading, loadErrors } = useFinance();
 
     const selectedTransactions = filterTransactionsForRange(range, transactions);
     //console.log(selectedTransactions);
@@ -53,7 +53,7 @@ export default function TransactionHistoryCard() {
     return (
         <div id="transactionHistoryCard">
             Transaction History
-            { transactionsLoading ? <Loader text="Loading transactions..." /> : <>
+            { transactionsLoading ? <Loader text="Loading transactions..." /> : loadErrors.transactions ? <p role="alert">{loadErrors.transactions}</p> : <>
             <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>
