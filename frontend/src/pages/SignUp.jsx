@@ -4,6 +4,8 @@ import { signUp } from "../api/authApi.js";
 import "../styles/Auth.css";
 import googleLogo from "../assets/google.svg";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const SignUp = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -22,7 +24,7 @@ const SignUp = () => {
     };
 
     return (
-        <main className="auth-page">
+        <main className="auth-page auth-signup-page">
             <section className="auth-card auth-signup-card">
                 <article className="auth-visual">
                     <div>
@@ -82,6 +84,10 @@ const SignUp = () => {
                         <div className="auth-divider">
                             <span>OR</span>
                         </div>
+
+                        <Link to="/demo" className="auth-demo-link">
+                            Explore the demo with sample data
+                        </Link>
 
                         <button
                             type="button"

@@ -30,7 +30,7 @@ export default function ExpenseCard() {
         <div>
             <p className="heading">Expenses</p>
             { transactionsLoading ? <Loader text="Loading..." /> : loadErrors.transactions ? <p role="alert">{loadErrors.transactions}</p> : <>
-            <p className="totalExpense">₹ {totalExpense}</p>
+            <p className="totalExpense">₹ {totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</p>
             <select name="time-range-select" className="time-range-select" 
                 value={range} onChange={(e) => setRange(e.target.value)}>
                     <option value="today">Today</option>

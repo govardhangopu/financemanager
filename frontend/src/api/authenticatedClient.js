@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios, { getAdapter } from "axios";
+import { createDemoAdapter, DEMO_TOKEN, isDemoSession } from "../demo/demoStore.js";
 
 export const SESSION_EXPIRY_EVENT = "auth:session-expired";
 
@@ -11,10 +12,14 @@ export const resetSessionExpiry = () => {
 export const isSessionExpiryPending = () => sessionExpiryPending;
 
 export const createAuthenticatedApi = (baseURL) => {
-    const api = axios.create({ baseURL });
+    const fallbackAdapter = getAdapter(axios.defaults.adapter);
+    const api = axios.create({
+        baseURL,
+        adapter: createDemoAdapter(baseURL, fallbackAdapter),
+    });
 
     api.interceptors.request.use((config) => {
-        const token = localStorage.getItem("token");
+        const token = isDemoSession() ? DEMO_TOKEN : localStorage.getItem("token");
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -34,7 +39,7 @@ export const createAuthenticatedApi = (baseURL) => {
                 authorization.startsWith("Bearer ")
                     ? authorization.slice(7)
                     : null;
-            const currentToken = localStorage.getItem("token");
+            const currentToken = isDemoSession() ? DEMO_TOKEN : localStorage.getItem("token");
 
             if (
                 error.response?.status === 401 &&

@@ -15,7 +15,7 @@ export default function Navbar() {
     const accountMenuRef = useRef(null);
     const accountToggleRef = useRef(null);
 
-    const { token, logout } = useAuth();
+    const { token, logout, isDemo } = useAuth();
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
@@ -119,6 +119,9 @@ export default function Navbar() {
                                 <li>
                                     <NavLink to="/signup">Sign Up</NavLink>
                                 </li>
+                                <li>
+                                    <NavLink to="/demo">Explore demo</NavLink>
+                                </li>
                             </>
                         )}
                     </ul>
@@ -138,7 +141,7 @@ export default function Navbar() {
                     </button>
                 )}
 
-                {token && (
+                {token && !isDemo && (
                     <div className="account-menu" ref={accountMenuRef}>
                         <button
                             type="button"
@@ -197,6 +200,23 @@ export default function Navbar() {
                                 </button>
                             </li>
                         </ul>
+                    </div>
+                )}
+
+                {token && isDemo && (
+                    <div className="demo-mode-control">
+                        <span className="demo-mode-label" title="Sample data and edits stay in this tab and are discarded when you exit the demo.">Demo mode</span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const hasSavedAccount = Boolean(localStorage.getItem("token"));
+                                closeMenus();
+                                logout();
+                                navigate(hasSavedAccount ? "/dashboard" : "/");
+                            }}
+                        >
+                            Exit demo
+                        </button>
                     </div>
                 )}
 

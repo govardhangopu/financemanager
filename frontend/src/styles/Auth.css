@@ -16,6 +16,52 @@
     );
 }
 
+/* Keep both auth cards centered in the same space below the app header. */
+.auth-login-page,
+.auth-signup-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-block: 12px;
+}
+
+.auth-login-card {
+  max-height: 100%;
+  min-height: 0;
+}
+
+.auth-login-card .auth-form {
+  gap: clamp(10px, 1.2vh, 12px);
+}
+
+.auth-login-card .auth-field input {
+  padding-block: 8px;
+}
+
+.auth-login-card .auth-demo-link {
+  padding-block: 9px;
+}
+
+.auth-login-card .auth-google-button {
+  height: 42px;
+}
+
+.auth-signup-card .auth-form {
+  gap: clamp(8px, 1.2vh, 12px);
+}
+
+.auth-signup-card .auth-field input,
+.auth-signup-card .auth-demo-link {
+  padding-block: 8px;
+}
+
+.auth-signup-card .auth-google-button {
+  height: 42px;
+}
+
+.auth-signup-card .auth-panel {
+  padding-bottom: 38px;
+}
+
 .auth-card {
   width: min(1120px, 100%);
   display: grid;
@@ -156,7 +202,7 @@
 
 @media (min-width: 981px) and (max-height: 800px) {
   .auth-signup-card .auth-panel {
-    padding-block: 20px;
+    padding: 20px 30px 28px;
   }
 
   .auth-signup-card .auth-panel-header {
@@ -164,7 +210,7 @@
   }
 
   .auth-signup-card .auth-form {
-    gap: 10px;
+    gap: 8px;
   }
 }
 
@@ -319,6 +365,25 @@
   letter-spacing: 0.06em;
 }
 
+.auth-demo-link {
+  display: block;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--auth-link-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.auth-demo-link:hover {
+  border-color: var(--auth-link-color);
+  background: color-mix(in srgb, var(--auth-link-color) 6%, transparent);
+  text-decoration: none;
+}
+
 .auth-switch {
   margin: 0;
   color: var(--text-muted);
@@ -372,6 +437,10 @@
 
   .auth-visual {
     min-height: 280px;
+  }
+
+  .auth-signup-card .auth-panel {
+    padding-bottom: 22px;
   }
 }
 

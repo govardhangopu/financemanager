@@ -57,6 +57,9 @@ export default function Index() {
                         <Link to="/login" className="hero-secondary">
                             I already have an account
                         </Link>
+                        <Link to="/demo" className="hero-demo-link">
+                            Explore with sample data <span aria-hidden="true">→</span>
+                        </Link>
                     </div>
 
                     <div className="hero-note">

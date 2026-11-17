@@ -1,3 +1,51 @@
 .netflow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 30px;
+}
+
+.netflow-direction {
+    display: inline-grid;
+    place-items: center;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    font-size: 0.76em;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.netflow-direction svg {
+    width: 0.8em;
+    height: 0.8em;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.netflow-direction.is-positive {
+    color: #80ddb0;
+    background: #193c2b;
+}
+
+.netflow-direction.is-negative {
+    color: #ff9e95;
+    background: #482421;
+}
+
+.netflow-direction.is-neutral {
+    color: var(--text-muted);
+    background: var(--button-hover-bg);
+}
+
+:root[data-theme='light'] .netflow-direction.is-positive {
+    color: #137a4b;
+    background: #e0f4e9;
+}
+
+:root[data-theme='light'] .netflow-direction.is-negative {
+    color: #b42318;
+    background: #fee9e7;
 }

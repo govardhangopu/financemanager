@@ -127,6 +127,23 @@
     color: var(--text-color) !important;
 }
 
+.hero-demo-link {
+    color: var(--link-color) !important;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.hero-demo-link span {
+    margin-left: 4px;
+    transition: transform 160ms ease;
+    display: inline-block;
+}
+
+.hero-demo-link:hover span {
+    transform: translateX(3px);
+}
+
 .hero-note {
     display: flex;
     align-items: center;

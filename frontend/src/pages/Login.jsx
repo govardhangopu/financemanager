@@ -76,8 +76,8 @@ const Login = () => {
     }, [searchParams, setSearchParams]);
 
     return (
-        <main className="auth-page">
-            <section className={`auth-card${sessionExpired ? " session-expired" : ""}`}>
+        <main className="auth-page auth-login-page">
+            <section className={`auth-card auth-login-card${sessionExpired ? " session-expired" : ""}`}>
                 <article className="auth-visual">
                     <div>
                         <span className="auth-badge">Finance Manager</span>
@@ -153,6 +153,10 @@ const Login = () => {
                         <div className="auth-divider">
                             <span>OR</span>
                         </div>
+
+                        <Link to="/demo" className="auth-demo-link">
+                            Explore the demo with sample data
+                        </Link>
 
                         <button
                             type="button"

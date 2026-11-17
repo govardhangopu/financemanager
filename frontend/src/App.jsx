@@ -24,6 +24,8 @@ import ResetPassword from "./pages/ResetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ProtectedRoute from "./routes/ProtectedRoute"
+import PublicOnlyRoute from "./routes/PublicOnlyRoute"
+import DemoEntry from "./pages/DemoEntry"
 import './App.css'
 
 function ScrollToTop({ scrollContainerRef }) {
@@ -73,11 +75,12 @@ function App() {
         <main ref={mainScrollRef}>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/oauth/callback" element={<OAuthCallback />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/demo" element={<DemoEntry />} />
+            <Route path="/signup" element={<PublicOnlyRoute><SignUp /></PublicOnlyRoute>} />
+            <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+            <Route path="/oauth/callback" element={<PublicOnlyRoute><OAuthCallback /></PublicOnlyRoute>} />
+            <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
+            <Route path="/reset-password" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
 
@@ -92,7 +95,7 @@ function App() {
             <Route path='/scenarios/:id' element={<ProtectedRoute><ScenarioDetail /></ProtectedRoute>} />
             <Route path='/forecast' element={<ProtectedRoute><Forecast /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute allowDemo={false}><Settings /></ProtectedRoute>} />
           </Routes>
         </main>
 

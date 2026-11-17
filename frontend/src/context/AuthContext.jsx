@@ -1,14 +1,18 @@
 import { createContext, useState, useContext, useCallback } from "react";
 import { resetSessionExpiry } from "../api/authenticatedClient";
+import { clearDemoSession, DEMO_TOKEN, getDemoUser, isDemoSession, startDemoSession } from "../demo/demoStore.js";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+    const [isDemo, setIsDemo] = useState(() => isDemoSession());
     const [token, setTokenState] = useState(() =>
-        localStorage.getItem("token")
+        isDemoSession() ? DEMO_TOKEN : localStorage.getItem("token")
     );
 
     const [user, setUser] = useState(() => {
+        if (isDemoSession()) return getDemoUser();
+
         const storedUser = localStorage.getItem("user");
 
         if (!storedUser) return null;
@@ -22,11 +26,37 @@ export const AuthProvider = ({ children }) => {
     });
 
     const setToken = useCallback((nextToken) => {
-        if (nextToken) resetSessionExpiry();
+        if (nextToken) {
+            clearDemoSession();
+            setIsDemo(false);
+            resetSessionExpiry();
+        }
         setTokenState(nextToken);
     }, []);
 
+    const startDemo = useCallback(() => {
+        startDemoSession();
+        setIsDemo(true);
+        setUser(getDemoUser());
+        setTokenState(DEMO_TOKEN);
+    }, []);
+
     const logout = useCallback(() => {
+        if (isDemoSession()) {
+            clearDemoSession();
+            setIsDemo(false);
+            const storedToken = localStorage.getItem("token");
+            let storedUser = null;
+            try {
+                storedUser = JSON.parse(localStorage.getItem("user") || "null");
+            } catch {
+                localStorage.removeItem("user");
+            }
+            setUser(storedUser);
+            setTokenState(storedToken);
+            return;
+        }
+
         setUser(null);
         setToken(null);
         localStorage.removeItem("user");
@@ -34,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     }, [setToken]);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, token, setToken, logout }}>
+        <AuthContext.Provider value={{ user, setUser, token, setToken, logout, isDemo, startDemo }}>
             {children}
         </AuthContext.Provider>
     );
