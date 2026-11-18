@@ -1,12 +1,22 @@
-# React + Vite
+# Finance Manager frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend is a React application built with Vite. Project-wide setup and the MySQL/API requirements are in the [root README](../README.md); feature behavior is documented in [`docs/`](../docs/README.md).
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+From the repository root:
 
-## Expanding the ESLint configuration
+```bash
+npm ci --prefix frontend
+npm run dev --prefix frontend
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The default local API origin is `http://localhost:4000`. Set `VITE_API_URL` in `frontend/.env` when the API runs elsewhere. Vite-exposed environment variables are included in browser code, so do not put credentials or private keys in them.
+
+Other available scripts are `npm run build --prefix frontend`, `npm run lint --prefix frontend`, and `npm run preview --prefix frontend`.
+
+## App behavior
+
+The frontend contains the signed-in finance screens and a browser-local demo experience. Demo mode uses synthetic records and a local adapter; edits stay within the demo browser state and must not be treated as account data. The demo does not provide account identity/settings operations.
+
+Keep route-level loading states and responsive chart interactions in mind when changing shared components. For backend request paths and payloads, see [API reference](../docs/APIReference.md).

@@ -1,14 +1,108 @@
+---
+title: Current Finance Manager database schema
+---
 erDiagram
-
+    USERS ||--o{ OAUTH_ACCOUNTS : links
+    USERS ||--o{ CATEGORIES : owns
+    CATEGORIES o|--o{ CATEGORIES : parent_of
     USERS ||--o{ TRANSACTIONS : owns
+    CATEGORIES o|--o{ TRANSACTIONS : classifies
     USERS ||--o{ BUDGETS : owns
+    BUDGETS ||--o{ BUDGET_CATEGORIES : selects
+    CATEGORIES ||--o{ BUDGET_CATEGORIES : included_in
+    BUDGETS ||--o{ BUDGET_TRANSACTIONS : links
+    TRANSACTIONS ||--o{ BUDGET_TRANSACTIONS : assigned_to
+    USERS ||--o{ SCENARIOS : owns
+    SCENARIOS ||--o{ SCENARIO_CHANGES : contains
+    CATEGORIES o|--o{ SCENARIO_CHANGES : targets
+    USERS ||--o{ GOALS : owns
+    USERS ||--o{ PASSWORD_RESET_TOKENS : requests
 
-    CATEGORIES ||--o{ TRANSACTIONS : classifies
-
-    CATEGORIES ||--o{ CATEGORIES : parent_of
-
-    BUDGETS ||--o{ BUDGET_TRANSACTIONS : contains
-    TRANSACTIONS ||--o{ BUDGET_TRANSACTIONS : linked
-
-    BUDGETS ||--o{ BUDGET_CATEGORIES : contains
-    CATEGORIES ||--o{ BUDGET_CATEGORIES : linked
+    USERS {
+        int userid PK
+        varchar email UK
+        varchar username UK
+        varchar name
+        varchar password
+    }
+    OAUTH_ACCOUNTS {
+        int id PK
+        int userid FK
+        varchar provider_user_id
+        varchar provider_email
+    }
+    CATEGORIES {
+        int categoryid PK
+        int userid FK "nullable for shared categories"
+        int parentid FK "nullable"
+        varchar name
+        enum type
+        boolean is_partial "legacy field"
+    }
+    TRANSACTIONS {
+        int transactionid PK
+        int userid FK
+        int categoryid FK "nullable"
+        decimal amount
+        datetime date
+        boolean is_partial "legacy field"
+    }
+    BUDGETS {
+        int budgetid PK
+        int userid FK
+        varchar status
+        decimal target_amount
+        varchar name
+        varchar description
+        varchar budget_type
+        date start_date
+        date end_date
+    }
+    BUDGET_CATEGORIES {
+        int budgetid PK, FK
+        int categoryid PK, FK
+    }
+    BUDGET_TRANSACTIONS {
+        int budgetid PK, FK
+        int transactionid PK, FK
+    }
+    SCENARIOS {
+        int scenarioid PK
+        int userid FK
+        varchar name
+        varchar description
+        timestamp created_at
+        timestamp updated_at
+    }
+    SCENARIO_CHANGES {
+        int scenario_changeid PK
+        int scenarioid FK
+        int categoryid FK "nullable"
+        enum change_type
+        enum target_type
+        enum type
+        enum direction
+        enum frequency
+        decimal amount
+        date start_date
+        date end_date
+        varchar description
+    }
+    GOALS {
+        int goalid PK
+        int userid FK
+        varchar name
+        decimal target_amount
+        date target_date
+        varchar description
+        int priority_order
+        timestamp created_at
+        timestamp updated_at
+    }
+    PASSWORD_RESET_TOKENS {
+        int id PK
+        int userid FK
+        varchar token_hash
+        datetime expires_at
+        datetime used_at
+    }

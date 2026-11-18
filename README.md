@@ -5,6 +5,7 @@ A personal finance web application for tracking transactions, organizing categor
 ## Features
 
 - Create, update, and delete transactions and categories
+- Explore the app with an isolated browser-local demo and synthetic data
 - Organize budgets and review spending progress
 - Set financial goals and view projections
 - Explore forecasts and what-if scenarios
@@ -75,4 +76,8 @@ The backend verifies its database connection before accepting requests. Open the
 
 - `backend/` — Express API, SQL schema, and MySQL repositories
 - `frontend/` — React application
-- `docs/` — project design notes and diagrams
+- `docs/` — current architecture, API, data model, feature behavior, operations, and diagrams
+
+## Documentation
+
+Start at the [documentation index](docs/README.md). The backend and frontend READMEs provide service-specific setup; feature and architecture details are centralized under `docs/`.

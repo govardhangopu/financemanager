@@ -1,145 +1,36 @@
-# Architecture Decision Log
+# Decision log
 
-This document records significant architectural decisions made during the development of Finance Manager.
+This log captures current product/architecture decisions and makes clear where code has not yet converged on the intended model. It is a concise project record, not a substitute for feature documentation.
 
----
+## Current decisions
 
-## ADR-001
+### Forecast and goals share one starting baseline
 
-### Title
+Both features use C₀: signed net flow from transactions dated before today. Transactions dated today and later are excluded from that baseline and treated as scheduled forecast flows. Historical trend uses the six completed months before the current month.
 
-Budgets represent real-world financial plans.
+### Goals use sequential allocation
 
-### Status
+Goal progress is allocated from the shared positive cash pool in priority order. Each goal is capped at its target, preventing the same amount from being shown as fully accumulated for every goal. Goal order is user-adjustable and drives the waterfall.
 
-Accepted
+### Scenarios store changes, not transaction copies
 
-### Context
+Scenarios and `scenario_changes` store hypothetical adjustments. The current service computes monthly effects directly; it does not construct a temporary transaction ledger. Scenario projections remain separate from forecast/goal C₀ and scheduled-date calculations.
 
-Initially, budgets were considered for both real financial planning and hypothetical planning.
+### Demo is browser-local
 
-### Decision
+The demo uses synthetic records and a local adapter, so users can explore data-backed screens without creating or mutating server-side user data. Identity/settings operations remain account-only.
 
-Budgets represent only real-world financial plans.
+### Date-only API values are preserved
 
-Financial simulations are performed using Scenarios rather than creating duplicate or "partial" budgets.
+Database dates are formatted as `YYYY-MM-DD` at the SQL boundary where calendar dates are returned. This avoids JavaScript timezone conversion moving a date to the previous or next day.
 
-### Consequences
+## Known implementation differences and follow-up
 
-- Budgets remain simple.
-- Budget analytics remain reusable.
-- Financial modeling becomes an independent subsystem.
+- **`is_partial`:** It was an early feature and is no longer intended as product behavior. References remain in the current schema/API/frontend; removing them needs a coordinated migration. It should not be reintroduced into product copy.
+- **Budget transaction links:** `budget_transactions` is supported by schema/routes, but the current progress aggregation uses date and selected-category scope rather than requiring those explicit links. Clarify desired semantics before changing it.
+- **Scenario starting point:** Scenario cumulative projections currently start from zero and do not incorporate scheduled future transactions, unlike forecast/goals.
+- **Historical average:** Months with no transactions do not count as zero-valued months; the mean uses months that returned transaction rows.
 
----
+## Historical design
 
-## ADR-002
-
-### Title
-
-Reality is immutable.
-
-### Status
-
-Accepted
-
-### Context
-
-Financial simulations should never modify real financial records.
-
-### Decision
-
-All simulations are performed on temporary datasets generated at runtime.
-
-Real transactions remain the single source of truth.
-
-### Consequences
-
-- No accidental corruption of financial history.
-- Unlimited scenario experimentation.
-- Simulations remain reversible.
-
----
-
-## ADR-003
-
-### Title
-
-Scenarios store changes rather than copies.
-
-### Status
-
-Accepted
-
-### Context
-
-Two possible implementations were considered:
-
-1. Copy all real transactions into every scenario.
-2. Store only hypothetical changes.
-
-### Decision
-
-Scenarios store only hypothetical changes.
-
-The Simulation Engine combines Reality with those changes at runtime.
-
-### Consequences
-
-- Minimal storage requirements.
-- Easier maintenance.
-- Real transaction corrections automatically propagate into simulations.
-
----
-
-## ADR-004
-
-### Title
-
-Categories are universal.
-
-### Status
-
-Accepted
-
-### Context
-
-Originally categories contained an `is_partial` attribute.
-
-### Decision
-
-Categories represent financial classifications only.
-
-Whether a transaction is hypothetical is determined by the Scenario rather than the Category.
-
-### Consequences
-
-- Simpler database.
-- Less duplicated data.
-- Categories reusable across Reality and Scenarios.
-
----
-
-## ADR-005
-
-### Title
-
-Simulation precedes analytics.
-
-### Status
-
-Accepted
-
-### Context
-
-Analytics should not require separate implementations for Reality and Scenarios.
-
-### Decision
-
-The Simulation Engine generates a temporary transaction dataset.
-
-The Analytics Engine operates on that dataset exactly as it does on Reality.
-
-### Consequences
-
-- Analytics remain reusable.
-- Future simulations require no analytics changes.
+The previous docs described immutable “Reality,” scenario operations (`ADD`/`MODIFY`/`REMOVE`), temporary transaction datasets, and a shared analytics engine. That proposal was not the implemented architecture and has been superseded by the direct monthly scenario-change model. See the historical diagram only for archival context.

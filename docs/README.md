@@ -1,141 +1,46 @@
-# 📚 Finance Manager Documentation
+# Finance Manager documentation
 
-Welcome to the technical documentation for **Finance Manager**.
+This directory documents the application as implemented in the repository. Design history and planned work are labeled separately so they are not mistaken for current behavior. For where to place README files, use the repository guide only at the root and in independently configured services; ordinary feature folders do not need their own README.
 
-This documentation captures the architectural decisions, design specifications, and technical evolution of the project. It serves as a living knowledge base that evolves alongside the application.
+## Start here
 
-Rather than documenting only the final implementation, these documents explain **why the system was designed the way it is**, making future development, maintenance, and collaboration significantly easier.
+| Document | What it covers |
+|---|---|
+| [Architecture](Architecture.md) | Runtime components, request flow, authentication, demo mode, and current deployment topology |
+| [Database design](DatabaseDesign.md) | Tables, relationships, constraints, date handling, and known persistence details |
+| [API reference](APIReference.md) | HTTP routes, authentication requirements, request fields, and response shapes |
+| [Forecast and goals](ForecastAndGoals.md) | Historical baseline, scheduled transactions, projections, goal allocation, and chart behavior |
+| [Scenarios](FinancialScenarioEngine.md) | Implemented scenario changes and monthly projection calculations |
+| [Transactions, categories, and budgets](TransactionsCategoriesBudgets.md) | CRUD behavior, category hierarchy, budget status, and spending calculations |
+| [Authentication and demo](AuthenticationAndDemo.md) | Password and Google sign-in, password resets, and the isolated browser demo |
+| [Deployment and operations](Deployment.md) | Local setup and environment variables |
+| [Glossary](Glossary.md) | Terms used by the code and feature documentation |
+| [Decision log](DecisionLog.md) | Important product and implementation decisions, including known differences |
 
----
+## Diagrams
 
-# Documentation Index
+| Diagram | Status | Description |
+|---|---|---|
+| [FinanceManager.mmd](diagrams/FinanceManager.mmd) | Current | Application components and request/data flow |
+| [CurrentERDiagram.mmd](diagrams/CurrentERDiagram.mmd) | Current | Database tables and foreign-key relationships in `backend/config/schema.sql` |
+| [FutureERDiagram.mmd](diagrams/FutureERDiagram.mmd) | Historical proposal | An earlier scenario-owned transaction design; it is not the implemented schema |
 
-| Document | Description | Status |
-|----------|-------------|--------|
-| FinancialScenarioEngine.md | Design specification for the Financial Scenario Engine | ✅ Available |
-| DecisionLog.md | Architecture Decision Records (ADRs) | ✅ Available |
-| Architecture.md | Overall system architecture | ⏳ Planned |
-| DatabaseDesign.md | Database schema and design rationale | ⏳ Planned |
-| APIReference.md | Backend API documentation | ⏳ Planned |
-| SRS.md | Software Requirements Specification | ⏳ Planned |
-| Glossary.md | Project terminology and definitions | ⏳ Planned |
+## Documentation rules
 
----
+- **Implemented** means the behavior is present in the checked-in application code and schema.
+- **Historical proposal** means the document records an earlier design and is not a description of the running feature.
+- **Planned** means work has been discussed but is not deployed or implemented yet.
+- When a feature guide and a design note differ, use the feature guide and current source/schema as the description of implemented behavior.
+- Keep examples free of credentials and real financial data. Use `.env.example` variable names, never live values.
 
-# Diagrams
+## Repository guides
 
-The **diagrams/** directory contains Mermaid diagrams illustrating important parts of the system.
+- [Root README](../README.md): project summary and quick local start.
+- [Backend README](../backend/README.md): API service setup and configuration.
+- [Frontend README](../frontend/README.md): React application setup and demo behavior.
 
-| Diagram | Description | Status |
-|---------|-------------|--------|
-| FinancialScenarioEngine.mmd | Financial Scenario Engine architecture | ✅ Available |
-| CurrentERDiagram.mmd | Current database ER diagram | ✅ Available |
-| FutureERDiagram.mmd | Proposed future database architecture | ✅ Available |
-| OverallArchitecture.mmd | High-level system architecture | ⏳ Planned |
-| RequestFlow.mmd | Frontend → Backend request lifecycle | ⏳ Planned |
-| BudgetWorkflow.mmd | Budget management workflow | ⏳ Planned |
-| SimulationSequence.mmd | Scenario simulation sequence | ⏳ Planned |
+## Maintenance
 
----
+Update the relevant feature/API/schema documentation when behavior changes. Update the diagrams with their source files.
 
-# Documentation Roadmap
-
-The documentation will grow alongside the project.
-
-## Phase 1 — Foundation ✅
-
-- Financial Scenario Engine Specification
-- Current Database ER Diagram
-- Future Database ER Diagram
-- Architecture Decision Log
-
----
-
-## Phase 2 — System Design ⏳
-
-- Overall System Architecture
-- Database Design
-- API Reference
-- Glossary
-
----
-
-## Phase 3 — Feature Documentation ⏳
-
-- Budgeting System
-- Dashboard Analytics
-- Authentication
-- Transactions
-- Categories
-
----
-
-## Phase 4 — Deployment & Maintenance ⏳
-
-- Deployment Guide
-- Development Setup
-- Contribution Guide
-- Testing Strategy
-
----
-
-# Documentation Philosophy
-
-The documentation follows four guiding principles.
-
-## Explain the "Why"
-
-Every important architectural decision should explain the reasoning behind it—not just the implementation.
-
----
-
-## Documentation Evolves with the Code
-
-Documentation is updated whenever significant architectural changes occur, ensuring it remains an accurate representation of the system.
-
----
-
-## Diagrams Complement Specifications
-
-Text explains concepts.
-
-Diagrams explain relationships.
-
-Both are maintained together.
-
----
-
-## Living Documentation
-
-These documents are intended to evolve throughout the lifetime of the project rather than being written only after development is complete.
-
----
-
-# Current Repository Structure
-
-```text
-docs/
-│
-├── README.md
-├── FinancialScenarioEngine.md
-├── DecisionLog.md
-│
-└── diagrams/
-    ├── FinancialScenarioEngine.mmd
-    ├── CurrentERDiagram.mmd
-    └── FutureERDiagram.mmd
-```
-
----
-
-# Revision History
-
-| Version | Date | Summary |
-|---------|------|---------|
-| 1.0 | 2026-08-04 | Initial documentation structure created. Introduced Financial Scenario Engine specification, Architecture Decision Log, and ER diagrams. |
-
----
-
-**Documentation Version:** 1.0
-
-**Status:** Actively Maintained
+**Reviewed:** 2026-11-18

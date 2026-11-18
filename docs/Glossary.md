@@ -1,121 +1,47 @@
 # Glossary
 
-This document defines the terminology used throughout the Finance Manager project.
-
----
-
-## Reality
-
-The user's actual financial data.
-
-Reality represents the single source of truth and consists of real transactions, categories, budgets, and other persisted financial records.
-
-Reality is immutable during financial simulations.
-
----
+Terms below reflect the current product and code. Older design terms are marked historical where needed.
 
 ## Budget
 
-A real-world financial plan used to organize and monitor financial activity toward a defined objective.
+A date-bounded spending plan with selected categories and calculated expense progress.
 
-Budgets represent actual financial intentions and are never hypothetical.
+## C₀ (current cumulative net flow)
 
----
+The signed total of historical income minus expenses through the day before today. Forecast and goal projections use this as their shared starting baseline.
 
 ## Category
 
-A financial classification assigned to transactions.
+A hierarchical classification for transactions, such as income or expense and a specific label such as salary or food.
 
-Examples include:
+## Demo mode
 
-- Food
-- Salary
-- Transportation
-- Utilities
+A browser-local experience using synthetic records and the frontend's local data adapter. Demo edits are not persisted to the production API.
 
-Categories are universal and can be referenced by both real and simulated transactions.
+## Goal waterfall
 
----
+A sequential allocation of available positive C₀ among goals ordered by priority, capped at each goal's target. Remaining cash passes to the next goal.
 
-## Transaction
+## Historical monthly average
 
-A financial event representing income or expenditure.
+The arithmetic average of monthly net flow over the six completed calendar months before the current month, including only months with transaction rows.
 
-Transactions may belong to Reality or to a Scenario.
+## Net flow
 
----
+Income less expenses, with income positive and expenses negative.
+
+## Scheduled transaction
+
+A transaction dated today or later. The forecast treats it as a deterministic future cash flow and applies it on its date.
 
 ## Scenario
 
-An isolated collection of hypothetical financial changes used to evaluate potential future financial outcomes.
+A persisted set of hypothetical recurring or one-time changes used to calculate a separate monthly projection. Scenarios do not copy transaction records and do not modify real financial data.
 
-A Scenario never modifies Reality.
+## `is_partial` (legacy)
 
----
+A field/filter retained from an early implementation. It is not a current product feature. The application still carries compatibility references that require a schema/API/frontend migration to remove safely.
 
-## Scenario Operation
+## Historical design terms
 
-An instruction describing how Reality should be transformed during a simulation.
-
-Current operations include:
-
-- ADD
-- MODIFY
-- REMOVE
-
----
-
-## Simulation
-
-The process of applying Scenario Operations to Reality to generate a temporary financial state.
-
----
-
-## Simulation Engine
-
-The subsystem responsible for applying Scenario Operations to Reality and generating a temporary simulated dataset.
-
----
-
-## Temporary Dataset
-
-An in-memory transaction dataset generated during simulation.
-
-It exists only for analytical purposes and is never permanently stored.
-
----
-
-## Analytics Engine
-
-The subsystem responsible for calculating financial metrics from a transaction dataset.
-
-The Analytics Engine is independent of whether the dataset originates from Reality or a Simulation.
-
----
-
-## Dashboard Analytics
-
-Financial insights presented on the dashboard, including summaries, charts, and key metrics.
-
----
-
-## Budget Analytics
-
-Calculations specific to a budget, such as:
-
-- Total Spent
-- Remaining Balance
-- Progress
-- Status
-
----
-
-## Architecture Decision Record (ADR)
-
-A document that records an important architectural decision, the reasoning behind it, and its consequences.
-
----
-
-## Financial Scenario Engine
-
-The subsystem that enables users to simulate hypothetical financial situations by applying Scenario Operations to Reality before passing the resulting dataset to the Analytics Engine.
+“Reality,” “temporary dataset,” “Scenario Operation” (`ADD`/`MODIFY`/`REMOVE`), and “Analytics Engine” refer to an earlier scenario architecture proposal. They do not describe the implemented scenario projection. See [Scenarios](FinancialScenarioEngine.md) and [Decision log](DecisionLog.md).
